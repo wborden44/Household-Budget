@@ -1,30 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Ninth Inning Kennesaw</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 </head>
+
 
 <body>
 
-  <!-- LOGIN -->
-  <section id="loginScreen" class="login-screen">
+  <!-- =================================================
+       LOGIN
+  ================================================== -->
+
+  <section
+    id="loginScreen"
+    class="login-screen"
+  >
 
     <div class="login-card">
 
-      <div class="brand-mark">NI</div>
+      <div class="brand-mark">
+        NI
+      </div>
 
-      <p class="eyebrow">NINTH INNING</p>
+      <p class="eyebrow">
+        NINTH INNING
+      </p>
 
-      <h1>Kennesaw</h1>
+      <h1>
+        Kennesaw
+      </h1>
 
       <p class="login-subtitle">
         Sign in to access the financial dashboard.
       </p>
+
 
       <form id="loginForm">
 
@@ -74,10 +96,19 @@
   </section>
 
 
-  <!-- APP -->
-  <div id="app" class="app hidden">
+
+  <!-- =================================================
+       APPLICATION
+  ================================================== -->
+
+  <div
+    id="app"
+    class="app hidden"
+  >
+
 
     <!-- TOP BAR -->
+
     <header class="topbar">
 
       <div class="topbar-brand">
@@ -85,6 +116,7 @@
         <div class="mini-logo">
           NI
         </div>
+
 
         <div>
 
@@ -121,9 +153,14 @@
     </header>
 
 
+
     <main class="app-shell">
 
-      <!-- NAVIGATION -->
+
+      <!-- =============================================
+           NAVIGATION
+      ============================================== -->
+
       <nav class="main-nav">
 
         <button
@@ -152,7 +189,11 @@
       </nav>
 
 
-      <!-- DASHBOARD -->
+
+      <!-- =============================================
+           DASHBOARD
+      ============================================== -->
+
       <section
         id="dashboardPage"
         class="page active-page"
@@ -195,8 +236,11 @@
         </div>
 
 
-        <!-- MONTH SUMMARY -->
+
+        <!-- SUMMARY CARDS -->
+
         <div class="summary-grid">
+
 
           <div class="summary-card">
 
@@ -218,6 +262,7 @@
           </div>
 
 
+
           <div class="summary-card">
 
             <p>
@@ -228,14 +273,18 @@
               id="monthlyExpenses"
               class="negative-text"
             >
-              $20,321.90
+              $0.00
             </h3>
 
-            <span id="monthlyExpenseDetail" class="summary-detail">
-              Includes fixed operating costs
+            <span
+              id="monthlyExpenseDetail"
+              class="summary-detail"
+            >
+              Includes automatic monthly expenses
             </span>
 
           </div>
+
 
 
           <div class="summary-card">
@@ -253,6 +302,7 @@
             </span>
 
           </div>
+
 
 
           <div
@@ -277,78 +327,100 @@
         </div>
 
 
-        <!-- FIXED COST STRIP -->
-        <section class="fixed-cost-panel">
 
-          <div class="fixed-cost-heading">
+        <!-- =========================================
+             CHARTS
+        ========================================== -->
 
-            <div>
-
-              <p class="eyebrow">
-                AUTOMATIC MONTHLY EXPENSES
-              </p>
-
-              <h3>
-                Fixed Operating Costs
-              </h3>
-
-            </div>
+        <div class="chart-grid">
 
 
-            <strong class="fixed-cost-total">
-              $20,321.90
-            </strong>
+          <!-- FISCAL PERFORMANCE -->
 
-          </div>
+          <section class="panel chart-panel large-chart-panel">
+
+            <div class="panel-header">
+
+              <div>
+
+                <p class="eyebrow">
+                  FISCAL YEAR
+                </p>
+
+                <h3>
+                  Revenue, Expenses & Profit
+                </h3>
+
+              </div>
 
 
-          <div class="fixed-cost-grid">
-
-            <div class="fixed-cost-item">
-
-              <span>
-                W2 Staff
+              <span
+                id="chartFiscalLabel"
+                class="panel-badge"
+              >
+                FY2027
               </span>
 
-              <strong>
-                $9,583.00
-              </strong>
+            </div>
+
+
+            <div class="chart-container performance-chart-container">
+
+              <canvas id="performanceChart"></canvas>
+
+            </div>
+
+          </section>
+
+
+
+          <!-- REVENUE MIX -->
+
+          <section class="panel chart-panel">
+
+            <div class="panel-header">
+
+              <div>
+
+                <p class="eyebrow">
+                  REVENUE MIX
+                </p>
+
+                <h3 id="revenueMixTitle">
+                  August Revenue
+                </h3>
+
+              </div>
 
             </div>
 
 
-            <div class="fixed-cost-item">
+            <div class="chart-container doughnut-chart-container">
 
-              <span>
-                Rent
-              </span>
-
-              <strong>
-                $8,938.90
-              </strong>
+              <canvas id="revenueMixChart"></canvas>
 
             </div>
 
 
-            <div class="fixed-cost-item">
-
-              <span>
-                Utilities
-              </span>
-
-              <strong>
-                $1,800.00
-              </strong>
-
+            <div
+              id="revenueMixEmpty"
+              class="chart-empty hidden"
+            >
+              Add revenue to see the monthly mix.
             </div>
 
-          </div>
+          </section>
 
-        </section>
+        </div>
 
 
-        <!-- BREAKDOWNS -->
+
+        <!-- =========================================
+             CATEGORY BREAKDOWNS
+        ========================================== -->
+
         <div class="dashboard-grid">
+
 
           <section class="panel">
 
@@ -375,6 +447,7 @@
             ></div>
 
           </section>
+
 
 
           <section class="panel">
@@ -406,7 +479,9 @@
         </div>
 
 
-        <!-- RECENT -->
+
+        <!-- RECENT TRANSACTIONS -->
+
         <section class="panel recent-panel">
 
           <div class="panel-header">
@@ -436,7 +511,11 @@
       </section>
 
 
-      <!-- TRANSACTIONS -->
+
+      <!-- =============================================
+           TRANSACTIONS PAGE
+      ============================================== -->
+
       <section
         id="transactionsPage"
         class="page"
@@ -479,6 +558,7 @@
         </div>
 
 
+
         <section class="panel">
 
           <div class="filters">
@@ -509,6 +589,7 @@
             </select>
 
           </div>
+
 
 
           <div class="transaction-table-wrapper">
@@ -566,7 +647,11 @@
       </section>
 
 
-      <!-- FISCAL YEAR -->
+
+      <!-- =============================================
+           FISCAL YEAR PAGE
+      ============================================== -->
+
       <section
         id="reportsPage"
         class="page"
@@ -581,7 +666,7 @@
             </p>
 
             <h2 id="fiscalYearTitle">
-              FY2027
+              FY2027 Financial Performance
             </h2>
 
           </div>
@@ -589,7 +674,9 @@
         </div>
 
 
+
         <div class="fy-summary-grid">
+
 
           <div class="summary-card">
 
@@ -605,6 +692,7 @@
             </h3>
 
           </div>
+
 
 
           <div class="summary-card">
@@ -623,6 +711,7 @@
           </div>
 
 
+
           <div class="summary-card">
 
             <p>
@@ -636,7 +725,11 @@
           </div>
 
 
-          <div class="summary-card dark-card">
+
+          <div
+            id="fyMarginCard"
+            class="summary-card dark-card"
+          >
 
             <p>
               Fiscal YTD Margin
@@ -650,6 +743,9 @@
 
         </div>
 
+
+
+        <!-- FISCAL TABLE -->
 
         <section class="panel">
 
@@ -713,7 +809,11 @@
         </section>
 
 
+
+        <!-- FISCAL BREAKDOWNS -->
+
         <div class="dashboard-grid reports-breakdown">
+
 
           <section class="panel">
 
@@ -740,6 +840,7 @@
             ></div>
 
           </section>
+
 
 
           <section class="panel">
@@ -777,7 +878,11 @@
   </div>
 
 
-  <!-- TRANSACTION MODAL -->
+
+  <!-- =================================================
+       TRANSACTION MODAL
+  ================================================== -->
+
   <div
     id="transactionModal"
     class="modal hidden"
@@ -817,6 +922,7 @@
       </div>
 
 
+
       <form id="transactionForm">
 
         <input
@@ -830,6 +936,7 @@
           type="hidden"
           value="revenue"
         >
+
 
 
         <div class="type-display">
@@ -854,6 +961,7 @@
           </button>
 
         </div>
+
 
 
         <div class="form-grid">
@@ -893,6 +1001,7 @@
         </div>
 
 
+
         <label for="transactionDescription">
           Description
         </label>
@@ -900,9 +1009,10 @@
         <input
           id="transactionDescription"
           type="text"
-          placeholder="June lessons, tournament fees..."
+          placeholder="Private lessons, tournament fees..."
           required
         >
+
 
 
         <label for="transactionCategory">
@@ -915,6 +1025,7 @@
         ></select>
 
 
+
         <label for="transactionNotes">
           Notes
         </label>
@@ -924,6 +1035,7 @@
           rows="3"
           placeholder="Optional"
         ></textarea>
+
 
 
         <div class="modal-actions">
@@ -960,10 +1072,21 @@
   </div>
 
 
+
+  <!-- Chart.js -->
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
+  ></script>
+
+
+  <!-- Application -->
+
   <script
     type="module"
     src="script.js"
   ></script>
 
 </body>
+
 </html>
