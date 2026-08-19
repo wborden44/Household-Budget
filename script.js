@@ -1369,8 +1369,7 @@ function renderDashboard() {
   */
 
   const financiallySafe =
-    safeToSpend >= 0 &&
-    budgetRemaining >= 0;
+  safeToSpend >= 0;
 
 
 
