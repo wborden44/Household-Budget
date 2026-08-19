@@ -2,6 +2,7 @@ import {
   initializeApp
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 
+
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -9,15 +10,14 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
+
 import {
   getFirestore,
   collection,
   doc,
   addDoc,
-  setDoc,
   updateDoc,
   deleteDoc,
-  getDoc,
   onSnapshot,
   query,
   orderBy,
@@ -39,48 +39,100 @@ const firebaseConfig = {
   appId: "1:691191089446:web:03175b656254076da519e7"
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
 
-const auth = getAuth(firebaseApp);
+const firebaseApp =
+  initializeApp(firebaseConfig);
 
-const db = getFirestore(firebaseApp);
+
+const auth =
+  getAuth(firebaseApp);
+
+
+const db =
+  getFirestore(firebaseApp);
 
 
 
 /* ======================================================
-   APP SETTINGS
+   BUSINESS SETTINGS
 ====================================================== */
 
-const HOUSEHOLD_ID = "main";
+const BUSINESS_ID =
+  "ninth-inning-kennesaw";
 
-const BASE_MONTHLY_INCOME = 10800;
 
 /*
-  This is the month the rolling budget begins.
+  Fiscal year begins August 1.
 
-  We DO NOT automatically count January-July 2026
-  because you weren't tracking those expenses here.
+  August 2026 - July 2027 = FY2027
 */
-const TRACKING_START_MONTH = "2026-08";
+
+const FISCAL_START_MONTH =
+  8;
 
 
-const categories = [
-  "Mortgage",
-  "Groceries",
-  "Restaurants",
+const FISCAL_START_DATE =
+  "2026-08-01";
+
+
+
+/* ======================================================
+   AUTOMATIC MONTHLY EXPENSES
+====================================================== */
+
+const FIXED_EXPENSES = {
+
+  "W2 Staff":
+    9583,
+
+  "Rent":
+    8938.90,
+
+  "Utilities":
+    1800
+
+};
+
+
+const FIXED_MONTHLY_TOTAL =
+  Object.values(
+    FIXED_EXPENSES
+  ).reduce(
+    (sum, value) =>
+      sum + value,
+    0
+  );
+
+
+
+/* ======================================================
+   CATEGORIES
+====================================================== */
+
+const EXPENSE_CATEGORIES = [
+  "Rent",
+  "W2 Staff",
+  "1099 Staff",
+  "Tournaments",
+  "Field Rentals",
   "Utilities",
-  "Gas",
-  "Auto",
-  "Kids",
-  "Medical",
-  "Shopping",
-  "Travel",
-  "Entertainment",
-  "Home",
-  "Subscriptions",
-  "Personal",
-  "Gifts",
-  "Other"
+  "Misc."
+];
+
+
+const REVENUE_CATEGORIES = [
+  "Lessons",
+  "Tryouts",
+  "Point of Sale",
+  "Rentals/Memberships",
+  "Camps/Clinics/Programs",
+  "Team Revenue"
+];
+
+
+const ALL_CATEGORIES = [
+  ...REVENUE_CATEGORIES,
+  ...EXPENSE_CATEGORIES
 ];
 
 
@@ -89,17 +141,16 @@ const categories = [
    STATE
 ====================================================== */
 
-let currentMonth = getCurrentMonth();
+let currentMonth =
+  getCurrentMonth();
 
-let transactions = [];
 
-let budgets = {};
+let transactions =
+  [];
 
-let goals = [];
 
-let transactionsUnsubscribe = null;
-
-let goalsUnsubscribe = null;
+let transactionsUnsubscribe =
+  null;
 
 
 
@@ -108,207 +159,284 @@ let goalsUnsubscribe = null;
 ====================================================== */
 
 const loginScreen =
-  document.getElementById("loginScreen");
+  document.getElementById(
+    "loginScreen"
+  );
+
 
 const appElement =
-  document.getElementById("app");
+  document.getElementById(
+    "app"
+  );
+
 
 const loginForm =
-  document.getElementById("loginForm");
+  document.getElementById(
+    "loginForm"
+  );
+
 
 const loginError =
-  document.getElementById("loginError");
+  document.getElementById(
+    "loginError"
+  );
+
 
 const logoutButton =
-  document.getElementById("logoutButton");
+  document.getElementById(
+    "logoutButton"
+  );
+
 
 const monthSelector =
-  document.getElementById("monthSelector");
+  document.getElementById(
+    "monthSelector"
+  );
+
 
 const navButtons =
-  document.querySelectorAll(".nav-button");
+  document.querySelectorAll(
+    ".nav-button"
+  );
+
 
 const pages =
-  document.querySelectorAll(".page");
+  document.querySelectorAll(
+    ".page"
+  );
+
 
 
 /* DASHBOARD */
 
 const dashboardMonthTitle =
-  document.getElementById("dashboardMonthTitle");
-
-const moneyInTotal =
-  document.getElementById("moneyInTotal");
-
-const moneyInDetail =
-  document.getElementById("moneyInDetail");
-
-const spentTotal =
-  document.getElementById("spentTotal");
-
-const budgetRemainingTotal =
-  document.getElementById("budgetRemainingTotal");
-
-const budgetRemainingCard =
-  document.getElementById("budgetRemainingCard");
-
-const safeToSpendTotal =
-  document.getElementById("safeToSpendTotal");
-
-const safeToSpendCard =
-  document.getElementById("safeToSpendCard");
-
-const safeMoneyIn =
-  document.getElementById("safeMoneyIn");
-
-const safeExpenses =
-  document.getElementById("safeExpenses");
-
-const safeReserved =
-  document.getElementById("safeReserved");
-
-const safeResult =
-  document.getElementById("safeResult");
+  document.getElementById(
+    "dashboardMonthTitle"
+  );
 
 
-/* YTD */
-
-const ytdTitle =
-  document.getElementById("ytdTitle");
-
-const ytdBaseIncome =
-  document.getElementById("ytdBaseIncome");
-
-const ytdExtraIncome =
-  document.getElementById("ytdExtraIncome");
-
-const ytdIncome =
-  document.getElementById("ytdIncome");
-
-const ytdSpent =
-  document.getElementById("ytdSpent");
-
-const ytdBalance =
-  document.getElementById("ytdBalance");
-
-const ytdBalanceBadge =
-  document.getElementById("ytdBalanceBadge");
+const monthlyRevenue =
+  document.getElementById(
+    "monthlyRevenue"
+  );
 
 
-/* LOWER DASHBOARD */
+const monthlyExpenses =
+  document.getElementById(
+    "monthlyExpenses"
+  );
 
-const categoryProgressList =
-  document.getElementById("categoryProgressList");
+
+const monthlyExpenseDetail =
+  document.getElementById(
+    "monthlyExpenseDetail"
+  );
+
+
+const monthlyProfit =
+  document.getElementById(
+    "monthlyProfit"
+  );
+
+
+const monthlyMargin =
+  document.getElementById(
+    "monthlyMargin"
+  );
+
+
+const marginCard =
+  document.getElementById(
+    "marginCard"
+  );
+
+
+const revenueBreakdown =
+  document.getElementById(
+    "revenueBreakdown"
+  );
+
+
+const expenseBreakdown =
+  document.getElementById(
+    "expenseBreakdown"
+  );
+
 
 const recentTransactions =
-  document.getElementById("recentTransactions");
+  document.getElementById(
+    "recentTransactions"
+  );
 
 
-/* TRANSACTIONS */
 
-const transactionTableBody =
-  document.getElementById("transactionTableBody");
-
-const transactionEmptyState =
-  document.getElementById("transactionEmptyState");
+/* TRANSACTION PAGE */
 
 const transactionTypeFilter =
-  document.getElementById("transactionTypeFilter");
+  document.getElementById(
+    "transactionTypeFilter"
+  );
+
 
 const transactionCategoryFilter =
-  document.getElementById("transactionCategoryFilter");
+  document.getElementById(
+    "transactionCategoryFilter"
+  );
 
 
-/* BUDGET */
-
-const budgetForm =
-  document.getElementById("budgetForm");
-
-const budgetTotal =
-  document.getElementById("budgetTotal");
-
-const unallocatedTotal =
-  document.getElementById("unallocatedTotal");
-
-const budgetSaveStatus =
-  document.getElementById("budgetSaveStatus");
-
-const saveBudgetButton =
-  document.getElementById("saveBudgetButton");
+const transactionTableBody =
+  document.getElementById(
+    "transactionTableBody"
+  );
 
 
-/* TRANSACTION MODAL */
+const transactionEmptyState =
+  document.getElementById(
+    "transactionEmptyState"
+  );
+
+
+
+/* FISCAL YEAR */
+
+const fiscalYearTitle =
+  document.getElementById(
+    "fiscalYearTitle"
+  );
+
+
+const fyRevenue =
+  document.getElementById(
+    "fyRevenue"
+  );
+
+
+const fyExpenses =
+  document.getElementById(
+    "fyExpenses"
+  );
+
+
+const fyProfit =
+  document.getElementById(
+    "fyProfit"
+  );
+
+
+const fyMargin =
+  document.getElementById(
+    "fyMargin"
+  );
+
+
+const fyTableBody =
+  document.getElementById(
+    "fyTableBody"
+  );
+
+
+const fyRevenueBreakdown =
+  document.getElementById(
+    "fyRevenueBreakdown"
+  );
+
+
+const fyExpenseBreakdown =
+  document.getElementById(
+    "fyExpenseBreakdown"
+  );
+
+
+
+/* MODAL */
 
 const transactionModal =
-  document.getElementById("transactionModal");
+  document.getElementById(
+    "transactionModal"
+  );
+
 
 const transactionForm =
-  document.getElementById("transactionForm");
+  document.getElementById(
+    "transactionForm"
+  );
+
 
 const transactionModalTitle =
-  document.getElementById("transactionModalTitle");
+  document.getElementById(
+    "transactionModalTitle"
+  );
+
 
 const transactionId =
-  document.getElementById("transactionId");
+  document.getElementById(
+    "transactionId"
+  );
+
 
 const transactionType =
-  document.getElementById("transactionType");
+  document.getElementById(
+    "transactionType"
+  );
+
 
 const transactionAmount =
-  document.getElementById("transactionAmount");
+  document.getElementById(
+    "transactionAmount"
+  );
+
 
 const transactionDate =
-  document.getElementById("transactionDate");
+  document.getElementById(
+    "transactionDate"
+  );
+
 
 const transactionDescription =
-  document.getElementById("transactionDescription");
+  document.getElementById(
+    "transactionDescription"
+  );
+
 
 const transactionCategory =
-  document.getElementById("transactionCategory");
+  document.getElementById(
+    "transactionCategory"
+  );
 
-const transactionNeedWant =
-  document.getElementById("transactionNeedWant");
-
-const transactionAccount =
-  document.getElementById("transactionAccount");
 
 const transactionNotes =
-  document.getElementById("transactionNotes");
+  document.getElementById(
+    "transactionNotes"
+  );
+
 
 const transactionFormError =
-  document.getElementById("transactionFormError");
+  document.getElementById(
+    "transactionFormError"
+  );
 
-const expenseFields =
-  document.getElementById("expenseFields");
 
 const saveTransactionButton =
-  document.getElementById("saveTransactionButton");
+  document.getElementById(
+    "saveTransactionButton"
+  );
 
 
-/* GOALS */
+const modalRevenueTypeButton =
+  document.getElementById(
+    "modalRevenueTypeButton"
+  );
 
-const goalModal =
-  document.getElementById("goalModal");
 
-const goalForm =
-  document.getElementById("goalForm");
-
-const goalName =
-  document.getElementById("goalName");
-
-const goalTarget =
-  document.getElementById("goalTarget");
-
-const goalSaved =
-  document.getElementById("goalSaved");
-
-const goalsGrid =
-  document.getElementById("goalsGrid");
+const modalExpenseTypeButton =
+  document.getElementById(
+    "modalExpenseTypeButton"
+  );
 
 
 
 /* ======================================================
-   BASIC HELPERS
+   HELPERS
 ====================================================== */
 
 function currency(value) {
@@ -316,221 +444,449 @@ function currency(value) {
   return new Intl.NumberFormat(
     "en-US",
     {
-      style: "currency",
-      currency: "USD"
+      style:
+        "currency",
+
+      currency:
+        "USD"
     }
-  ).format(Number(value || 0));
+  ).format(
+    Number(value || 0)
+  );
 
 }
 
 
+
+function percent(value) {
+
+  return `${Number(value || 0).toFixed(1)}%`;
+
+}
+
+
+
 function getCurrentMonth() {
 
-  const now = new Date();
+  const now =
+    new Date();
+
 
   const year =
     now.getFullYear();
 
+
   const month =
-    String(now.getMonth() + 1)
-      .padStart(2, "0");
+    String(
+      now.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
+
 
   return `${year}-${month}`;
 
 }
 
 
-function formatMonth(monthKey) {
+
+function todayString() {
+
+  const now =
+    new Date();
+
+
+  return [
+    now.getFullYear(),
+
+    String(
+      now.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    ),
+
+    String(
+      now.getDate()
+    ).padStart(
+      2,
+      "0"
+    )
+
+  ].join("-");
+
+}
+
+
+
+function getMonthFromDate(
+  dateString
+) {
+
+  if (!dateString) {
+
+    return "";
+
+  }
+
+
+  return dateString.slice(
+    0,
+    7
+  );
+
+}
+
+
+
+function formatMonth(
+  monthKey
+) {
 
   const [year, month] =
-    monthKey.split("-");
+    monthKey
+      .split("-")
+      .map(Number);
+
 
   return new Date(
-    Number(year),
-    Number(month) - 1,
+    year,
+    month - 1,
     1
   ).toLocaleDateString(
     "en-US",
     {
-      month: "long",
-      year: "numeric"
+      month:
+        "long",
+
+      year:
+        "numeric"
     }
   );
 
 }
 
 
-function formatDate(dateString) {
 
-  if (!dateString) {
-    return "";
-  }
+function shortMonth(
+  monthKey
+) {
 
-  const [year, month, day] =
-    dateString.split("-");
+  const [year, month] =
+    monthKey
+      .split("-")
+      .map(Number);
+
 
   return new Date(
-    Number(year),
-    Number(month) - 1,
-    Number(day)
+    year,
+    month - 1,
+    1
   ).toLocaleDateString(
     "en-US",
     {
-      month: "short",
-      day: "numeric",
-      year: "numeric"
+      month:
+        "short"
     }
   );
 
 }
 
 
-function getMonthFromDate(dateString) {
+
+function formatDate(
+  dateString
+) {
 
   if (!dateString) {
+
     return "";
+
   }
 
-  return dateString.slice(0, 7);
+
+  const [
+    year,
+    month,
+    day
+  ] =
+    dateString
+      .split("-")
+      .map(Number);
+
+
+  return new Date(
+    year,
+    month - 1,
+    day
+  ).toLocaleDateString(
+    "en-US",
+    {
+      month:
+        "short",
+
+      day:
+        "numeric",
+
+      year:
+        "numeric"
+    }
+  );
 
 }
 
 
-function todayString() {
 
-  const now = new Date();
-
-  const year =
-    now.getFullYear();
-
-  const month =
-    String(now.getMonth() + 1)
-      .padStart(2, "0");
-
-  const day =
-    String(now.getDate())
-      .padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-
-}
-
-
-function escapeHtml(value = "") {
+function escapeHtml(
+  value = ""
+) {
 
   return String(value)
 
-    .replaceAll("&", "&amp;")
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
 
-    .replaceAll("<", "&lt;")
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
 
-    .replaceAll(">", "&gt;")
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
 
-    .replaceAll('"', "&quot;")
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
 
-    .replaceAll("'", "&#039;");
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 
 }
 
 
-function capitalize(value = "") {
 
-  if (!value) {
-    return "";
+function getFiscalYearInfo(
+  monthKey
+) {
+
+  const [
+    year,
+    month
+  ] =
+    monthKey
+      .split("-")
+      .map(Number);
+
+
+  let startYear;
+  let endYear;
+
+
+  if (
+    month >=
+    FISCAL_START_MONTH
+  ) {
+
+    startYear =
+      year;
+
+    endYear =
+      year + 1;
+
+  } else {
+
+    startYear =
+      year - 1;
+
+    endYear =
+      year;
+
   }
 
-  return (
-    value.charAt(0).toUpperCase() +
-    value.slice(1)
-  );
+
+  return {
+
+    startYear,
+
+    endYear,
+
+    label:
+      `FY${endYear}`,
+
+    startMonth:
+      `${startYear}-08`,
+
+    endMonth:
+      `${endYear}-07`
+
+  };
 
 }
 
 
 
-/* ======================================================
-   MONTH HELPERS
-====================================================== */
+function monthToIndex(
+  monthKey
+) {
 
-function monthToIndex(monthKey) {
+  const [
+    year,
+    month
+  ] =
+    monthKey
+      .split("-")
+      .map(Number);
 
-  const [year, month] =
-    monthKey.split("-").map(Number);
 
   return (
     year * 12 +
-    (month - 1)
+    month - 1
   );
 
 }
 
 
-function monthsInclusive(startMonth, endMonth) {
 
-  const start =
-    monthToIndex(startMonth);
+function monthInRange(
+  monthKey,
+  startMonth,
+  endMonth
+) {
 
-  const end =
-    monthToIndex(endMonth);
+  const index =
+    monthToIndex(
+      monthKey
+    );
 
-  if (end < start) {
-    return 0;
-  }
 
   return (
-    end - start + 1
+    index >=
+      monthToIndex(startMonth) &&
+
+    index <=
+      monthToIndex(endMonth)
   );
 
 }
 
 
 
-/* ======================================================
-   BUILD MONTH SELECTOR
-====================================================== */
+function buildFiscalMonths(
+  startYear
+) {
 
-function buildMonthSelector() {
-
-  monthSelector.innerHTML = "";
-
-  const now = new Date();
+  const result =
+    [];
 
 
-  /*
-    Two years backward
-    One year forward
-  */
-
-  for (let i = -24; i <= 12; i++) {
+  for (
+    let offset = 0;
+    offset < 12;
+    offset++
+  ) {
 
     const date =
       new Date(
-        now.getFullYear(),
-        now.getMonth() + i,
+        startYear,
+        7 + offset,
         1
       );
 
 
-    const value =
+    result.push(
       `${date.getFullYear()}-${String(
         date.getMonth() + 1
-      ).padStart(2, "0")}`;
+      ).padStart(
+        2,
+        "0"
+      )}`
+    );
+
+  }
+
+
+  return result;
+
+}
+
+
+
+/* ======================================================
+   MONTH SELECTOR
+====================================================== */
+
+function buildMonthSelector() {
+
+  monthSelector.innerHTML =
+    "";
+
+
+  /*
+    Start at August 2026.
+
+    Give several future fiscal years.
+  */
+
+  const start =
+    new Date(
+      2026,
+      7,
+      1
+    );
+
+
+  const end =
+    new Date(
+      2031,
+      6,
+      1
+    );
+
+
+  let cursor =
+    new Date(start);
+
+
+  while (
+    cursor <= end
+  ) {
+
+    const monthKey =
+      `${cursor.getFullYear()}-${String(
+        cursor.getMonth() + 1
+      ).padStart(
+        2,
+        "0"
+      )}`;
 
 
     const option =
-      document.createElement("option");
+      document.createElement(
+        "option"
+      );
 
 
     option.value =
-      value;
+      monthKey;
 
 
     option.textContent =
-      date.toLocaleDateString(
+      cursor.toLocaleDateString(
         "en-US",
         {
-          month: "long",
-          year: "numeric"
+          month:
+            "long",
+
+          year:
+            "numeric"
         }
       );
 
@@ -538,6 +894,33 @@ function buildMonthSelector() {
     monthSelector.appendChild(
       option
     );
+
+
+    cursor.setMonth(
+      cursor.getMonth() + 1
+    );
+
+  }
+
+
+  /*
+    If today is before fiscal start,
+    use August 2026.
+
+    Otherwise use current month.
+  */
+
+  if (
+    monthToIndex(
+      currentMonth
+    ) <
+    monthToIndex(
+      "2026-08"
+    )
+  ) {
+
+    currentMonth =
+      "2026-08";
 
   }
 
@@ -550,7 +933,7 @@ function buildMonthSelector() {
 
 
 /* ======================================================
-   AUTHENTICATION
+   AUTH
 ====================================================== */
 
 loginForm.addEventListener(
@@ -559,20 +942,25 @@ loginForm.addEventListener(
 
     event.preventDefault();
 
+
     loginError.textContent =
       "";
 
 
     const email =
       document
-        .getElementById("email")
+        .getElementById(
+          "email"
+        )
         .value
         .trim();
 
 
     const password =
       document
-        .getElementById("password")
+        .getElementById(
+          "password"
+        )
         .value;
 
 
@@ -586,7 +974,10 @@ loginForm.addEventListener(
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        error
+      );
+
 
       loginError.textContent =
         "Unable to sign in. Check your email and password.";
@@ -597,23 +988,29 @@ loginForm.addEventListener(
 );
 
 
+
 logoutButton.addEventListener(
   "click",
   async () => {
 
-    await signOut(auth);
+    await signOut(
+      auth
+    );
 
   }
 );
 
 
+
 onAuthStateChanged(
   auth,
-  async user => {
+  user => {
 
     if (!user) {
 
-      if (transactionsUnsubscribe) {
+      if (
+        transactionsUnsubscribe
+      ) {
 
         transactionsUnsubscribe();
 
@@ -623,23 +1020,15 @@ onAuthStateChanged(
       }
 
 
-      if (goalsUnsubscribe) {
-
-        goalsUnsubscribe();
-
-        goalsUnsubscribe =
-          null;
-
-      }
-
-
       appElement.classList.add(
         "hidden"
       );
 
+
       loginScreen.classList.remove(
         "hidden"
       );
+
 
       return;
 
@@ -650,23 +1039,13 @@ onAuthStateChanged(
       "hidden"
     );
 
+
     appElement.classList.remove(
       "hidden"
     );
 
 
-    try {
-
-      await initializeAppData();
-
-    } catch (error) {
-
-      console.error(
-        "App initialization failed:",
-        error
-      );
-
-    }
+    initializeAppData();
 
   }
 );
@@ -674,89 +1053,18 @@ onAuthStateChanged(
 
 
 /* ======================================================
-   INITIALIZE APP
+   INITIALIZE
 ====================================================== */
 
-async function initializeAppData() {
-
-  currentMonth =
-    getCurrentMonth();
-
+function initializeAppData() {
 
   buildMonthSelector();
 
-  buildCategoryDropdowns();
+  buildFilterCategories();
 
-  buildBudgetForm();
-
-
-  updateMonthHeading();
-
-
-  await loadBudget();
-
+  updateSelectedMonthDisplay();
 
   listenForTransactions();
-
-  listenForGoals();
-
-}
-
-
-
-/* ======================================================
-   MONTH CHANGE
-====================================================== */
-
-monthSelector.addEventListener(
-  "change",
-  async event => {
-
-    /*
-      IMPORTANT:
-      The dropdown is now the source of truth.
-    */
-
-    currentMonth =
-      event.target.value;
-
-
-    updateMonthHeading();
-
-
-    /*
-      Clear the current budget first so
-      we never briefly show another month's numbers.
-    */
-
-    budgets = {};
-
-
-    populateBudgetInputs();
-
-
-    /*
-      Load the selected month's budget.
-    */
-
-    await loadBudget();
-
-
-    /*
-      Re-render transaction history immediately
-      using the selected month.
-    */
-
-    renderEverything();
-
-  }
-);
-
-
-function updateMonthHeading() {
-
-  dashboardMonthTitle.textContent =
-    formatMonth(currentMonth);
 
 }
 
@@ -773,7 +1081,7 @@ navButtons.forEach(
       "click",
       () => {
 
-        const pageName =
+        const target =
           button.dataset.page;
 
 
@@ -804,17 +1112,21 @@ navButtons.forEach(
         );
 
 
-        const targetPage =
-          document.getElementById(
-            `${pageName}Page`
-          );
-
-
-        if (targetPage) {
-
-          targetPage.classList.add(
+        document
+          .getElementById(
+            `${target}Page`
+          )
+          .classList.add(
             "active-page"
           );
+
+
+        if (
+          target ===
+          "reports"
+        ) {
+
+          renderFiscalYear();
 
         }
 
@@ -827,147 +1139,56 @@ navButtons.forEach(
 
 
 /* ======================================================
-   CATEGORIES
+   MONTH CHANGE
 ====================================================== */
 
-function buildCategoryDropdowns() {
+monthSelector.addEventListener(
+  "change",
+  event => {
 
-  transactionCategory.innerHTML =
-    "";
-
-
-  transactionCategoryFilter.innerHTML =
-    `
-      <option value="all">
-        All Categories
-      </option>
-    `;
+    currentMonth =
+      event.target.value;
 
 
-  categories.forEach(
-    category => {
+    updateSelectedMonthDisplay();
 
-      const option =
-        document.createElement(
-          "option"
-        );
+    renderEverything();
 
-
-      option.value =
-        category;
-
-
-      option.textContent =
-        category;
-
-
-      transactionCategory.appendChild(
-        option
-      );
+  }
+);
 
 
 
-      const filterOption =
-        document.createElement(
-          "option"
-        );
+function updateSelectedMonthDisplay() {
+
+  dashboardMonthTitle.textContent =
+    formatMonth(
+      currentMonth
+    );
 
 
-      filterOption.value =
-        category;
+  const fiscal =
+    getFiscalYearInfo(
+      currentMonth
+    );
 
 
-      filterOption.textContent =
-        category;
-
-
-      transactionCategoryFilter.appendChild(
-        filterOption
-      );
-
-    }
-  );
+  fiscalYearTitle.textContent =
+    `${fiscal.label} Financial Performance`;
 
 }
 
 
 
 /* ======================================================
-   ADD MONEY / EXPENSE BUTTONS
-====================================================== */
-
-document
-  .getElementById(
-    "dashboardAddMoneyButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      openNewTransaction(
-        "income"
-      );
-
-    }
-  );
-
-
-document
-  .getElementById(
-    "dashboardAddExpenseButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      openNewTransaction(
-        "expense"
-      );
-
-    }
-  );
-
-
-document
-  .getElementById(
-    "transactionsAddMoneyButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      openNewTransaction(
-        "income"
-      );
-
-    }
-  );
-
-
-document
-  .getElementById(
-    "transactionsAddExpenseButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      openNewTransaction(
-        "expense"
-      );
-
-    }
-  );
-
-
-
-/* ======================================================
-   REALTIME TRANSACTIONS
+   TRANSACTION LISTENER
 ====================================================== */
 
 function listenForTransactions() {
 
-  if (transactionsUnsubscribe) {
+  if (
+    transactionsUnsubscribe
+  ) {
 
     transactionsUnsubscribe();
 
@@ -977,8 +1198,8 @@ function listenForTransactions() {
   const transactionsRef =
     collection(
       db,
-      "households",
-      HOUSEHOLD_ID,
+      "businesses",
+      BUSINESS_ID,
       "transactions"
     );
 
@@ -995,6 +1216,7 @@ function listenForTransactions() {
 
   transactionsUnsubscribe =
     onSnapshot(
+
       transactionsQuery,
 
       snapshot => {
@@ -1007,25 +1229,6 @@ function listenForTransactions() {
                 documentSnapshot.data();
 
 
-              /*
-                Backward compatibility:
-
-                If an older transaction somehow
-                lacks a "month" field, derive the
-                month from its date.
-              */
-
-              const transactionMonth =
-                data.month ||
-                (
-                  data.date
-                    ? getMonthFromDate(
-                        data.date
-                      )
-                    : ""
-                );
-
-
               return {
 
                 id:
@@ -1034,7 +1237,10 @@ function listenForTransactions() {
                 ...data,
 
                 month:
-                  transactionMonth
+                  data.month ||
+                  getMonthFromDate(
+                    data.date
+                  )
 
               };
 
@@ -1054,6 +1260,7 @@ function listenForTransactions() {
         );
 
       }
+
     );
 
 }
@@ -1061,79 +1268,180 @@ function listenForTransactions() {
 
 
 /* ======================================================
-   TRANSACTION FILTERING
+   TRANSACTION GETTERS
 ====================================================== */
 
-function getMonthlyTransactions() {
+function getMonthlyTransactions(
+  monthKey = currentMonth
+) {
 
   return transactions.filter(
-    transaction => {
-
-      const transactionMonth =
-        transaction.month ||
-        getMonthFromDate(
-          transaction.date || ""
-        );
-
-
-      return (
-        transactionMonth ===
-        currentMonth
-      );
-
-    }
+    transaction =>
+      transaction.month ===
+      monthKey
   );
 
 }
 
 
-function getYtdTransactions() {
 
-  const selectedYear =
-    currentMonth.slice(0, 4);
+function getFiscalTransactions() {
+
+  const fiscal =
+    getFiscalYearInfo(
+      currentMonth
+    );
 
 
   return transactions.filter(
-    transaction => {
+    transaction =>
+      monthInRange(
+        transaction.month,
+        fiscal.startMonth,
+        fiscal.endMonth
+      )
+  );
 
-      const transactionMonth =
-        transaction.month ||
-        getMonthFromDate(
-          transaction.date || ""
-        );
-
-
-      if (!transactionMonth) {
-        return false;
-      }
+}
 
 
-      const transactionYear =
-        transactionMonth.slice(
-          0,
-          4
-        );
+
+/* ======================================================
+   FIXED EXPENSES
+====================================================== */
+
+function getFixedExpenseTotal() {
+
+  return FIXED_MONTHLY_TOTAL;
+
+}
 
 
-      if (
-        transactionYear !==
-        selectedYear
-      ) {
-        return false;
-      }
+
+function getFixedExpensesForCategory(
+  category
+) {
+
+  return Number(
+    FIXED_EXPENSES[
+      category
+    ] || 0
+  );
+
+}
 
 
-      return (
-        monthToIndex(
-          transactionMonth
-        ) <=
-        monthToIndex(
-          currentMonth
-        )
+
+/* ======================================================
+   MONTHLY CALCULATIONS
+====================================================== */
+
+function calculateMonth(
+  monthKey
+) {
+
+  /*
+    No fixed expenses should exist
+    before business fiscal tracking starts.
+  */
+
+  const validMonth =
+    monthToIndex(
+      monthKey
+    ) >=
+    monthToIndex(
+      "2026-08"
+    );
+
+
+  const monthly =
+    getMonthlyTransactions(
+      monthKey
+    );
+
+
+  const manualRevenue =
+    monthly
+
+      .filter(
+        transaction =>
+          transaction.type ===
+          "revenue"
+      )
+
+      .reduce(
+        (sum, item) =>
+          sum +
+          Number(
+            item.amount || 0
+          ),
+        0
       );
 
-    }
-  );
+
+  const manualExpenses =
+    monthly
+
+      .filter(
+        transaction =>
+          transaction.type ===
+          "expense"
+      )
+
+      .reduce(
+        (sum, item) =>
+          sum +
+          Number(
+            item.amount || 0
+          ),
+        0
+      );
+
+
+  const fixedExpenses =
+    validMonth
+      ? FIXED_MONTHLY_TOTAL
+      : 0;
+
+
+  const totalExpenses =
+    fixedExpenses +
+    manualExpenses;
+
+
+  const profit =
+    manualRevenue -
+    totalExpenses;
+
+
+  const margin =
+    manualRevenue > 0
+
+      ? (
+          profit /
+          manualRevenue
+        ) * 100
+
+      : 0;
+
+
+  return {
+
+    revenue:
+      manualRevenue,
+
+    manualExpenses,
+
+    fixedExpenses,
+
+    expenses:
+      totalExpenses,
+
+    profit,
+
+    margin
+
+  };
 
 }
 
@@ -1145,13 +1453,13 @@ function getYtdTransactions() {
 
 function renderEverything() {
 
-  updateMonthHeading();
+  updateSelectedMonthDisplay();
 
   renderDashboard();
 
   renderTransactions();
 
-  renderGoals();
+  renderFiscalYear();
 
 }
 
@@ -1163,273 +1471,152 @@ function renderEverything() {
 
 function renderDashboard() {
 
-  const monthlyTransactions =
-    getMonthlyTransactions();
-
-
-
-  /* EXTRA MONEY */
-
-  const extraIncome =
-    monthlyTransactions
-
-      .filter(
-        transaction =>
-          transaction.type ===
-          "income"
-      )
-
-      .reduce(
-        (sum, transaction) =>
-          sum +
-          Number(
-            transaction.amount || 0
-          ),
-        0
-      );
-
-
-
-  /* MONTHLY MONEY IN */
-
-  const monthlyIncome =
-    BASE_MONTHLY_INCOME +
-    extraIncome;
-
-
-
-  /* EXPENSES */
-
-  const expenses =
-    monthlyTransactions
-
-      .filter(
-        transaction =>
-          transaction.type ===
-          "expense"
-      )
-
-      .reduce(
-        (sum, transaction) =>
-          sum +
-          Number(
-            transaction.amount || 0
-          ),
-        0
-      );
-
-
-
-  /* TOTAL BUDGET */
-
-  const totalBudget =
-    Object.values(
-      budgets
-    ).reduce(
-      (sum, amount) =>
-        sum +
-        Number(
-          amount || 0
-        ),
-      0
+  const totals =
+    calculateMonth(
+      currentMonth
     );
 
 
+  monthlyRevenue.textContent =
+    currency(
+      totals.revenue
+    );
+
+
+  monthlyExpenses.textContent =
+    currency(
+      totals.expenses
+    );
+
+
+  monthlyExpenseDetail.textContent =
+    totals.manualExpenses > 0
+
+      ? `${currency(totals.fixedExpenses)} fixed + ${currency(totals.manualExpenses)} manual`
+
+      : `${currency(totals.fixedExpenses)} fixed operating costs`;
+
+
+  monthlyProfit.textContent =
+    currency(
+      totals.profit
+    );
+
+
+  monthlyProfit.classList.remove(
+    "positive-text",
+    "negative-text"
+  );
+
+
+  monthlyProfit.classList.add(
+    totals.profit >= 0
+      ? "positive-text"
+      : "negative-text"
+  );
+
+
+  monthlyMargin.textContent =
+    percent(
+      totals.margin
+    );
+
 
   /*
-    This is total category budget
-    minus all expenses.
-
-    It may go negative.
+    Margin card:
+    navy normally
+    red tint if losing money
   */
 
-  const budgetRemaining =
-    totalBudget -
-    expenses;
+  if (
+    totals.profit < 0
+  ) {
+
+    marginCard.style.background =
+      "var(--red)";
+
+    marginCard.style.borderColor =
+      "var(--red)";
+
+  } else {
+
+    marginCard.style.background =
+      "var(--navy)";
+
+    marginCard.style.borderColor =
+      "var(--navy)";
+
+  }
+
+
+  renderRevenueBreakdown();
+
+  renderExpenseBreakdown();
+
+  renderRecentTransactions();
+
+}
 
 
 
-  /* ==================================================
-     MONEY STILL RESERVED
-  ================================================== */
+/* ======================================================
+   REVENUE BREAKDOWN
+====================================================== */
 
-  let reservedRemaining =
-    0;
+function renderRevenueBreakdown() {
+
+  const monthly =
+    getMonthlyTransactions();
 
 
-  categories.forEach(
+  const categoryTotals =
+    {};
+
+
+  REVENUE_CATEGORIES.forEach(
     category => {
 
-      const categoryBudget =
-        Number(
-          budgets[category] || 0
-        );
-
-
-      const categorySpent =
-        monthlyTransactions
+      categoryTotals[
+        category
+      ] =
+        monthly
 
           .filter(
-            transaction =>
-              transaction.type ===
-                "expense" &&
-              transaction.category ===
+            item =>
+              item.type ===
+                "revenue" &&
+              item.category ===
                 category
           )
 
           .reduce(
-            (sum, transaction) =>
+            (sum, item) =>
               sum +
               Number(
-                transaction.amount || 0
+                item.amount || 0
               ),
             0
           );
-
-
-      reservedRemaining +=
-        Math.max(
-          categoryBudget -
-          categorySpent,
-          0
-        );
 
     }
   );
 
 
-
-  /* ==================================================
-     TRUE SAFE TO SPEND
-  ================================================== */
-
-  const safeToSpend =
-    monthlyIncome -
-    expenses -
-    reservedRemaining;
-
-
-
-  /* MONTHLY CARDS */
-
-  moneyInTotal.textContent =
-    currency(
-      monthlyIncome
+  const total =
+    Object.values(
+      categoryTotals
+    ).reduce(
+      (sum, value) =>
+        sum + value,
+      0
     );
 
 
-  moneyInDetail.textContent =
-    extraIncome > 0
-
-      ? `${currency(BASE_MONTHLY_INCOME)} monthly + ${currency(extraIncome)} extra`
-
-      : `${currency(BASE_MONTHLY_INCOME)} monthly`;
-
-
-  spentTotal.textContent =
-    currency(
-      expenses
-    );
-
-
-  budgetRemainingTotal.textContent =
-    currency(
-      budgetRemaining
-    );
-
-
-  safeToSpendTotal.textContent =
-    currency(
-      safeToSpend
-    );
-
-
-
-  /* BUDGET REMAINING COLOR */
-
-  budgetRemainingCard.classList.remove(
-    "positive-value",
-    "negative-value"
-  );
-
-
-  budgetRemainingCard.classList.add(
-    budgetRemaining >= 0
-      ? "positive-value"
-      : "negative-value"
-  );
-
-
-
-  /*
-    Safe-to-spend becomes RED if:
-
-    1. Safe cash itself is negative, OR
-    2. Total monthly budget has been exceeded.
-  */
-
-  const financiallySafe =
-  safeToSpend >= 0;
-
-
-
-  safeToSpendCard.classList.remove(
-    "positive",
-    "negative"
-  );
-
-
-  safeToSpendCard.classList.add(
-    financiallySafe
-      ? "positive"
-      : "negative"
-  );
-
-
-
-  /* SAFE FORMULA */
-
-  safeMoneyIn.textContent =
-    currency(
-      monthlyIncome
-    );
-
-
-  safeExpenses.textContent =
-    currency(
-      expenses
-    );
-
-
-  safeReserved.textContent =
-    currency(
-      reservedRemaining
-    );
-
-
-  safeResult.textContent =
-    currency(
-      safeToSpend
-    );
-
-
-  safeResult.style.color =
-    financiallySafe
-      ? "var(--positive)"
-      : "var(--negative)";
-
-
-
-  renderYtd();
-
-
-  renderCategoryProgress(
-    monthlyTransactions
-  );
-
-
-  renderRecentTransactions(
-    monthlyTransactions
+  renderBreakdownList(
+    revenueBreakdown,
+    categoryTotals,
+    total,
+    "revenue"
   );
 
 }
@@ -1437,339 +1624,156 @@ function renderDashboard() {
 
 
 /* ======================================================
-   YTD / ROLLING ACCOUNT
+   EXPENSE BREAKDOWN
 ====================================================== */
 
-function renderYtd() {
+function renderExpenseBreakdown() {
 
-  const selectedYear =
-    currentMonth.slice(
-      0,
-      4
-    );
+  const monthly =
+    getMonthlyTransactions();
 
 
-  const startYear =
-    TRACKING_START_MONTH.slice(
-      0,
-      4
-    );
+  const categoryTotals =
+    {};
 
 
-  let includedMonths =
-    0;
-
-
-  /*
-    Only automatically count monthly
-    contributions beginning with the
-    tracking start month.
-  */
-
-  if (
-    selectedYear ===
-    startYear
-  ) {
-
-    includedMonths =
-      monthsInclusive(
-        TRACKING_START_MONTH,
-        currentMonth
-      );
-
-  } else if (
-    Number(selectedYear) >
-    Number(startYear)
-  ) {
-
-    /*
-      Future years:
-
-      Jan through selected month.
-    */
-
-    includedMonths =
-      Number(
-        currentMonth.slice(
-          5,
-          7
-        )
-      );
-
-  }
-
-
-
-  const baseIncomeYtd =
-    BASE_MONTHLY_INCOME *
-    includedMonths;
-
-
-
-  const ytdTransactions =
-    getYtdTransactions();
-
-
-
-  const extraIncomeYtd =
-    ytdTransactions
-
-      .filter(
-        transaction =>
-          transaction.type ===
-          "income"
-      )
-
-      .reduce(
-        (sum, transaction) =>
-          sum +
-          Number(
-            transaction.amount || 0
-          ),
-        0
-      );
-
-
-
-  const expensesYtd =
-    ytdTransactions
-
-      .filter(
-        transaction =>
-          transaction.type ===
-          "expense"
-      )
-
-      .reduce(
-        (sum, transaction) =>
-          sum +
-          Number(
-            transaction.amount || 0
-          ),
-        0
-      );
-
-
-
-  const totalIncomeYtd =
-    baseIncomeYtd +
-    extraIncomeYtd;
-
-
-
-  const balanceYtd =
-    totalIncomeYtd -
-    expensesYtd;
-
-
-
-  ytdTitle.textContent =
-    `${selectedYear} Rolling Balance`;
-
-
-  ytdBaseIncome.textContent =
-    currency(
-      baseIncomeYtd
-    );
-
-
-  ytdExtraIncome.textContent =
-    currency(
-      extraIncomeYtd
-    );
-
-
-  ytdIncome.textContent =
-    currency(
-      totalIncomeYtd
-    );
-
-
-  ytdSpent.textContent =
-    currency(
-      expensesYtd
-    );
-
-
-  ytdBalance.textContent =
-    currency(
-      balanceYtd
-    );
-
-
-  ytdBalanceBadge.classList.remove(
-    "positive",
-    "negative"
-  );
-
-
-  ytdBalanceBadge.classList.add(
-    balanceYtd >= 0
-      ? "positive"
-      : "negative"
-  );
-
-}
-
-
-
-/* ======================================================
-   CATEGORY PROGRESS
-====================================================== */
-
-function renderCategoryProgress(
-  monthlyTransactions
-) {
-
-  const categoriesWithBudget =
-    categories.filter(
-      category =>
-        Number(
-          budgets[category] || 0
-        ) > 0
-    );
-
-
-  if (
-    categoriesWithBudget.length ===
-    0
-  ) {
-
-    categoryProgressList.innerHTML =
-      `
-        <p class="empty-state">
-          No monthly budget has been set yet.
-        </p>
-      `;
-
-    return;
-
-  }
-
-
-  categoryProgressList.innerHTML =
-    "";
-
-
-  categoriesWithBudget.forEach(
+  EXPENSE_CATEGORIES.forEach(
     category => {
 
-      const budgetAmount =
-        Number(
-          budgets[category] || 0
-        );
-
-
-      const spent =
-        monthlyTransactions
+      const manual =
+        monthly
 
           .filter(
-            transaction =>
-              transaction.type ===
+            item =>
+              item.type ===
                 "expense" &&
-              transaction.category ===
+              item.category ===
                 category
           )
 
           .reduce(
-            (sum, transaction) =>
+            (sum, item) =>
               sum +
               Number(
-                transaction.amount || 0
+                item.amount || 0
               ),
             0
           );
 
 
-      const remaining =
-        budgetAmount -
-        spent;
+      const fixed =
+        getFixedExpensesForCategory(
+          category
+        );
 
 
-      const percent =
-        budgetAmount > 0
+      categoryTotals[
+        category
+      ] =
+        manual +
+        fixed;
+
+    }
+  );
+
+
+  const total =
+    Object.values(
+      categoryTotals
+    ).reduce(
+      (sum, value) =>
+        sum + value,
+      0
+    );
+
+
+  renderBreakdownList(
+    expenseBreakdown,
+    categoryTotals,
+    total,
+    "expense"
+  );
+
+}
+
+
+
+/* ======================================================
+   GENERIC BREAKDOWN
+====================================================== */
+
+function renderBreakdownList(
+  container,
+  categoryTotals,
+  total,
+  type
+) {
+
+  container.innerHTML =
+    "";
+
+
+  const entries =
+    Object.entries(
+      categoryTotals
+    );
+
+
+  entries.forEach(
+    ([category, amount]) => {
+
+      const percentage =
+        total > 0
+
           ? (
-              spent /
-              budgetAmount
+              amount /
+              total
             ) * 100
+
           : 0;
 
 
-
-      const item =
+      const row =
         document.createElement(
           "div"
         );
 
 
-      item.className =
-        "category-progress-item";
+      row.className =
+        "breakdown-row";
 
 
-      item.innerHTML =
+      row.innerHTML =
         `
-          <div class="category-progress-top">
+          <div class="breakdown-top">
 
-            <div class="category-progress-name">
+            <span class="breakdown-name">
               ${escapeHtml(category)}
-            </div>
+            </span>
 
-            <div class="category-progress-values">
-              ${currency(spent)}
-              /
-              ${currency(budgetAmount)}
-            </div>
+            <span class="breakdown-value">
+              ${currency(amount)}
+            </span>
 
           </div>
 
 
-          <div class="progress-track">
+          <div class="breakdown-track">
 
             <div
-              class="progress-fill ${
-                percent > 100
-                  ? "over"
-                  : ""
-              }"
-              style="
-                width:
-                ${Math.min(percent,100)}%
-              "
+              class="breakdown-fill ${type}"
+              style="width:${Math.min(
+                percentage,
+                100
+              )}%"
             ></div>
-
-          </div>
-
-
-          <div class="category-progress-bottom">
-
-            <span>
-              ${Math.round(percent)}% used
-            </span>
-
-            <span
-              class="${
-                remaining < 0
-                  ? "over-budget-text"
-                  : ""
-              }"
-            >
-
-              ${
-                remaining >= 0
-
-                  ? `${currency(remaining)} remaining`
-
-                  : `${currency(Math.abs(remaining))} over`
-              }
-
-            </span>
 
           </div>
         `;
 
 
-      categoryProgressList.appendChild(
-        item
+      container.appendChild(
+        row
       );
 
     }
@@ -1783,39 +1787,36 @@ function renderCategoryProgress(
    RECENT TRANSACTIONS
 ====================================================== */
 
-function renderRecentTransactions(
-  monthlyTransactions
-) {
+function renderRecentTransactions() {
 
-  const sorted =
-    [...monthlyTransactions]
+  const monthly =
+    [...getMonthlyTransactions()]
 
       .sort(
         (a, b) =>
           String(
-            b.date || ""
+            b.date
           ).localeCompare(
             String(
-              a.date || ""
+              a.date
             )
           )
       )
 
       .slice(
         0,
-        7
+        8
       );
 
 
   if (
-    sorted.length ===
-    0
+    monthly.length === 0
   ) {
 
     recentTransactions.innerHTML =
       `
         <p class="empty-state">
-          No transactions yet.
+          No manual transactions this month.
         </p>
       `;
 
@@ -1828,7 +1829,7 @@ function renderRecentTransactions(
     "";
 
 
-  sorted.forEach(
+  monthly.forEach(
     transaction => {
 
       const row =
@@ -1847,49 +1848,43 @@ function renderRecentTransactions(
 
             <div class="recent-description">
               ${escapeHtml(
-                transaction.description ||
-                ""
+                transaction.description
               )}
             </div>
 
             <div class="recent-meta">
-
               ${formatDate(
                 transaction.date
               )}
-
-              ${
-                transaction.type ===
-                "expense"
-
-                  ? ` • ${escapeHtml(
-                      transaction.category ||
-                      "Other"
-                    )}`
-
-                  : " • Extra Money"
-              }
-
+              •
+              ${escapeHtml(
+                transaction.category
+              )}
             </div>
 
           </div>
 
 
           <div
-            class="${
-              transaction.type ===
-              "income"
+            class="
+              recent-amount
+              ${
+                transaction.type ===
+                "revenue"
 
-                ? "amount-income"
+                  ? "positive-text"
 
-                : "amount-expense"
-            }"
+                  : "negative-text"
+              }
+            "
           >
 
             ${
               transaction.type ===
-              "income"
+                "revenue"
+
                 ? "+"
+
                 : "-"
             }
 
@@ -1913,79 +1908,116 @@ function renderRecentTransactions(
 
 
 /* ======================================================
+   FILTER CATEGORY DROPDOWN
+====================================================== */
+
+function buildFilterCategories() {
+
+  transactionCategoryFilter.innerHTML =
+    `
+      <option value="all">
+        All Categories
+      </option>
+    `;
+
+
+  ALL_CATEGORIES.forEach(
+    category => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        category;
+
+
+      option.textContent =
+        category;
+
+
+      transactionCategoryFilter.appendChild(
+        option
+      );
+
+    }
+  );
+
+}
+
+
+
+/* ======================================================
    TRANSACTION TABLE
 ====================================================== */
 
 function renderTransactions() {
 
   let filtered =
-    getMonthlyTransactions();
+    [...getMonthlyTransactions()];
 
 
-  const typeFilter =
+  const type =
     transactionTypeFilter.value;
 
 
-  const categoryFilter =
+  const category =
     transactionCategoryFilter.value;
 
 
-
   if (
-    typeFilter !==
+    type !==
     "all"
   ) {
 
     filtered =
       filtered.filter(
-        transaction =>
-          transaction.type ===
-          typeFilter
+        item =>
+          item.type ===
+          type
       );
 
   }
 
 
-
   if (
-    categoryFilter !==
+    category !==
     "all"
   ) {
 
     filtered =
       filtered.filter(
-        transaction =>
-          transaction.category ===
-          categoryFilter
+        item =>
+          item.category ===
+          category
       );
 
   }
-
 
 
   filtered.sort(
     (a, b) =>
       String(
-        b.date || ""
+        b.date
       ).localeCompare(
         String(
-          a.date || ""
+          a.date
         )
       )
   );
-
 
 
   transactionTableBody.innerHTML =
     "";
 
 
-
   transactionEmptyState.classList.toggle(
     "hidden",
-    filtered.length > 0
+    filtered.length >
+      0
   );
-
 
 
   filtered.forEach(
@@ -2008,60 +2040,55 @@ function renderTransactions() {
 
           <td>
             ${escapeHtml(
-              transaction.description ||
-              ""
+              transaction.description
             )}
-          </td>
-
-
-          <td>
-
-            ${
-              transaction.type ===
-              "income"
-
-                ? "Extra Money"
-
-                : escapeHtml(
-                    transaction.category ||
-                    "Other"
-                  )
-            }
-
-          </td>
-
-
-          <td>
-
-            ${
-              transaction.type ===
-              "expense"
-
-                ? capitalize(
-                    transaction.needWant ||
-                    ""
-                  )
-
-                : "—"
-            }
-
           </td>
 
 
           <td
             class="${
               transaction.type ===
-              "income"
+                "revenue"
 
-                ? "amount-income"
+                ? "positive-text"
 
-                : "amount-expense"
+                : "negative-text"
             }"
           >
 
             ${
               transaction.type ===
-              "income"
+                "revenue"
+
+                ? "Revenue"
+
+                : "Expense"
+            }
+
+          </td>
+
+
+          <td>
+            ${escapeHtml(
+              transaction.category
+            )}
+          </td>
+
+
+          <td
+            class="${
+              transaction.type ===
+                "revenue"
+
+                ? "positive-text"
+
+                : "negative-text"
+            }"
+          >
+
+            ${
+              transaction.type ===
+                "revenue"
                 ? "+"
                 : "-"
             }
@@ -2106,7 +2133,6 @@ function renderTransactions() {
   );
 
 
-
   document
     .querySelectorAll(
       ".edit-transaction"
@@ -2116,18 +2142,14 @@ function renderTransactions() {
 
         button.addEventListener(
           "click",
-          () => {
-
+          () =>
             openEditTransaction(
               button.dataset.id
-            );
-
-          }
+            )
         );
 
       }
     );
-
 
 
   document
@@ -2139,13 +2161,10 @@ function renderTransactions() {
 
         button.addEventListener(
           "click",
-          () => {
-
+          () =>
             deleteTransaction(
               button.dataset.id
-            );
-
-          }
+            )
         );
 
       }
@@ -2154,8 +2173,6 @@ function renderTransactions() {
 }
 
 
-
-/* FILTER EVENTS */
 
 transactionTypeFilter.addEventListener(
   "change",
@@ -2171,7 +2188,64 @@ transactionCategoryFilter.addEventListener(
 
 
 /* ======================================================
-   TRANSACTION MODAL
+   OPEN TRANSACTION BUTTONS
+====================================================== */
+
+document
+  .getElementById(
+    "dashboardAddRevenueButton"
+  )
+  .addEventListener(
+    "click",
+    () =>
+      openNewTransaction(
+        "revenue"
+      )
+  );
+
+
+document
+  .getElementById(
+    "dashboardAddExpenseButton"
+  )
+  .addEventListener(
+    "click",
+    () =>
+      openNewTransaction(
+        "expense"
+      )
+  );
+
+
+document
+  .getElementById(
+    "transactionsAddRevenueButton"
+  )
+  .addEventListener(
+    "click",
+    () =>
+      openNewTransaction(
+        "revenue"
+      )
+  );
+
+
+document
+  .getElementById(
+    "transactionsAddExpenseButton"
+  )
+  .addEventListener(
+    "click",
+    () =>
+      openNewTransaction(
+        "expense"
+      )
+  );
+
+
+
+/* ======================================================
+   MODAL CLOSE
 ====================================================== */
 
 document
@@ -2190,8 +2264,166 @@ document
   );
 
 
+
+function closeTransactionModal() {
+
+  transactionModal.classList.add(
+    "hidden"
+  );
+
+}
+
+
+
+/* ======================================================
+   MODAL TYPE BUTTONS
+====================================================== */
+
+modalRevenueTypeButton.addEventListener(
+  "click",
+  () => {
+
+    transactionType.value =
+      "revenue";
+
+
+    updateModalType();
+
+  }
+);
+
+
+modalExpenseTypeButton.addEventListener(
+  "click",
+  () => {
+
+    transactionType.value =
+      "expense";
+
+
+    updateModalType();
+
+  }
+);
+
+
+
+function updateModalType() {
+
+  const type =
+    transactionType.value;
+
+
+  modalRevenueTypeButton.classList.toggle(
+    "active",
+    type === "revenue"
+  );
+
+
+  modalExpenseTypeButton.classList.toggle(
+    "active",
+    type === "expense"
+  );
+
+
+  transactionModalTitle.textContent =
+    transactionId.value
+
+      ? "Edit Transaction"
+
+      : (
+          type === "revenue"
+            ? "Add Revenue"
+            : "Add Expense"
+        );
+
+
+  saveTransactionButton.textContent =
+    transactionId.value
+
+      ? "Save Changes"
+
+      : (
+          type === "revenue"
+            ? "Add Revenue"
+            : "Add Expense"
+        );
+
+
+  buildTransactionCategories(
+    type
+  );
+
+}
+
+
+
+/* ======================================================
+   BUILD MODAL CATEGORIES
+====================================================== */
+
+function buildTransactionCategories(
+  type,
+  selectedCategory = null
+) {
+
+  transactionCategory.innerHTML =
+    "";
+
+
+  const categories =
+    type === "revenue"
+
+      ? REVENUE_CATEGORIES
+
+      : EXPENSE_CATEGORIES;
+
+
+  categories.forEach(
+    category => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        category;
+
+
+      option.textContent =
+        category;
+
+
+      if (
+        selectedCategory ===
+        category
+      ) {
+
+        option.selected =
+          true;
+
+      }
+
+
+      transactionCategory.appendChild(
+        option
+      );
+
+    }
+  );
+
+}
+
+
+
+/* ======================================================
+   NEW TRANSACTION
+====================================================== */
+
 function openNewTransaction(
-  type = "expense"
+  type
 ) {
 
   transactionForm.reset();
@@ -2205,23 +2437,14 @@ function openNewTransaction(
     type;
 
 
-  /*
-    IMPORTANT:
-
-    Default the transaction date to the
-    SELECTED MONTH, not blindly to today.
-
-    If viewing September while today
-    is August, new September expenses
-    start in September.
-  */
-
   const today =
     todayString();
 
 
   if (
-    getMonthFromDate(today) ===
+    getMonthFromDate(
+      today
+    ) ===
     currentMonth
   ) {
 
@@ -2236,25 +2459,12 @@ function openNewTransaction(
   }
 
 
-  transactionNeedWant.value =
-    "need";
+  buildTransactionCategories(
+    type
+  );
 
 
-  transactionModalTitle.textContent =
-    type === "income"
-      ? "Add Money"
-      : "Add Expense";
-
-
-  saveTransactionButton.textContent =
-    type === "income"
-      ? "Add Money"
-      : "Save Expense";
-
-
-  updateTransactionTypeButtons();
-
-  updateNeedWantButtons();
+  updateModalType();
 
 
   transactionFormError.textContent =
@@ -2268,26 +2478,27 @@ function openNewTransaction(
 }
 
 
-function closeTransactionModal() {
 
-  transactionModal.classList.add(
-    "hidden"
-  );
+/* ======================================================
+   EDIT TRANSACTION
+====================================================== */
 
-}
-
-
-function openEditTransaction(id) {
+function openEditTransaction(
+  id
+) {
 
   const transaction =
     transactions.find(
       item =>
-        item.id === id
+        item.id ===
+        id
     );
 
 
   if (!transaction) {
+
     return;
+
   }
 
 
@@ -2312,182 +2523,23 @@ function openEditTransaction(id) {
     "";
 
 
-  transactionCategory.value =
-    transaction.category &&
-    categories.includes(
-      transaction.category
-    )
-
-      ? transaction.category
-
-      : categories[0];
-
-
-  transactionNeedWant.value =
-    transaction.needWant ||
-    "need";
-
-
-  transactionAccount.value =
-    transaction.account ||
-    "";
-
-
   transactionNotes.value =
     transaction.notes ||
     "";
 
 
-  transactionModalTitle.textContent =
-    "Edit Transaction";
+  buildTransactionCategories(
+    transaction.type,
+    transaction.category
+  );
 
 
-  saveTransactionButton.textContent =
-    "Save Changes";
-
-
-  updateTransactionTypeButtons();
-
-  updateNeedWantButtons();
+  updateModalType();
 
 
   transactionModal.classList.remove(
     "hidden"
   );
-
-}
-
-
-
-/* ======================================================
-   TRANSACTION TYPE
-====================================================== */
-
-document
-  .querySelectorAll(
-    ".transaction-type-button"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          transactionType.value =
-            button.dataset.type;
-
-
-          if (
-            !transactionId.value
-          ) {
-
-            transactionModalTitle.textContent =
-              transactionType.value ===
-              "income"
-
-                ? "Add Money"
-
-                : "Add Expense";
-
-
-            saveTransactionButton.textContent =
-              transactionType.value ===
-              "income"
-
-                ? "Add Money"
-
-                : "Save Expense";
-
-          }
-
-
-          updateTransactionTypeButtons();
-
-        }
-      );
-
-    }
-  );
-
-
-function updateTransactionTypeButtons() {
-
-  document
-    .querySelectorAll(
-      ".transaction-type-button"
-    )
-    .forEach(
-      button => {
-
-        button.classList.toggle(
-          "active",
-
-          button.dataset.type ===
-          transactionType.value
-        );
-
-      }
-    );
-
-
-  expenseFields.classList.toggle(
-    "hidden",
-
-    transactionType.value !==
-    "expense"
-  );
-
-}
-
-
-
-/* ======================================================
-   NEED / WANT
-====================================================== */
-
-document
-  .querySelectorAll(
-    ".need-want-button"
-  )
-  .forEach(
-    button => {
-
-      button.addEventListener(
-        "click",
-        () => {
-
-          transactionNeedWant.value =
-            button.dataset.value;
-
-
-          updateNeedWantButtons();
-
-        }
-      );
-
-    }
-  );
-
-
-function updateNeedWantButtons() {
-
-  document
-    .querySelectorAll(
-      ".need-want-button"
-    )
-    .forEach(
-      button => {
-
-        button.classList.toggle(
-          "active",
-
-          button.dataset.value ===
-          transactionNeedWant.value
-        );
-
-      }
-    );
 
 }
 
@@ -2524,6 +2576,14 @@ transactionForm.addEventListener(
         .trim();
 
 
+    const type =
+      transactionType.value;
+
+
+    const category =
+      transactionCategory.value;
+
+
     if (
       !amount ||
       amount <= 0
@@ -2557,8 +2617,17 @@ transactionForm.addEventListener(
     }
 
 
-    const type =
-      transactionType.value;
+    if (
+      date <
+      FISCAL_START_DATE
+    ) {
+
+      transactionFormError.textContent =
+        "Financial tracking begins August 1, 2026.";
+
+      return;
+
+    }
 
 
     const transactionMonth =
@@ -2571,6 +2640,8 @@ transactionForm.addEventListener(
 
       type,
 
+      category,
+
       amount,
 
       description,
@@ -2579,11 +2650,6 @@ transactionForm.addEventListener(
 
       month:
         transactionMonth,
-
-      account:
-        transactionAccount
-          .value
-          .trim(),
 
       notes:
         transactionNotes
@@ -2594,30 +2660,6 @@ transactionForm.addEventListener(
         serverTimestamp()
 
     };
-
-
-    if (
-      type ===
-      "expense"
-    ) {
-
-      data.category =
-        transactionCategory.value;
-
-
-      data.needWant =
-        transactionNeedWant.value;
-
-    } else {
-
-      data.category =
-        "Income";
-
-
-      data.needWant =
-        null;
-
-    }
 
 
     try {
@@ -2631,8 +2673,8 @@ transactionForm.addEventListener(
         await updateDoc(
           doc(
             db,
-            "households",
-            HOUSEHOLD_ID,
+            "businesses",
+            BUSINESS_ID,
             "transactions",
             id
           ),
@@ -2648,8 +2690,8 @@ transactionForm.addEventListener(
         await addDoc(
           collection(
             db,
-            "households",
-            HOUSEHOLD_ID,
+            "businesses",
+            BUSINESS_ID,
             "transactions"
           ),
           data
@@ -2659,40 +2701,19 @@ transactionForm.addEventListener(
 
 
       /*
-        If you save a transaction into
-        another month, automatically switch
-        the dashboard to that month.
-
-        This eliminates the confusing
-        "I just entered it but can't see it"
-        problem.
+        Automatically move dashboard
+        to month of new transaction.
       */
 
-      if (
-        transactionMonth !==
-        currentMonth
-      ) {
-
-        currentMonth =
-          transactionMonth;
+      currentMonth =
+        transactionMonth;
 
 
-        monthSelector.value =
-          currentMonth;
+      monthSelector.value =
+        currentMonth;
 
 
-        updateMonthHeading();
-
-
-        budgets = {};
-
-
-        populateBudgetInputs();
-
-
-        await loadBudget();
-
-      }
+      updateSelectedMonthDisplay();
 
 
       closeTransactionModal();
@@ -2703,7 +2724,7 @@ transactionForm.addEventListener(
     } catch (error) {
 
       console.error(
-        "Unable to save transaction:",
+        "Save error:",
         error
       );
 
@@ -2722,26 +2743,35 @@ transactionForm.addEventListener(
    DELETE TRANSACTION
 ====================================================== */
 
-async function deleteTransaction(id) {
+async function deleteTransaction(
+  id
+) {
 
   const transaction =
     transactions.find(
       item =>
-        item.id === id
+        item.id ===
+        id
     );
+
+
+  if (!transaction) {
+
+    return;
+
+  }
 
 
   const confirmed =
     confirm(
-      `Delete "${
-        transaction?.description ||
-        "this transaction"
-      }"?`
+      `Delete "${transaction.description}"?`
     );
 
 
   if (!confirmed) {
+
     return;
+
   }
 
 
@@ -2750,8 +2780,8 @@ async function deleteTransaction(id) {
     await deleteDoc(
       doc(
         db,
-        "households",
-        HOUSEHOLD_ID,
+        "businesses",
+        BUSINESS_ID,
         "transactions",
         id
       )
@@ -2759,7 +2789,9 @@ async function deleteTransaction(id) {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error
+    );
 
 
     alert(
@@ -2773,54 +2805,132 @@ async function deleteTransaction(id) {
 
 
 /* ======================================================
-   BUILD BUDGET FORM
+   FISCAL YEAR REPORT
 ====================================================== */
 
-function buildBudgetForm() {
+function renderFiscalYear() {
 
-  budgetForm.innerHTML =
+  const fiscal =
+    getFiscalYearInfo(
+      currentMonth
+    );
+
+
+  fiscalYearTitle.textContent =
+    `${fiscal.label} Financial Performance`;
+
+
+  const months =
+    buildFiscalMonths(
+      fiscal.startYear
+    );
+
+
+  /*
+    Only count months through selected month.
+
+    If viewing November 2026,
+    FY YTD = Aug-Nov.
+  */
+
+  const selectedIndex =
+    monthToIndex(
+      currentMonth
+    );
+
+
+  const activeMonths =
+    months.filter(
+      month =>
+        monthToIndex(
+          month
+        ) <=
+        selectedIndex
+    );
+
+
+  let totalRevenue =
+    0;
+
+
+  let totalExpenses =
+    0;
+
+
+  fyTableBody.innerHTML =
     "";
 
 
-  categories.forEach(
-    category => {
+  activeMonths.forEach(
+    month => {
 
-      const row =
-        document.createElement(
-          "div"
+      const totals =
+        calculateMonth(
+          month
         );
 
 
-      row.className =
-        "budget-row";
+      totalRevenue +=
+        totals.revenue;
+
+
+      totalExpenses +=
+        totals.expenses;
+
+
+      const row =
+        document.createElement(
+          "tr"
+        );
 
 
       row.innerHTML =
         `
-          <label>
-            ${escapeHtml(category)}
-          </label>
+          <td>
+            ${formatMonth(month)}
+          </td>
 
 
-          <div class="budget-input-wrapper">
+          <td class="positive-text">
+            ${currency(
+              totals.revenue
+            )}
+          </td>
 
-            <span>$</span>
+
+          <td class="negative-text">
+            ${currency(
+              totals.expenses
+            )}
+          </td>
 
 
-            <input
-              type="number"
-              min="0"
-              step="1"
-              class="budget-input"
-              data-category="${escapeHtml(category)}"
-              value="0"
-            >
+          <td
+            class="${
+              totals.profit >= 0
 
-          </div>
+                ? "fy-profit-positive"
+
+                : "fy-profit-negative"
+            }"
+          >
+
+            ${currency(
+              totals.profit
+            )}
+
+          </td>
+
+
+          <td>
+            ${percent(
+              totals.margin
+            )}
+          </td>
         `;
 
 
-      budgetForm.appendChild(
+      fyTableBody.appendChild(
         row
       );
 
@@ -2828,869 +2938,223 @@ function buildBudgetForm() {
   );
 
 
-  document
-    .querySelectorAll(
-      ".budget-input"
-    )
-    .forEach(
-      input => {
-
-        input.addEventListener(
-          "input",
-          updateBudgetTotal
-        );
-
-      }
-    );
-
-}
+  const totalProfit =
+    totalRevenue -
+    totalExpenses;
 
 
+  const margin =
+    totalRevenue > 0
 
-/* ======================================================
-   LOAD BUDGET
-====================================================== */
+      ? (
+          totalProfit /
+          totalRevenue
+        ) * 100
 
-async function loadBudget() {
-
-  const monthBeingLoaded =
-    currentMonth;
-
-
-  const budgetRef =
-    doc(
-      db,
-      "households",
-      HOUSEHOLD_ID,
-      "budgets",
-      monthBeingLoaded
-    );
+      : 0;
 
 
-  try {
-
-    const snapshot =
-      await getDoc(
-        budgetRef
-      );
-
-
-    /*
-      Prevent an older Firestore request
-      from overwriting a newer month if
-      the user switches quickly.
-    */
-
-    if (
-      monthBeingLoaded !==
-      currentMonth
-    ) {
-      return;
-    }
-
-
-    if (
-      snapshot.exists()
-    ) {
-
-      budgets =
-        snapshot.data()
-          .categories ||
-        {};
-
-    } else {
-
-      budgets =
-        {};
-
-    }
-
-
-    populateBudgetInputs();
-
-    renderDashboard();
-
-  } catch (error) {
-
-    console.error(
-      "Unable to load budget:",
-      error
-    );
-
-
-    budgets =
-      {};
-
-
-    populateBudgetInputs();
-
-    renderDashboard();
-
-  }
-
-}
-
-
-
-/* ======================================================
-   POPULATE BUDGET
-====================================================== */
-
-function populateBudgetInputs() {
-
-  document
-    .querySelectorAll(
-      ".budget-input"
-    )
-    .forEach(
-      input => {
-
-        const category =
-          input.dataset.category;
-
-
-        input.value =
-          budgets[category] ||
-          0;
-
-      }
-    );
-
-
-  updateBudgetTotal();
-
-}
-
-
-
-/* ======================================================
-   BUDGET TOTAL
-====================================================== */
-
-function updateBudgetTotal() {
-
-  let total =
-    0;
-
-
-  document
-    .querySelectorAll(
-      ".budget-input"
-    )
-    .forEach(
-      input => {
-
-        total +=
-          Number(
-            input.value ||
-            0
-          );
-
-      }
-    );
-
-
-  budgetTotal.textContent =
+  fyRevenue.textContent =
     currency(
-      total
+      totalRevenue
     );
 
 
-  const unallocated =
-    BASE_MONTHLY_INCOME -
-    total;
-
-
-  unallocatedTotal.textContent =
+  fyExpenses.textContent =
     currency(
-      unallocated
+      totalExpenses
     );
 
 
-  const parent =
-    unallocatedTotal.closest(
-      ".grand-total"
+  fyProfit.textContent =
+    currency(
+      totalProfit
     );
 
 
-  if (parent) {
+  fyProfit.classList.remove(
+    "positive-text",
+    "negative-text"
+  );
 
-    parent.classList.toggle(
-      "negative",
-      unallocated < 0
+
+  fyProfit.classList.add(
+    totalProfit >= 0
+
+      ? "positive-text"
+
+      : "negative-text"
+  );
+
+
+  fyMargin.textContent =
+    percent(
+      margin
     );
 
-  }
+
+  renderFiscalBreakdowns(
+    activeMonths
+  );
 
 }
 
 
 
 /* ======================================================
-   SAVE BUDGET
+   FISCAL BREAKDOWNS
 ====================================================== */
 
-saveBudgetButton.addEventListener(
-  "click",
-  async () => {
-
-    const categoryValues =
-      {};
-
-
-    document
-      .querySelectorAll(
-        ".budget-input"
-      )
-      .forEach(
-        input => {
-
-          categoryValues[
-            input.dataset.category
-          ] =
-            Number(
-              input.value ||
-              0
-            );
-
-        }
-      );
-
-
-    try {
-
-      await setDoc(
-        doc(
-          db,
-          "households",
-          HOUSEHOLD_ID,
-          "budgets",
-          currentMonth
-        ),
-        {
-
-          month:
-            currentMonth,
-
-          categories:
-            categoryValues,
-
-          updatedAt:
-            serverTimestamp()
-
-        }
-      );
-
-
-      budgets =
-        categoryValues;
-
-
-      budgetSaveStatus.textContent =
-        "Budget saved.";
-
-
-      renderDashboard();
-
-
-      setTimeout(
-        () => {
-
-          budgetSaveStatus.textContent =
-            "";
-
-        },
-        2000
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-
-      budgetSaveStatus.textContent =
-        "Unable to save budget.";
-
-    }
-
-  }
-);
-
-
-
-/* ======================================================
-   GOALS LISTENER
-====================================================== */
-
-function listenForGoals() {
-
-  if (
-    goalsUnsubscribe
-  ) {
-
-    goalsUnsubscribe();
-
-  }
-
-
-  const goalsRef =
-    collection(
-      db,
-      "households",
-      HOUSEHOLD_ID,
-      "goals"
-    );
-
-
-  goalsUnsubscribe =
-    onSnapshot(
-      goalsRef,
-
-      snapshot => {
-
-        goals =
-          snapshot.docs.map(
-            documentSnapshot => ({
-              id:
-                documentSnapshot.id,
-
-              ...documentSnapshot.data()
-            })
-          );
-
-
-        renderGoals();
-
-      },
-
-      error => {
-
-        console.error(
-          "Goal listener error:",
-          error
-        );
-
-      }
-    );
-
-}
-
-
-
-/* ======================================================
-   RENDER GOALS
-====================================================== */
-
-function renderGoals() {
-
-  if (
-    goals.length ===
-    0
-  ) {
-
-    goalsGrid.innerHTML =
-      `
-        <p class="empty-state">
-          No savings goals yet.
-        </p>
-      `;
-
-    return;
-
-  }
-
-
-  goalsGrid.innerHTML =
-    "";
-
-
-  goals.forEach(
-    goal => {
-
-      const target =
-        Number(
-          goal.target ||
-          0
-        );
-
-
-      const saved =
-        Number(
-          goal.saved ||
-          0
-        );
-
-
-      const percent =
-        target > 0
-
-          ? (
-              saved /
-              target
-            ) * 100
-
-          : 0;
-
-
-      const remaining =
-        Math.max(
-          target -
-          saved,
-          0
-        );
-
-
-      const card =
-        document.createElement(
-          "div"
-        );
-
-
-      card.className =
-        "goal-card";
-
-
-      card.innerHTML =
-        `
-          <h3>
-            ${escapeHtml(
-              goal.name ||
-              ""
-            )}
-          </h3>
-
-
-          <div class="goal-numbers">
-
-            <span>
-              ${currency(saved)} saved
-            </span>
-
-            <span>
-              ${currency(target)} goal
-            </span>
-
-          </div>
-
-
-          <div class="progress-track">
-
-            <div
-              class="progress-fill"
-              style="
-                width:
-                ${Math.min(percent,100)}%
-              "
-            ></div>
-
-          </div>
-
-
-          <div class="goal-footer">
-
-            <span>
-              ${Math.round(percent)}%
-            </span>
-
-            <span>
-              ${currency(remaining)} remaining
-            </span>
-
-          </div>
-
-
-          <div class="goal-actions">
-
-            <button
-              class="small-button goal-add-money"
-              data-id="${goal.id}"
-            >
-              Add Money
-            </button>
-
-
-            <button
-              class="small-button goal-remove-money"
-              data-id="${goal.id}"
-            >
-              Remove
-            </button>
-
-
-            <button
-              class="small-button delete goal-delete"
-              data-id="${goal.id}"
-            >
-              Delete
-            </button>
-
-          </div>
-        `;
-
-
-      goalsGrid.appendChild(
-        card
-      );
-
-    }
-  );
-
-
-  document
-    .querySelectorAll(
-      ".goal-add-money"
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            changeGoalAmount(
-              button.dataset.id,
-              1
-            );
-
-          }
-        );
-
-      }
-    );
-
-
-  document
-    .querySelectorAll(
-      ".goal-remove-money"
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            changeGoalAmount(
-              button.dataset.id,
-              -1
-            );
-
-          }
-        );
-
-      }
-    );
-
-
-  document
-    .querySelectorAll(
-      ".goal-delete"
-    )
-    .forEach(
-      button => {
-
-        button.addEventListener(
-          "click",
-          () => {
-
-            deleteGoal(
-              button.dataset.id
-            );
-
-          }
-        );
-
-      }
-    );
-
-}
-
-
-
-/* ======================================================
-   GOAL MODAL
-====================================================== */
-
-document
-  .getElementById(
-    "openGoalModalButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      goalForm.reset();
-
-      goalSaved.value =
-        0;
-
-      goalModal.classList.remove(
-        "hidden"
-      );
-
-    }
-  );
-
-
-document
-  .querySelectorAll(
-    "[data-close-goal-modal]"
-  )
-  .forEach(
-    element => {
-
-      element.addEventListener(
-        "click",
-        () => {
-
-          goalModal.classList.add(
-            "hidden"
-          );
-
-        }
-      );
-
-    }
-  );
-
-
-goalForm.addEventListener(
-  "submit",
-  async event => {
-
-    event.preventDefault();
-
-
-    const name =
-      goalName
-        .value
-        .trim();
-
-
-    const target =
-      Number(
-        goalTarget.value
-      );
-
-
-    const saved =
-      Number(
-        goalSaved.value
-      );
-
-
-    if (
-      !name ||
-      target <= 0
-    ) {
-
-      return;
-
-    }
-
-
-    try {
-
-      await addDoc(
-        collection(
-          db,
-          "households",
-          HOUSEHOLD_ID,
-          "goals"
-        ),
-        {
-
-          name,
-
-          target,
-
-          saved,
-
-          createdAt:
-            serverTimestamp()
-
-        }
-      );
-
-
-      goalModal.classList.add(
-        "hidden"
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-
-      alert(
-        "Unable to save goal."
-      );
-
-    }
-
-  }
-);
-
-
-
-/* ======================================================
-   CHANGE GOAL AMOUNT
-====================================================== */
-
-async function changeGoalAmount(
-  id,
-  direction
+function renderFiscalBreakdowns(
+  activeMonths
 ) {
 
-  const goal =
-    goals.find(
-      item =>
-        item.id === id
-    );
+  const revenueTotals =
+    {};
 
 
-  if (!goal) {
-    return;
-  }
+  REVENUE_CATEGORIES.forEach(
+    category => {
+
+      revenueTotals[
+        category
+      ] =
+        0;
+
+    }
+  );
 
 
-  const input =
-    prompt(
-      direction > 0
-
-        ? "How much do you want to add?"
-
-        : "How much do you want to remove?"
-    );
+  const expenseTotals =
+    {};
 
 
-  if (
-    input === null
-  ) {
+  EXPENSE_CATEGORIES.forEach(
+    category => {
 
-    return;
+      expenseTotals[
+        category
+      ] =
+        0;
 
-  }
-
-
-  const amount =
-    Number(
-      input
-    );
+    }
+  );
 
 
-  if (
-    !amount ||
-    amount <= 0
-  ) {
+  activeMonths.forEach(
+    month => {
 
-    return;
+      /*
+        Add fixed expenses once per month.
+      */
 
-  }
+      Object.entries(
+        FIXED_EXPENSES
+      ).forEach(
+        ([
+          category,
+          value
+        ]) => {
+
+          expenseTotals[
+            category
+          ] +=
+            value;
+
+        }
+      );
 
 
-  let newSaved =
-    Number(
-      goal.saved ||
+      const monthly =
+        getMonthlyTransactions(
+          month
+        );
+
+
+      monthly.forEach(
+        item => {
+
+          if (
+            item.type ===
+            "revenue"
+          ) {
+
+            if (
+              revenueTotals[
+                item.category
+              ] !==
+              undefined
+            ) {
+
+              revenueTotals[
+                item.category
+              ] +=
+                Number(
+                  item.amount || 0
+                );
+
+            }
+
+          } else {
+
+            if (
+              expenseTotals[
+                item.category
+              ] !==
+              undefined
+            ) {
+
+              expenseTotals[
+                item.category
+              ] +=
+                Number(
+                  item.amount || 0
+                );
+
+            }
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+
+  const revenueTotal =
+    Object.values(
+      revenueTotals
+    ).reduce(
+      (sum, value) =>
+        sum + value,
       0
-    ) +
-    (
-      direction *
-      amount
     );
 
 
-  newSaved =
-    Math.max(
-      newSaved,
+  const expenseTotal =
+    Object.values(
+      expenseTotals
+    ).reduce(
+      (sum, value) =>
+        sum + value,
       0
     );
 
 
-  try {
-
-    await updateDoc(
-      doc(
-        db,
-        "households",
-        HOUSEHOLD_ID,
-        "goals",
-        id
-      ),
-      {
-
-        saved:
-          newSaved,
-
-        updatedAt:
-          serverTimestamp()
-
-      }
-    );
-
-  } catch (error) {
-
-    console.error(error);
+  renderBreakdownList(
+    fyRevenueBreakdown,
+    revenueTotals,
+    revenueTotal,
+    "revenue"
+  );
 
 
-    alert(
-      "Unable to update goal."
-    );
-
-  }
-
-}
-
-
-
-/* ======================================================
-   DELETE GOAL
-====================================================== */
-
-async function deleteGoal(id) {
-
-  const goal =
-    goals.find(
-      item =>
-        item.id === id
-    );
-
-
-  const confirmed =
-    confirm(
-      `Delete savings goal "${
-        goal?.name ||
-        ""
-      }"?`
-    );
-
-
-  if (!confirmed) {
-    return;
-  }
-
-
-  try {
-
-    await deleteDoc(
-      doc(
-        db,
-        "households",
-        HOUSEHOLD_ID,
-        "goals",
-        id
-      )
-    );
-
-  } catch (error) {
-
-    console.error(error);
-
-
-    alert(
-      "Unable to delete goal."
-    );
-
-  }
+  renderBreakdownList(
+    fyExpenseBreakdown,
+    expenseTotals,
+    expenseTotal,
+    "expense"
+  );
 
 }
