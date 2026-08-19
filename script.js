@@ -1,4 +1,7 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
 
 import {
   getAuth,
@@ -6,6 +9,7 @@ import {
   signOut,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+
 
 import {
   getFirestore,
@@ -23,6 +27,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 
 
+
 const firebaseConfig = {
   apiKey: "AIzaSyBgW3D1UI_EYTJS5m1GXe6XwRTmkR-UcJo",
   authDomain: "household-budget-b350e.firebaseapp.com",
@@ -33,11 +38,19 @@ const firebaseConfig = {
 };
 
 
+
 const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
+
 const db = getFirestore(app);
 
+
+
 const HOUSEHOLD_ID = "main";
+
+const BASE_MONTHLY_INCOME = 10800;
+
 
 
 const categories = [
@@ -60,162 +73,260 @@ const categories = [
 ];
 
 
+
 let currentMonth = getCurrentMonth();
 
 let transactions = [];
+
 let budgets = {};
-let savingsTarget = 0;
+
 let goals = [];
 
 let transactionsUnsubscribe = null;
+
 let goalsUnsubscribe = null;
+
 
 
 // ------------------------------------------------------
 // DOM
 // ------------------------------------------------------
 
-const loginScreen = document.getElementById("loginScreen");
-const appElement = document.getElementById("app");
+const loginScreen =
+  document.getElementById("loginScreen");
 
-const loginForm = document.getElementById("loginForm");
-const loginError = document.getElementById("loginError");
 
-const logoutButton = document.getElementById("logoutButton");
+const appElement =
+  document.getElementById("app");
 
-const monthSelector = document.getElementById("monthSelector");
 
-const navButtons = document.querySelectorAll(".nav-button");
-const pages = document.querySelectorAll(".page");
+const loginForm =
+  document.getElementById("loginForm");
+
+
+const loginError =
+  document.getElementById("loginError");
+
+
+const logoutButton =
+  document.getElementById("logoutButton");
+
+
+const monthSelector =
+  document.getElementById("monthSelector");
+
+
+const navButtons =
+  document.querySelectorAll(".nav-button");
+
+
+const pages =
+  document.querySelectorAll(".page");
+
 
 const dashboardMonthTitle =
   document.getElementById("dashboardMonthTitle");
 
+
 const moneyInTotal =
   document.getElementById("moneyInTotal");
+
+
+const moneyInDetail =
+  document.getElementById("moneyInDetail");
+
 
 const spentTotal =
   document.getElementById("spentTotal");
 
+
 const budgetRemainingTotal =
   document.getElementById("budgetRemainingTotal");
+
+
+const budgetRemainingCard =
+  document.getElementById("budgetRemainingCard");
+
 
 const safeToSpendTotal =
   document.getElementById("safeToSpendTotal");
 
+
 const safeToSpendCard =
   document.getElementById("safeToSpendCard");
+
 
 const safeMoneyIn =
   document.getElementById("safeMoneyIn");
 
+
 const safeExpenses =
   document.getElementById("safeExpenses");
+
 
 const safeReserved =
   document.getElementById("safeReserved");
 
-const safeSavings =
-  document.getElementById("safeSavings");
 
 const safeResult =
   document.getElementById("safeResult");
 
+
+const ytdTitle =
+  document.getElementById("ytdTitle");
+
+
+const ytdBaseIncome =
+  document.getElementById("ytdBaseIncome");
+
+
+const ytdExtraIncome =
+  document.getElementById("ytdExtraIncome");
+
+
+const ytdIncome =
+  document.getElementById("ytdIncome");
+
+
+const ytdSpent =
+  document.getElementById("ytdSpent");
+
+
+const ytdBalance =
+  document.getElementById("ytdBalance");
+
+
+const ytdBalanceBadge =
+  document.getElementById("ytdBalanceBadge");
+
+
 const categoryProgressList =
   document.getElementById("categoryProgressList");
+
 
 const recentTransactions =
   document.getElementById("recentTransactions");
 
+
 const transactionTableBody =
   document.getElementById("transactionTableBody");
+
 
 const transactionEmptyState =
   document.getElementById("transactionEmptyState");
 
+
 const transactionTypeFilter =
   document.getElementById("transactionTypeFilter");
+
 
 const transactionCategoryFilter =
   document.getElementById("transactionCategoryFilter");
 
+
 const budgetForm =
   document.getElementById("budgetForm");
+
 
 const budgetTotal =
   document.getElementById("budgetTotal");
 
-const plannedTotal =
-  document.getElementById("plannedTotal");
 
-const savingsTargetInput =
-  document.getElementById("savingsTargetInput");
+const unallocatedTotal =
+  document.getElementById("unallocatedTotal");
+
 
 const budgetSaveStatus =
   document.getElementById("budgetSaveStatus");
 
+
 const saveBudgetButton =
   document.getElementById("saveBudgetButton");
+
 
 const transactionModal =
   document.getElementById("transactionModal");
 
+
 const transactionForm =
   document.getElementById("transactionForm");
+
 
 const transactionModalTitle =
   document.getElementById("transactionModalTitle");
 
+
 const transactionId =
   document.getElementById("transactionId");
+
 
 const transactionType =
   document.getElementById("transactionType");
 
+
 const transactionAmount =
   document.getElementById("transactionAmount");
+
 
 const transactionDate =
   document.getElementById("transactionDate");
 
+
 const transactionDescription =
   document.getElementById("transactionDescription");
+
 
 const transactionCategory =
   document.getElementById("transactionCategory");
 
+
 const transactionNeedWant =
   document.getElementById("transactionNeedWant");
+
 
 const transactionAccount =
   document.getElementById("transactionAccount");
 
+
 const transactionNotes =
   document.getElementById("transactionNotes");
+
 
 const transactionFormError =
   document.getElementById("transactionFormError");
 
+
 const expenseFields =
   document.getElementById("expenseFields");
+
+
+const saveTransactionButton =
+  document.getElementById("saveTransactionButton");
+
 
 const goalModal =
   document.getElementById("goalModal");
 
+
 const goalForm =
   document.getElementById("goalForm");
+
 
 const goalName =
   document.getElementById("goalName");
 
+
 const goalTarget =
   document.getElementById("goalTarget");
+
 
 const goalSaved =
   document.getElementById("goalSaved");
 
+
 const goalsGrid =
   document.getElementById("goalsGrid");
+
 
 
 // ------------------------------------------------------
@@ -224,23 +335,29 @@ const goalsGrid =
 
 function currency(value) {
 
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD"
-  }).format(Number(value || 0));
+  return new Intl.NumberFormat(
+    "en-US",
+    {
+      style: "currency",
+      currency: "USD"
+    }
+  ).format(Number(value || 0));
 
 }
+
 
 
 function getCurrentMonth() {
 
   const now = new Date();
 
-  return `${now.getFullYear()}-${String(
-    now.getMonth() + 1
-  ).padStart(2, "0")}`;
+  return (
+    `${now.getFullYear()}-` +
+    `${String(now.getMonth() + 1).padStart(2, "0")}`
+  );
 
 }
+
 
 
 function formatMonth(monthKey) {
@@ -248,60 +365,115 @@ function formatMonth(monthKey) {
   const [year, month] =
     monthKey.split("-");
 
+
   return new Date(
     Number(year),
     Number(month) - 1,
     1
-  ).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric"
-  });
+  ).toLocaleDateString(
+    "en-US",
+    {
+      month: "long",
+      year: "numeric"
+    }
+  );
 
 }
 
 
+
 function formatDate(dateString) {
 
-  if (!dateString) return "";
+  if (!dateString) {
+    return "";
+  }
+
 
   const [year, month, day] =
     dateString.split("-");
+
 
   return new Date(
     Number(year),
     Number(month) - 1,
     Number(day)
-  ).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric"
-  });
+  ).toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric"
+    }
+  );
 
 }
+
 
 
 function getMonthFromDate(dateString) {
+
   return dateString.slice(0, 7);
+
 }
+
 
 
 function todayString() {
 
   const now = new Date();
 
+
   const year =
     now.getFullYear();
+
 
   const month =
     String(now.getMonth() + 1)
       .padStart(2, "0");
 
+
   const day =
     String(now.getDate())
       .padStart(2, "0");
 
+
   return `${year}-${month}-${day}`;
 
 }
+
+
+
+function escapeHtml(value = "") {
+
+  return String(value)
+
+    .replaceAll("&", "&amp;")
+
+    .replaceAll("<", "&lt;")
+
+    .replaceAll(">", "&gt;")
+
+    .replaceAll('"', "&quot;")
+
+    .replaceAll("'", "&#039;");
+
+}
+
+
+
+function capitalize(value = "") {
+
+  if (!value) {
+    return "";
+  }
+
+
+  return (
+    value.charAt(0).toUpperCase() +
+    value.slice(1)
+  );
+
+}
+
 
 
 // ------------------------------------------------------
@@ -312,9 +484,11 @@ function buildMonthSelector() {
 
   monthSelector.innerHTML = "";
 
+
   const now = new Date();
 
-  for (let i = -18; i <= 12; i++) {
+
+  for (let i = -24; i <= 12; i++) {
 
     const date =
       new Date(
@@ -323,31 +497,40 @@ function buildMonthSelector() {
         1
       );
 
+
     const value =
-      `${date.getFullYear()}-${String(
-        date.getMonth() + 1
-      ).padStart(2, "0")}`;
+      `${date.getFullYear()}-` +
+      `${String(date.getMonth() + 1).padStart(2, "0")}`;
+
 
     const option =
       document.createElement("option");
 
+
     option.value = value;
 
+
     option.textContent =
-      date.toLocaleDateString("en-US", {
-        month: "long",
-        year: "numeric"
-      });
+      date.toLocaleDateString(
+        "en-US",
+        {
+          month: "long",
+          year: "numeric"
+        }
+      );
+
 
     if (value === currentMonth) {
       option.selected = true;
     }
+
 
     monthSelector.appendChild(option);
 
   }
 
 }
+
 
 
 // ------------------------------------------------------
@@ -360,7 +543,9 @@ loginForm.addEventListener(
 
     event.preventDefault();
 
+
     loginError.textContent = "";
+
 
     const email =
       document
@@ -368,10 +553,12 @@ loginForm.addEventListener(
         .value
         .trim();
 
+
     const password =
       document
         .getElementById("password")
         .value;
+
 
     try {
 
@@ -385,6 +572,7 @@ loginForm.addEventListener(
 
       console.error(error);
 
+
       loginError.textContent =
         "Unable to sign in. Check your email and password.";
 
@@ -394,12 +582,16 @@ loginForm.addEventListener(
 );
 
 
+
 logoutButton.addEventListener(
   "click",
   async () => {
+
     await signOut(auth);
+
   }
 );
+
 
 
 onAuthStateChanged(
@@ -409,29 +601,41 @@ onAuthStateChanged(
     if (user) {
 
       loginScreen.classList.add("hidden");
+
       appElement.classList.remove("hidden");
+
 
       await initializeAppData();
 
     } else {
 
       if (transactionsUnsubscribe) {
+
         transactionsUnsubscribe();
+
         transactionsUnsubscribe = null;
+
       }
+
 
       if (goalsUnsubscribe) {
+
         goalsUnsubscribe();
+
         goalsUnsubscribe = null;
+
       }
 
+
       appElement.classList.add("hidden");
+
       loginScreen.classList.remove("hidden");
 
     }
 
   }
 );
+
 
 
 // ------------------------------------------------------
@@ -441,18 +645,25 @@ onAuthStateChanged(
 async function initializeAppData() {
 
   buildMonthSelector();
+
   buildCategoryDropdowns();
+
   buildBudgetForm();
+
 
   dashboardMonthTitle.textContent =
     formatMonth(currentMonth);
 
+
   await loadBudget();
 
+
   listenForTransactions();
+
   listenForGoals();
 
 }
+
 
 
 // ------------------------------------------------------
@@ -461,28 +672,40 @@ async function initializeAppData() {
 
 navButtons.forEach(button => {
 
-  button.addEventListener("click", () => {
+  button.addEventListener(
+    "click",
+    () => {
 
-    const pageName =
-      button.dataset.page;
+      const pageName =
+        button.dataset.page;
 
-    navButtons.forEach(nav => {
-      nav.classList.remove("active");
-    });
 
-    button.classList.add("active");
+      navButtons.forEach(nav => {
 
-    pages.forEach(page => {
-      page.classList.remove("active-page");
-    });
+        nav.classList.remove("active");
 
-    document
-      .getElementById(`${pageName}Page`)
-      .classList.add("active-page");
+      });
 
-  });
+
+      button.classList.add("active");
+
+
+      pages.forEach(page => {
+
+        page.classList.remove("active-page");
+
+      });
+
+
+      document
+        .getElementById(`${pageName}Page`)
+        .classList.add("active-page");
+
+    }
+  );
 
 });
+
 
 
 // ------------------------------------------------------
@@ -493,16 +716,21 @@ function buildCategoryDropdowns() {
 
   transactionCategory.innerHTML = "";
 
+
   transactionCategoryFilter.innerHTML =
     `<option value="all">All Categories</option>`;
+
 
   categories.forEach(category => {
 
     const option =
       document.createElement("option");
 
+
     option.value = category;
+
     option.textContent = category;
+
 
     transactionCategory.appendChild(option);
 
@@ -510,8 +738,11 @@ function buildCategoryDropdowns() {
     const filterOption =
       document.createElement("option");
 
+
     filterOption.value = category;
+
     filterOption.textContent = category;
+
 
     transactionCategoryFilter.appendChild(
       filterOption
@@ -522,8 +753,9 @@ function buildCategoryDropdowns() {
 }
 
 
+
 // ------------------------------------------------------
-// ADD MONEY / ADD EXPENSE BUTTONS
+// ADD MONEY / EXPENSE BUTTONS
 // ------------------------------------------------------
 
 document
@@ -558,15 +790,19 @@ document
   );
 
 
+
 // ------------------------------------------------------
-// TRANSACTIONS
+// FIRESTORE TRANSACTION LISTENER
 // ------------------------------------------------------
 
 function listenForTransactions() {
 
   if (transactionsUnsubscribe) {
+
     transactionsUnsubscribe();
+
   }
+
 
   const transactionsRef =
     collection(
@@ -576,26 +812,33 @@ function listenForTransactions() {
       "transactions"
     );
 
-  const q =
+
+  const transactionsQuery =
     query(
       transactionsRef,
       orderBy("date", "desc")
     );
 
+
   transactionsUnsubscribe =
     onSnapshot(
-      q,
+      transactionsQuery,
+
       snapshot => {
 
         transactions =
-          snapshot.docs.map(docSnap => ({
-            id: docSnap.id,
-            ...docSnap.data()
-          }));
+          snapshot.docs.map(
+            docSnapshot => ({
+              id: docSnapshot.id,
+              ...docSnapshot.data()
+            })
+          );
+
 
         renderEverything();
 
       },
+
       error => {
 
         console.error(
@@ -609,17 +852,21 @@ function listenForTransactions() {
 }
 
 
+
 // ------------------------------------------------------
-// RENDER
+// GENERAL RENDER
 // ------------------------------------------------------
 
 function renderEverything() {
 
   renderDashboard();
+
   renderTransactions();
+
   renderGoals();
 
 }
+
 
 
 // ------------------------------------------------------
@@ -636,6 +883,41 @@ function getMonthlyTransactions() {
 }
 
 
+
+// ------------------------------------------------------
+// YTD TRANSACTIONS
+// ------------------------------------------------------
+
+function getYtdTransactions() {
+
+  const [selectedYear, selectedMonth] =
+    currentMonth.split("-");
+
+
+  return transactions.filter(
+    transaction => {
+
+      if (!transaction.month) {
+        return false;
+      }
+
+
+      const [transactionYear, transactionMonth] =
+        transaction.month.split("-");
+
+
+      return (
+        transactionYear === selectedYear &&
+        Number(transactionMonth) <= Number(selectedMonth)
+      );
+
+    }
+  );
+
+}
+
+
+
 // ------------------------------------------------------
 // DASHBOARD
 // ------------------------------------------------------
@@ -646,36 +928,44 @@ function renderDashboard() {
     getMonthlyTransactions();
 
 
-  const income =
+  const extraIncome =
     monthlyTransactions
+
       .filter(
         transaction =>
           transaction.type === "income"
       )
+
       .reduce(
         (sum, transaction) =>
-          sum +
-          Number(transaction.amount || 0),
+          sum + Number(transaction.amount || 0),
         0
       );
 
 
+  const monthlyIncome =
+    BASE_MONTHLY_INCOME +
+    extraIncome;
+
+
   const expenses =
     monthlyTransactions
+
       .filter(
         transaction =>
           transaction.type === "expense"
       )
+
       .reduce(
         (sum, transaction) =>
-          sum +
-          Number(transaction.amount || 0),
+          sum + Number(transaction.amount || 0),
         0
       );
 
 
   const totalBudget =
     Object.values(budgets)
+
       .reduce(
         (sum, amount) =>
           sum + Number(amount || 0),
@@ -687,24 +977,10 @@ function renderDashboard() {
     totalBudget - expenses;
 
 
-  /*
-    RESERVED REMAINING
 
-    We calculate each category separately.
-
-    If groceries:
-      budget = $1,000
-      spent = $600
-      reserved = $400
-
-    If restaurants:
-      budget = $500
-      spent = $600
-      reserved = $0
-
-    We never use a negative reservation.
-    Overspending is already included in total expenses.
-  */
+  // ----------------------------------------------------
+  // MONEY STILL RESERVED
+  // ----------------------------------------------------
 
   let reservedRemaining = 0;
 
@@ -712,20 +988,23 @@ function renderDashboard() {
   categories.forEach(category => {
 
     const categoryBudget =
-      Number(budgets[category] || 0);
+      Number(
+        budgets[category] || 0
+      );
 
 
     const categorySpent =
       monthlyTransactions
+
         .filter(
           transaction =>
             transaction.type === "expense" &&
             transaction.category === category
         )
+
         .reduce(
           (sum, transaction) =>
-            sum +
-            Number(transaction.amount || 0),
+            sum + Number(transaction.amount || 0),
           0
         );
 
@@ -739,100 +1018,258 @@ function renderDashboard() {
   });
 
 
-  /*
-    TRUE SAFE TO SPEND
 
-    Income
-    - money already spent
-    - money still reserved for budgets
-    - savings target
-  */
+  // ----------------------------------------------------
+  // SAFE TO SPEND
+  // ----------------------------------------------------
 
   const safeToSpend =
-    income
-    - expenses
-    - reservedRemaining
-    - Number(savingsTarget || 0);
+    monthlyIncome -
+    expenses -
+    reservedRemaining;
 
+
+
+  // ----------------------------------------------------
+  // MONTHLY CARDS
+  // ----------------------------------------------------
 
   moneyInTotal.textContent =
-    currency(income);
+    currency(monthlyIncome);
+
+
+  moneyInDetail.textContent =
+    extraIncome > 0
+
+      ? `${currency(BASE_MONTHLY_INCOME)} monthly + ${currency(extraIncome)} extra`
+
+      : `${currency(BASE_MONTHLY_INCOME)} monthly`;
+
 
   spentTotal.textContent =
     currency(expenses);
 
+
   budgetRemainingTotal.textContent =
     currency(budgetRemaining);
+
 
   safeToSpendTotal.textContent =
     currency(safeToSpend);
 
 
-  // Budget Remaining color
 
-  budgetRemainingTotal
-    .closest(".summary-card")
-    .classList.remove(
-      "positive-value",
-      "negative-value"
-    );
+  // ----------------------------------------------------
+  // BUDGET COLOR
+  // ----------------------------------------------------
 
-
-  budgetRemainingTotal
-    .closest(".summary-card")
-    .classList.add(
-      budgetRemaining >= 0
-        ? "positive-value"
-        : "negative-value"
-    );
+  budgetRemainingCard.classList.remove(
+    "positive-value",
+    "negative-value"
+  );
 
 
-  // Safe to Spend card color
+  budgetRemainingCard.classList.add(
+    budgetRemaining >= 0
+      ? "positive-value"
+      : "negative-value"
+  );
+
+
+
+  // ----------------------------------------------------
+  // SAFE TO SPEND COLOR
+  //
+  // RED if either:
+  // - actual budget is exceeded
+  // - safe cash is negative
+  // ----------------------------------------------------
+
+  const financiallySafe =
+    budgetRemaining >= 0 &&
+    safeToSpend >= 0;
+
 
   safeToSpendCard.classList.remove(
     "positive",
     "negative"
   );
 
+
   safeToSpendCard.classList.add(
-    safeToSpend >= 0
+    financiallySafe
       ? "positive"
       : "negative"
   );
 
 
-  // Formula breakdown
+
+  // ----------------------------------------------------
+  // SAFE TO SPEND FORMULA
+  // ----------------------------------------------------
 
   safeMoneyIn.textContent =
-    currency(income);
+    currency(monthlyIncome);
+
 
   safeExpenses.textContent =
     currency(expenses);
 
+
   safeReserved.textContent =
     currency(reservedRemaining);
 
-  safeSavings.textContent =
-    currency(savingsTarget);
 
   safeResult.textContent =
     currency(safeToSpend);
 
+
   safeResult.style.color =
-    safeToSpend >= 0
+    financiallySafe
       ? "var(--positive)"
       : "var(--negative)";
 
 
+
+  // ----------------------------------------------------
+  // YTD
+  // ----------------------------------------------------
+
+  renderYtd();
+
+
+
+  // ----------------------------------------------------
+  // LOWER DASHBOARD
+  // ----------------------------------------------------
+
   renderCategoryProgress(
     monthlyTransactions
   );
+
 
   renderRecentTransactions(
     monthlyTransactions
   );
 
 }
+
+
+
+// ------------------------------------------------------
+// YTD ROLLING ACCOUNT
+// ------------------------------------------------------
+
+function renderYtd() {
+
+  const [selectedYear, selectedMonth] =
+    currentMonth.split("-");
+
+
+  const monthsIncluded =
+    Number(selectedMonth);
+
+
+  const ytdTransactions =
+    getYtdTransactions();
+
+
+
+  // Base monthly contributions:
+  // Jan = 1 month
+  // Feb = 2 months
+  // ...
+  // Aug = 8 months
+
+  const baseIncomeYtd =
+    BASE_MONTHLY_INCOME *
+    monthsIncluded;
+
+
+
+  const extraIncomeYtd =
+    ytdTransactions
+
+      .filter(
+        transaction =>
+          transaction.type === "income"
+      )
+
+      .reduce(
+        (sum, transaction) =>
+          sum + Number(transaction.amount || 0),
+        0
+      );
+
+
+
+  const expensesYtd =
+    ytdTransactions
+
+      .filter(
+        transaction =>
+          transaction.type === "expense"
+      )
+
+      .reduce(
+        (sum, transaction) =>
+          sum + Number(transaction.amount || 0),
+        0
+      );
+
+
+
+  const totalIncomeYtd =
+    baseIncomeYtd +
+    extraIncomeYtd;
+
+
+
+  const balanceYtd =
+    totalIncomeYtd -
+    expensesYtd;
+
+
+
+  ytdTitle.textContent =
+    `${selectedYear} Year to Date`;
+
+
+  ytdBaseIncome.textContent =
+    currency(baseIncomeYtd);
+
+
+  ytdExtraIncome.textContent =
+    currency(extraIncomeYtd);
+
+
+  ytdIncome.textContent =
+    currency(totalIncomeYtd);
+
+
+  ytdSpent.textContent =
+    currency(expensesYtd);
+
+
+  ytdBalance.textContent =
+    currency(balanceYtd);
+
+
+
+  ytdBalanceBadge.classList.remove(
+    "positive",
+    "negative"
+  );
+
+
+  ytdBalanceBadge.classList.add(
+    balanceYtd >= 0
+      ? "positive"
+      : "negative"
+  );
+
+}
+
 
 
 // ------------------------------------------------------
@@ -853,9 +1290,11 @@ function renderCategoryProgress(
   if (!categoriesWithBudget.length) {
 
     categoryProgressList.innerHTML =
-      `<p class="empty-state">
-        No monthly budget has been set yet.
-      </p>`;
+      `
+        <p class="empty-state">
+          No monthly budget has been set yet.
+        </p>
+      `;
 
     return;
 
@@ -865,95 +1304,110 @@ function renderCategoryProgress(
   categoryProgressList.innerHTML = "";
 
 
-  categoriesWithBudget.forEach(category => {
+  categoriesWithBudget.forEach(
+    category => {
 
-    const budgetAmount =
-      Number(budgets[category] || 0);
-
-
-    const spent =
-      monthlyTransactions
-        .filter(
-          transaction =>
-            transaction.type === "expense" &&
-            transaction.category === category
-        )
-        .reduce(
-          (sum, transaction) =>
-            sum +
-            Number(transaction.amount || 0),
-          0
+      const budgetAmount =
+        Number(
+          budgets[category] || 0
         );
 
 
-    const remaining =
-      budgetAmount - spent;
+      const spent =
+        monthlyTransactions
+
+          .filter(
+            transaction =>
+              transaction.type === "expense" &&
+              transaction.category === category
+          )
+
+          .reduce(
+            (sum, transaction) =>
+              sum +
+              Number(transaction.amount || 0),
+            0
+          );
 
 
-    const percent =
-      budgetAmount > 0
-        ? (spent / budgetAmount) * 100
-        : 0;
+      const remaining =
+        budgetAmount - spent;
 
 
-    const item =
-      document.createElement("div");
+      const percent =
+        budgetAmount > 0
+          ? (spent / budgetAmount) * 100
+          : 0;
 
 
-    item.className =
-      "category-progress-item";
+      const item =
+        document.createElement("div");
 
 
-    item.innerHTML = `
-
-      <div class="category-progress-top">
-
-        <div class="category-progress-name">
-          ${category}
-        </div>
-
-        <div class="category-progress-values">
-          ${currency(spent)} / ${currency(budgetAmount)}
-        </div>
-
-      </div>
+      item.className =
+        "category-progress-item";
 
 
-      <div class="progress-track">
+      item.innerHTML =
+        `
+          <div class="category-progress-top">
 
-        <div
-          class="progress-fill ${percent > 100 ? "over" : ""}"
-          style="width: ${Math.min(percent, 100)}%"
-        ></div>
+            <div class="category-progress-name">
+              ${category}
+            </div>
 
-      </div>
+            <div class="category-progress-values">
+              ${currency(spent)}
+              /
+              ${currency(budgetAmount)}
+            </div>
 
-
-      <div class="category-progress-bottom">
-
-        <span>
-          ${Math.round(percent)}% used
-        </span>
-
-        <span class="${remaining < 0 ? "over-budget-text" : ""}">
-
-          ${
-            remaining >= 0
-              ? `${currency(remaining)} remaining`
-              : `${currency(Math.abs(remaining))} over`
-          }
-
-        </span>
-
-      </div>
-    `;
+          </div>
 
 
-    categoryProgressList.appendChild(item);
+          <div class="progress-track">
 
-  });
+            <div
+              class="progress-fill ${percent > 100 ? "over" : ""}"
+              style="width: ${Math.min(percent, 100)}%"
+            ></div>
+
+          </div>
+
+
+          <div class="category-progress-bottom">
+
+            <span>
+              ${Math.round(percent)}% used
+            </span>
+
+            <span
+              class="${remaining < 0 ? "over-budget-text" : ""}"
+            >
+
+              ${
+                remaining >= 0
+
+                  ? `${currency(remaining)} remaining`
+
+                  : `${currency(Math.abs(remaining))} over`
+              }
+
+            </span>
+
+          </div>
+        `;
+
+
+      categoryProgressList.appendChild(
+        item
+      );
+
+    }
+  );
 
 }
+
 
 
 // ------------------------------------------------------
@@ -966,19 +1420,23 @@ function renderRecentTransactions(
 
   const sorted =
     [...monthlyTransactions]
+
       .sort(
         (a, b) =>
           b.date.localeCompare(a.date)
       )
+
       .slice(0, 7);
 
 
   if (!sorted.length) {
 
     recentTransactions.innerHTML =
-      `<p class="empty-state">
-        No transactions yet.
-      </p>`;
+      `
+        <p class="empty-state">
+          No transactions yet.
+        </p>
+      `;
 
     return;
 
@@ -988,62 +1446,73 @@ function renderRecentTransactions(
   recentTransactions.innerHTML = "";
 
 
-  sorted.forEach(transaction => {
+  sorted.forEach(
+    transaction => {
 
-    const row =
-      document.createElement("div");
-
-
-    row.className =
-      "recent-transaction";
+      const row =
+        document.createElement("div");
 
 
-    row.innerHTML = `
-
-      <div>
-
-        <div class="recent-description">
-          ${escapeHtml(transaction.description)}
-        </div>
-
-        <div class="recent-meta">
-
-          ${formatDate(transaction.date)}
-
-          ${
-            transaction.type === "expense"
-              ? ` • ${transaction.category}`
-              : " • Money In"
-          }
-
-        </div>
-
-      </div>
+      row.className =
+        "recent-transaction";
 
 
-      <div class="${
-        transaction.type === "income"
-          ? "amount-income"
-          : "amount-expense"
-      }">
+      row.innerHTML =
+        `
+          <div>
 
-        ${
-          transaction.type === "income"
-            ? "+"
-            : "-"
-        }
+            <div class="recent-description">
+              ${escapeHtml(transaction.description)}
+            </div>
 
-        ${currency(transaction.amount)}
+            <div class="recent-meta">
 
-      </div>
-    `;
+              ${formatDate(transaction.date)}
+
+              ${
+                transaction.type === "expense"
+
+                  ? ` • ${transaction.category}`
+
+                  : " • Extra Money"
+              }
+
+            </div>
+
+          </div>
 
 
-    recentTransactions.appendChild(row);
+          <div
+            class="${
+              transaction.type === "income"
 
-  });
+                ? "amount-income"
+
+                : "amount-expense"
+            }"
+          >
+
+            ${
+              transaction.type === "income"
+                ? "+"
+                : "-"
+            }
+
+            ${currency(transaction.amount)}
+
+          </div>
+        `;
+
+
+      recentTransactions.appendChild(
+        row
+      );
+
+    }
+  );
 
 }
+
 
 
 // ------------------------------------------------------
@@ -1064,6 +1533,7 @@ function renderTransactions() {
     transactionCategoryFilter.value;
 
 
+
   if (typeFilter !== "all") {
 
     filtered =
@@ -1073,6 +1543,7 @@ function renderTransactions() {
       );
 
   }
+
 
 
   if (categoryFilter !== "all") {
@@ -1086,13 +1557,16 @@ function renderTransactions() {
   }
 
 
+
   filtered.sort(
     (a, b) =>
       b.date.localeCompare(a.date)
   );
 
 
+
   transactionTableBody.innerHTML = "";
+
 
 
   transactionEmptyState.classList.toggle(
@@ -1101,117 +1575,145 @@ function renderTransactions() {
   );
 
 
-  filtered.forEach(transaction => {
 
-    const row =
-      document.createElement("tr");
+  filtered.forEach(
+    transaction => {
+
+      const row =
+        document.createElement("tr");
 
 
-    row.innerHTML = `
+      row.innerHTML =
+        `
+          <td>
+            ${formatDate(transaction.date)}
+          </td>
 
-      <td>
-        ${formatDate(transaction.date)}
-      </td>
 
-      <td>
-        ${escapeHtml(transaction.description)}
-      </td>
+          <td>
+            ${escapeHtml(transaction.description)}
+          </td>
 
-      <td>
 
-        ${
-          transaction.type === "income"
-            ? "Money In"
-            : transaction.category
-        }
+          <td>
 
-      </td>
+            ${
+              transaction.type === "income"
 
-      <td>
+                ? "Extra Money"
 
-        ${
-          transaction.type === "expense"
-            ? capitalize(transaction.needWant || "")
-            : "—"
-        }
+                : transaction.category
+            }
 
-      </td>
+          </td>
 
-      <td class="${
-        transaction.type === "income"
-          ? "amount-income"
-          : "amount-expense"
-      }">
 
-        ${
-          transaction.type === "income"
-            ? "+"
-            : "-"
-        }
+          <td>
 
-        ${currency(transaction.amount)}
+            ${
+              transaction.type === "expense"
 
-      </td>
+                ? capitalize(
+                    transaction.needWant || ""
+                  )
 
-      <td>
+                : "—"
+            }
 
-        <div class="transaction-actions">
+          </td>
 
-          <button
-            class="small-button edit-transaction"
-            data-id="${transaction.id}"
+
+          <td
+            class="${
+              transaction.type === "income"
+
+                ? "amount-income"
+
+                : "amount-expense"
+            }"
           >
-            Edit
-          </button>
 
-          <button
-            class="small-button delete delete-transaction"
-            data-id="${transaction.id}"
-          >
-            Delete
-          </button>
+            ${
+              transaction.type === "income"
+                ? "+"
+                : "-"
+            }
 
-        </div>
+            ${currency(transaction.amount)}
 
-      </td>
-    `;
+          </td>
 
 
-    transactionTableBody.appendChild(row);
+          <td>
 
-  });
+            <div class="transaction-actions">
+
+              <button
+                class="small-button edit-transaction"
+                data-id="${transaction.id}"
+              >
+                Edit
+              </button>
+
+
+              <button
+                class="small-button delete delete-transaction"
+                data-id="${transaction.id}"
+              >
+                Delete
+              </button>
+
+            </div>
+
+          </td>
+        `;
+
+
+      transactionTableBody.appendChild(
+        row
+      );
+
+    }
+  );
+
 
 
   document
     .querySelectorAll(".edit-transaction")
-    .forEach(button => {
+    .forEach(
+      button => {
 
-      button.addEventListener(
-        "click",
-        () =>
-          openEditTransaction(
-            button.dataset.id
-          )
-      );
+        button.addEventListener(
+          "click",
+          () =>
+            openEditTransaction(
+              button.dataset.id
+            )
+        );
 
-    });
+      }
+    );
+
 
 
   document
     .querySelectorAll(".delete-transaction")
-    .forEach(button => {
+    .forEach(
+      button => {
 
-      button.addEventListener(
-        "click",
-        () =>
-          deleteTransaction(
-            button.dataset.id
-          )
-      );
+        button.addEventListener(
+          "click",
+          () =>
+            deleteTransaction(
+              button.dataset.id
+            )
+        );
 
-    });
+      }
+    );
 
 }
+
 
 
 transactionTypeFilter.addEventListener(
@@ -1220,10 +1722,12 @@ transactionTypeFilter.addEventListener(
 );
 
 
+
 transactionCategoryFilter.addEventListener(
   "change",
   renderTransactions
 );
+
 
 
 // ------------------------------------------------------
@@ -1234,140 +1738,213 @@ document
   .querySelectorAll(
     "[data-close-transaction-modal]"
   )
-  .forEach(element => {
+  .forEach(
+    element => {
 
-    element.addEventListener(
-      "click",
-      closeTransactionModal
-    );
+      element.addEventListener(
+        "click",
+        closeTransactionModal
+      );
 
-  });
+    }
+  );
 
 
-function openNewTransaction(type = "expense") {
+
+function openNewTransaction(
+  type = "expense"
+) {
 
   transactionForm.reset();
 
+
   transactionId.value = "";
 
-  transactionType.value = type;
+
+  transactionType.value =
+    type;
+
 
   transactionDate.value =
     todayString();
 
+
   transactionNeedWant.value =
     "need";
+
 
   transactionModalTitle.textContent =
     type === "income"
       ? "Add Money"
       : "Add Expense";
 
+
+  saveTransactionButton.textContent =
+    type === "income"
+      ? "Add Money"
+      : "Save Expense";
+
+
   updateTransactionTypeButtons();
+
   updateNeedWantButtons();
 
-  transactionFormError.textContent = "";
 
-  transactionModal.classList.remove("hidden");
+  transactionFormError.textContent =
+    "";
+
+
+  transactionModal.classList.remove(
+    "hidden"
+  );
 
 }
+
 
 
 function closeTransactionModal() {
 
-  transactionModal.classList.add("hidden");
+  transactionModal.classList.add(
+    "hidden"
+  );
 
 }
+
 
 
 function openEditTransaction(id) {
 
   const transaction =
     transactions.find(
-      transaction =>
-        transaction.id === id
+      item =>
+        item.id === id
     );
 
 
-  if (!transaction) return;
+  if (!transaction) {
+    return;
+  }
 
 
   transactionId.value =
     transaction.id;
 
+
   transactionType.value =
     transaction.type;
+
 
   transactionAmount.value =
     transaction.amount;
 
+
   transactionDate.value =
     transaction.date;
+
 
   transactionDescription.value =
     transaction.description || "";
 
+
   transactionCategory.value =
     transaction.category || categories[0];
+
 
   transactionNeedWant.value =
     transaction.needWant || "need";
 
+
   transactionAccount.value =
     transaction.account || "";
+
 
   transactionNotes.value =
     transaction.notes || "";
 
+
   transactionModalTitle.textContent =
     "Edit Transaction";
 
+
+  saveTransactionButton.textContent =
+    "Save Changes";
+
+
   updateTransactionTypeButtons();
+
   updateNeedWantButtons();
 
-  transactionModal.classList.remove("hidden");
+
+  transactionModal.classList.remove(
+    "hidden"
+  );
 
 }
 
 
+
 // ------------------------------------------------------
-// TYPE BUTTONS
+// TRANSACTION TYPE BUTTONS
 // ------------------------------------------------------
 
 document
-  .querySelectorAll(".transaction-type-button")
-  .forEach(button => {
+  .querySelectorAll(
+    ".transaction-type-button"
+  )
+  .forEach(
+    button => {
 
-    button.addEventListener("click", () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-      transactionType.value =
-        button.dataset.type;
+          transactionType.value =
+            button.dataset.type;
 
-      transactionModalTitle.textContent =
-        transactionType.value === "income"
-          ? "Add Money"
-          : "Add Expense";
 
-      updateTransactionTypeButtons();
+          if (!transactionId.value) {
 
-    });
+            transactionModalTitle.textContent =
+              transactionType.value === "income"
+                ? "Add Money"
+                : "Add Expense";
 
-  });
+
+            saveTransactionButton.textContent =
+              transactionType.value === "income"
+                ? "Add Money"
+                : "Save Expense";
+
+          }
+
+
+          updateTransactionTypeButtons();
+
+        }
+      );
+
+    }
+  );
+
 
 
 function updateTransactionTypeButtons() {
 
   document
-    .querySelectorAll(".transaction-type-button")
-    .forEach(button => {
+    .querySelectorAll(
+      ".transaction-type-button"
+    )
+    .forEach(
+      button => {
 
-      button.classList.toggle(
-        "active",
-        button.dataset.type ===
-          transactionType.value
-      );
+        button.classList.toggle(
+          "active",
+          button.dataset.type ===
+            transactionType.value
+        );
 
-    });
+      }
+    );
 
 
   expenseFields.classList.toggle(
@@ -1378,41 +1955,56 @@ function updateTransactionTypeButtons() {
 }
 
 
+
 // ------------------------------------------------------
-// NEED / WANT
+// NEED / WANT BUTTONS
 // ------------------------------------------------------
 
 document
-  .querySelectorAll(".need-want-button")
-  .forEach(button => {
+  .querySelectorAll(
+    ".need-want-button"
+  )
+  .forEach(
+    button => {
 
-    button.addEventListener("click", () => {
+      button.addEventListener(
+        "click",
+        () => {
 
-      transactionNeedWant.value =
-        button.dataset.value;
+          transactionNeedWant.value =
+            button.dataset.value;
 
-      updateNeedWantButtons();
 
-    });
+          updateNeedWantButtons();
 
-  });
+        }
+      );
+
+    }
+  );
+
 
 
 function updateNeedWantButtons() {
 
   document
-    .querySelectorAll(".need-want-button")
-    .forEach(button => {
+    .querySelectorAll(
+      ".need-want-button"
+    )
+    .forEach(
+      button => {
 
-      button.classList.toggle(
-        "active",
-        button.dataset.value ===
-          transactionNeedWant.value
-      );
+        button.classList.toggle(
+          "active",
+          button.dataset.value ===
+            transactionNeedWant.value
+        );
 
-    });
+      }
+    );
 
 }
+
 
 
 // ------------------------------------------------------
@@ -1425,11 +2017,14 @@ transactionForm.addEventListener(
 
     event.preventDefault();
 
+
     transactionFormError.textContent = "";
 
 
     const amount =
-      Number(transactionAmount.value);
+      Number(
+        transactionAmount.value
+      );
 
 
     if (!amount || amount <= 0) {
@@ -1453,7 +2048,9 @@ transactionForm.addEventListener(
       amount,
 
       description:
-        transactionDescription.value.trim(),
+        transactionDescription
+          .value
+          .trim(),
 
       date:
         transactionDate.value,
@@ -1464,10 +2061,14 @@ transactionForm.addEventListener(
         ),
 
       account:
-        transactionAccount.value.trim(),
+        transactionAccount
+          .value
+          .trim(),
 
       notes:
-        transactionNotes.value.trim(),
+        transactionNotes
+          .value
+          .trim(),
 
       updatedAt:
         serverTimestamp()
@@ -1480,6 +2081,7 @@ transactionForm.addEventListener(
       data.category =
         transactionCategory.value;
 
+
       data.needWant =
         transactionNeedWant.value;
 
@@ -1487,6 +2089,7 @@ transactionForm.addEventListener(
 
       data.category =
         "Income";
+
 
       data.needWant =
         null;
@@ -1534,10 +2137,10 @@ transactionForm.addEventListener(
 
       closeTransactionModal();
 
-
     } catch (error) {
 
       console.error(error);
+
 
       transactionFormError.textContent =
         "Unable to save transaction.";
@@ -1548,6 +2151,7 @@ transactionForm.addEventListener(
 );
 
 
+
 // ------------------------------------------------------
 // DELETE TRANSACTION
 // ------------------------------------------------------
@@ -1556,8 +2160,8 @@ async function deleteTransaction(id) {
 
   const transaction =
     transactions.find(
-      transaction =>
-        transaction.id === id
+      item =>
+        item.id === id
     );
 
 
@@ -1570,7 +2174,9 @@ async function deleteTransaction(id) {
     );
 
 
-  if (!confirmed) return;
+  if (!confirmed) {
+    return;
+  }
 
 
   try {
@@ -1589,6 +2195,7 @@ async function deleteTransaction(id) {
 
     console.error(error);
 
+
     alert(
       "Unable to delete transaction."
     );
@@ -1598,8 +2205,9 @@ async function deleteTransaction(id) {
 }
 
 
+
 // ------------------------------------------------------
-// BUDGET FORM
+// BUILD BUDGET FORM
 // ------------------------------------------------------
 
 function buildBudgetForm() {
@@ -1607,56 +2215,67 @@ function buildBudgetForm() {
   budgetForm.innerHTML = "";
 
 
-  categories.forEach(category => {
+  categories.forEach(
+    category => {
 
-    const row =
-      document.createElement("div");
-
-
-    row.className =
-      "budget-row";
+      const row =
+        document.createElement("div");
 
 
-    row.innerHTML = `
-
-      <label>
-        ${category}
-      </label>
-
-      <div class="budget-input-wrapper">
-
-        <span>$</span>
-
-        <input
-          type="number"
-          min="0"
-          step="1"
-          class="budget-input"
-          data-category="${category}"
-          value="0"
-        >
-
-      </div>
-    `;
+      row.className =
+        "budget-row";
 
 
-    budgetForm.appendChild(row);
+      row.innerHTML =
+        `
+          <label>
+            ${category}
+          </label>
 
-  });
+
+          <div class="budget-input-wrapper">
+
+            <span>
+              $
+            </span>
+
+
+            <input
+              type="number"
+              min="0"
+              step="1"
+              class="budget-input"
+              data-category="${category}"
+              value="0"
+            >
+
+          </div>
+        `;
+
+
+      budgetForm.appendChild(
+        row
+      );
+
+    }
+  );
 
 
   document
     .querySelectorAll(".budget-input")
-    .forEach(input => {
+    .forEach(
+      input => {
 
-      input.addEventListener(
-        "input",
-        updateBudgetTotal
-      );
+        input.addEventListener(
+          "input",
+          updateBudgetTotal
+        );
 
-    });
+      }
+    );
 
 }
+
 
 
 // ------------------------------------------------------
@@ -1678,32 +2297,27 @@ async function loadBudget() {
   try {
 
     const snapshot =
-      await getDoc(budgetRef);
+      await getDoc(
+        budgetRef
+      );
 
 
     if (snapshot.exists()) {
 
-      const data =
-        snapshot.data();
-
       budgets =
-        data.categories || {};
-
-      savingsTarget =
-        Number(data.savingsTarget || 0);
+        snapshot.data().categories || {};
 
     } else {
 
       budgets = {};
-      savingsTarget = 0;
 
     }
 
 
     populateBudgetInputs();
 
-    renderDashboard();
 
+    renderDashboard();
 
   } catch (error) {
 
@@ -1717,6 +2331,7 @@ async function loadBudget() {
 }
 
 
+
 // ------------------------------------------------------
 // POPULATE BUDGET
 // ------------------------------------------------------
@@ -1724,20 +2339,21 @@ async function loadBudget() {
 function populateBudgetInputs() {
 
   document
-    .querySelectorAll(".budget-input")
-    .forEach(input => {
+    .querySelectorAll(
+      ".budget-input"
+    )
+    .forEach(
+      input => {
 
-      const category =
-        input.dataset.category;
-
-      input.value =
-        budgets[category] || 0;
-
-    });
+        const category =
+          input.dataset.category;
 
 
-  savingsTargetInput.value =
-    savingsTarget || 0;
+        input.value =
+          budgets[category] || 0;
+
+      }
+    );
 
 
   updateBudgetTotal();
@@ -1745,8 +2361,9 @@ function populateBudgetInputs() {
 }
 
 
+
 // ------------------------------------------------------
-// BUDGET TOTAL
+// UPDATE BUDGET TOTAL
 // ------------------------------------------------------
 
 function updateBudgetTotal() {
@@ -1755,18 +2372,18 @@ function updateBudgetTotal() {
 
 
   document
-    .querySelectorAll(".budget-input")
-    .forEach(input => {
+    .querySelectorAll(
+      ".budget-input"
+    )
+    .forEach(
+      input => {
 
-      total +=
-        Number(input.value || 0);
+        total +=
+          Number(
+            input.value || 0
+          );
 
-    });
-
-
-  const currentSavingsTarget =
-    Number(
-      savingsTargetInput.value || 0
+      }
     );
 
 
@@ -1774,18 +2391,28 @@ function updateBudgetTotal() {
     currency(total);
 
 
-  plannedTotal.textContent =
-    currency(
-      total + currentSavingsTarget
+  const unallocated =
+    BASE_MONTHLY_INCOME -
+    total;
+
+
+  unallocatedTotal.textContent =
+    currency(unallocated);
+
+
+  const parent =
+    unallocatedTotal.closest(
+      ".grand-total"
     );
+
+
+  parent.classList.toggle(
+    "negative",
+    unallocated < 0
+  );
 
 }
 
-
-savingsTargetInput.addEventListener(
-  "input",
-  updateBudgetTotal
-);
 
 
 // ------------------------------------------------------
@@ -1800,20 +2427,20 @@ saveBudgetButton.addEventListener(
 
 
     document
-      .querySelectorAll(".budget-input")
-      .forEach(input => {
+      .querySelectorAll(
+        ".budget-input"
+      )
+      .forEach(
+        input => {
 
-        categoryValues[
-          input.dataset.category
-        ] =
-          Number(input.value || 0);
+          categoryValues[
+            input.dataset.category
+          ] =
+            Number(
+              input.value || 0
+            );
 
-      });
-
-
-    const newSavingsTarget =
-      Number(
-        savingsTargetInput.value || 0
+        }
       );
 
 
@@ -1828,25 +2455,22 @@ saveBudgetButton.addEventListener(
           currentMonth
         ),
         {
-          month: currentMonth,
+
+          month:
+            currentMonth,
 
           categories:
             categoryValues,
 
-          savingsTarget:
-            newSavingsTarget,
-
           updatedAt:
             serverTimestamp()
+
         }
       );
 
 
       budgets =
         categoryValues;
-
-      savingsTarget =
-        newSavingsTarget;
 
 
       budgetSaveStatus.textContent =
@@ -1856,16 +2480,20 @@ saveBudgetButton.addEventListener(
       renderDashboard();
 
 
-      setTimeout(() => {
+      setTimeout(
+        () => {
 
-        budgetSaveStatus.textContent = "";
+          budgetSaveStatus.textContent =
+            "";
 
-      }, 2000);
-
+        },
+        2000
+      );
 
     } catch (error) {
 
       console.error(error);
+
 
       budgetSaveStatus.textContent =
         "Unable to save budget.";
@@ -1876,14 +2504,17 @@ saveBudgetButton.addEventListener(
 );
 
 
+
 // ------------------------------------------------------
-// GOALS
+// GOALS LISTENER
 // ------------------------------------------------------
 
 function listenForGoals() {
 
   if (goalsUnsubscribe) {
+
     goalsUnsubscribe();
+
   }
 
 
@@ -1902,10 +2533,13 @@ function listenForGoals() {
       snapshot => {
 
         goals =
-          snapshot.docs.map(docSnap => ({
-            id: docSnap.id,
-            ...docSnap.data()
-          }));
+          snapshot.docs.map(
+            docSnapshot => ({
+              id: docSnapshot.id,
+              ...docSnapshot.data()
+            })
+          );
+
 
         renderGoals();
 
@@ -1913,6 +2547,7 @@ function listenForGoals() {
     );
 
 }
+
 
 
 // ------------------------------------------------------
@@ -1924,9 +2559,11 @@ function renderGoals() {
   if (!goals.length) {
 
     goalsGrid.innerHTML =
-      `<p class="empty-state">
-        No savings goals yet.
-      </p>`;
+      `
+        <p class="empty-state">
+          No savings goals yet.
+        </p>
+      `;
 
     return;
 
@@ -1936,152 +2573,182 @@ function renderGoals() {
   goalsGrid.innerHTML = "";
 
 
-  goals.forEach(goal => {
+  goals.forEach(
+    goal => {
 
-    const target =
-      Number(goal.target || 0);
+      const target =
+        Number(
+          goal.target || 0
+        );
 
-    const saved =
-      Number(goal.saved || 0);
 
-    const percent =
-      target > 0
-        ? (saved / target) * 100
-        : 0;
+      const saved =
+        Number(
+          goal.saved || 0
+        );
 
-    const remaining =
-      Math.max(
-        target - saved,
-        0
+
+      const percent =
+        target > 0
+          ? (saved / target) * 100
+          : 0;
+
+
+      const remaining =
+        Math.max(
+          target - saved,
+          0
+        );
+
+
+      const card =
+        document.createElement("div");
+
+
+      card.className =
+        "goal-card";
+
+
+      card.innerHTML =
+        `
+          <h3>
+            ${escapeHtml(goal.name)}
+          </h3>
+
+
+          <div class="goal-numbers">
+
+            <span>
+              ${currency(saved)} saved
+            </span>
+
+            <span>
+              ${currency(target)} goal
+            </span>
+
+          </div>
+
+
+          <div class="progress-track">
+
+            <div
+              class="progress-fill"
+              style="width: ${Math.min(percent, 100)}%"
+            ></div>
+
+          </div>
+
+
+          <div class="goal-footer">
+
+            <span>
+              ${Math.round(percent)}%
+            </span>
+
+            <span>
+              ${currency(remaining)} remaining
+            </span>
+
+          </div>
+
+
+          <div class="goal-actions">
+
+            <button
+              class="small-button goal-add-money"
+              data-id="${goal.id}"
+            >
+              Add Money
+            </button>
+
+
+            <button
+              class="small-button goal-remove-money"
+              data-id="${goal.id}"
+            >
+              Remove
+            </button>
+
+
+            <button
+              class="small-button delete goal-delete"
+              data-id="${goal.id}"
+            >
+              Delete
+            </button>
+
+          </div>
+        `;
+
+
+      goalsGrid.appendChild(
+        card
       );
 
-
-    const card =
-      document.createElement("div");
-
-
-    card.className =
-      "goal-card";
-
-
-    card.innerHTML = `
-
-      <h3>
-        ${escapeHtml(goal.name)}
-      </h3>
-
-      <div class="goal-numbers">
-
-        <span>
-          ${currency(saved)} saved
-        </span>
-
-        <span>
-          ${currency(target)} goal
-        </span>
-
-      </div>
-
-      <div class="progress-track">
-
-        <div
-          class="progress-fill"
-          style="width: ${Math.min(percent, 100)}%"
-        ></div>
-
-      </div>
-
-      <div class="goal-footer">
-
-        <span>
-          ${Math.round(percent)}%
-        </span>
-
-        <span>
-          ${currency(remaining)} remaining
-        </span>
-
-      </div>
-
-      <div class="goal-actions">
-
-        <button
-          class="small-button goal-add-money"
-          data-id="${goal.id}"
-        >
-          Add Money
-        </button>
-
-        <button
-          class="small-button goal-remove-money"
-          data-id="${goal.id}"
-        >
-          Remove
-        </button>
-
-        <button
-          class="small-button delete goal-delete"
-          data-id="${goal.id}"
-        >
-          Delete
-        </button>
-
-      </div>
-    `;
-
-
-    goalsGrid.appendChild(card);
-
-  });
+    }
+  );
 
 
   document
-    .querySelectorAll(".goal-add-money")
-    .forEach(button => {
+    .querySelectorAll(
+      ".goal-add-money"
+    )
+    .forEach(
+      button => {
 
-      button.addEventListener(
-        "click",
-        () =>
-          changeGoalAmount(
-            button.dataset.id,
-            1
-          )
-      );
+        button.addEventListener(
+          "click",
+          () =>
+            changeGoalAmount(
+              button.dataset.id,
+              1
+            )
+        );
 
-    });
-
-
-  document
-    .querySelectorAll(".goal-remove-money")
-    .forEach(button => {
-
-      button.addEventListener(
-        "click",
-        () =>
-          changeGoalAmount(
-            button.dataset.id,
-            -1
-          )
-      );
-
-    });
+      }
+    );
 
 
   document
-    .querySelectorAll(".goal-delete")
-    .forEach(button => {
+    .querySelectorAll(
+      ".goal-remove-money"
+    )
+    .forEach(
+      button => {
 
-      button.addEventListener(
-        "click",
-        () =>
-          deleteGoal(
-            button.dataset.id
-          )
-      );
+        button.addEventListener(
+          "click",
+          () =>
+            changeGoalAmount(
+              button.dataset.id,
+              -1
+            )
+        );
 
-    });
+      }
+    );
+
+
+  document
+    .querySelectorAll(
+      ".goal-delete"
+    )
+    .forEach(
+      button => {
+
+        button.addEventListener(
+          "click",
+          () =>
+            deleteGoal(
+              button.dataset.id
+            )
+        );
+
+      }
+    );
 
 }
+
 
 
 // ------------------------------------------------------
@@ -2089,37 +2756,50 @@ function renderGoals() {
 // ------------------------------------------------------
 
 document
-  .getElementById("openGoalModalButton")
+  .getElementById(
+    "openGoalModalButton"
+  )
   .addEventListener(
     "click",
     () => {
 
       goalForm.reset();
 
-      goalSaved.value = 0;
 
-      goalModal.classList.remove("hidden");
+      goalSaved.value =
+        0;
+
+
+      goalModal.classList.remove(
+        "hidden"
+      );
 
     }
   );
+
 
 
 document
   .querySelectorAll(
     "[data-close-goal-modal]"
   )
-  .forEach(element => {
+  .forEach(
+    element => {
 
-    element.addEventListener(
-      "click",
-      () => {
+      element.addEventListener(
+        "click",
+        () => {
 
-        goalModal.classList.add("hidden");
+          goalModal.classList.add(
+            "hidden"
+          );
 
-      }
-    );
+        }
+      );
 
-  });
+    }
+  );
+
 
 
 goalForm.addEventListener(
@@ -2130,18 +2810,28 @@ goalForm.addEventListener(
 
 
     const name =
-      goalName.value.trim();
+      goalName
+        .value
+        .trim();
 
 
     const target =
-      Number(goalTarget.value);
+      Number(
+        goalTarget.value
+      );
 
 
     const saved =
-      Number(goalSaved.value);
+      Number(
+        goalSaved.value
+      );
 
 
-    if (!name || target <= 0) return;
+    if (!name || target <= 0) {
+
+      return;
+
+    }
 
 
     try {
@@ -2154,22 +2844,28 @@ goalForm.addEventListener(
           "goals"
         ),
         {
+
           name,
+
           target,
+
           saved,
 
           createdAt:
             serverTimestamp()
+
         }
       );
 
 
-      goalModal.classList.add("hidden");
-
+      goalModal.classList.add(
+        "hidden"
+      );
 
     } catch (error) {
 
       console.error(error);
+
 
       alert(
         "Unable to save goal."
@@ -2179,6 +2875,7 @@ goalForm.addEventListener(
 
   }
 );
+
 
 
 // ------------------------------------------------------
@@ -2192,30 +2889,44 @@ async function changeGoalAmount(
 
   const goal =
     goals.find(
-      goal =>
-        goal.id === id
+      item =>
+        item.id === id
     );
 
 
-  if (!goal) return;
+  if (!goal) {
+
+    return;
+
+  }
 
 
   const input =
     prompt(
       direction > 0
+
         ? "How much do you want to add?"
+
         : "How much do you want to remove?"
     );
 
 
-  if (input === null) return;
+  if (input === null) {
+
+    return;
+
+  }
 
 
   const amount =
     Number(input);
 
 
-  if (!amount || amount <= 0) return;
+  if (!amount || amount <= 0) {
+
+    return;
+
+  }
 
 
   let newSaved =
@@ -2241,17 +2952,20 @@ async function changeGoalAmount(
         id
       ),
       {
+
         saved:
           newSaved,
 
         updatedAt:
           serverTimestamp()
+
       }
     );
 
   } catch (error) {
 
     console.error(error);
+
 
     alert(
       "Unable to update goal."
@@ -2262,6 +2976,7 @@ async function changeGoalAmount(
 }
 
 
+
 // ------------------------------------------------------
 // DELETE GOAL
 // ------------------------------------------------------
@@ -2270,8 +2985,8 @@ async function deleteGoal(id) {
 
   const goal =
     goals.find(
-      goal =>
-        goal.id === id
+      item =>
+        item.id === id
     );
 
 
@@ -2283,7 +2998,11 @@ async function deleteGoal(id) {
     );
 
 
-  if (!confirmed) return;
+  if (!confirmed) {
+
+    return;
+
+  }
 
 
   try {
@@ -2302,6 +3021,7 @@ async function deleteGoal(id) {
 
     console.error(error);
 
+
     alert(
       "Unable to delete goal."
     );
@@ -2309,6 +3029,7 @@ async function deleteGoal(id) {
   }
 
 }
+
 
 
 // ------------------------------------------------------
@@ -2334,29 +3055,3 @@ monthSelector.addEventListener(
 
   }
 );
-
-
-// ------------------------------------------------------
-// DISPLAY HELPERS
-// ------------------------------------------------------
-
-function escapeHtml(value = "") {
-
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-
-}
-
-
-function capitalize(value = "") {
-
-  return value
-    ? value.charAt(0).toUpperCase() +
-      value.slice(1)
-    : "";
-
-}
