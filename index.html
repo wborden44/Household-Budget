@@ -4,13 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Household Budget</title>
-
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <!-- LOGIN SCREEN -->
+  <!-- LOGIN -->
   <section id="loginScreen" class="login-screen">
     <div class="login-card">
       <div class="brand-mark">$</div>
@@ -51,18 +50,22 @@
   <div id="app" class="app hidden">
 
     <header class="topbar">
+
       <div>
         <p class="eyebrow">HOUSEHOLD</p>
         <h1>Budget</h1>
       </div>
 
       <div class="topbar-actions">
+
         <select id="monthSelector" class="month-selector"></select>
 
         <button id="logoutButton" class="secondary-button">
           Log Out
         </button>
+
       </div>
+
     </header>
 
 
@@ -70,6 +73,7 @@
 
       <!-- NAV -->
       <nav class="main-nav">
+
         <button class="nav-button active" data-page="dashboard">
           Dashboard
         </button>
@@ -85,6 +89,7 @@
         <button class="nav-button" data-page="goals">
           Goals
         </button>
+
       </nav>
 
 
@@ -92,14 +97,30 @@
       <section id="dashboardPage" class="page active-page">
 
         <div class="page-heading">
+
           <div>
             <p class="eyebrow">OVERVIEW</p>
             <h2 id="dashboardMonthTitle">This Month</h2>
           </div>
 
-          <button id="openTransactionModalButton" class="primary-button">
-            + Add Transaction
-          </button>
+          <div class="transaction-button-group">
+
+            <button
+              id="dashboardAddMoneyButton"
+              class="money-button"
+            >
+              + Add Money
+            </button>
+
+            <button
+              id="dashboardAddExpenseButton"
+              class="expense-button"
+            >
+              + Add Expense
+            </button>
+
+          </div>
+
         </div>
 
 
@@ -120,9 +141,47 @@
             <h3 id="budgetRemainingTotal">$0.00</h3>
           </div>
 
-          <div class="summary-card emphasized-card">
+          <div id="safeToSpendCard" class="summary-card safe-card positive">
             <p>Safe to Spend</p>
             <h3 id="safeToSpendTotal">$0.00</h3>
+          </div>
+
+        </div>
+
+
+        <div class="safe-spend-breakdown">
+
+          <div>
+            <span>Money In</span>
+            <strong id="safeMoneyIn">$0.00</strong>
+          </div>
+
+          <span class="formula-symbol">−</span>
+
+          <div>
+            <span>Already Spent</span>
+            <strong id="safeExpenses">$0.00</strong>
+          </div>
+
+          <span class="formula-symbol">−</span>
+
+          <div>
+            <span>Still Reserved</span>
+            <strong id="safeReserved">$0.00</strong>
+          </div>
+
+          <span class="formula-symbol">−</span>
+
+          <div>
+            <span>Savings Target</span>
+            <strong id="safeSavings">$0.00</strong>
+          </div>
+
+          <span class="formula-symbol">=</span>
+
+          <div>
+            <span>Safe to Spend</span>
+            <strong id="safeResult">$0.00</strong>
           </div>
 
         </div>
@@ -131,6 +190,7 @@
         <div class="dashboard-layout">
 
           <section class="panel">
+
             <div class="panel-header">
               <div>
                 <p class="eyebrow">SPENDING</p>
@@ -141,10 +201,12 @@
             <div id="categoryProgressList" class="category-progress-list">
               <p class="empty-state">No monthly budget has been set yet.</p>
             </div>
+
           </section>
 
 
           <section class="panel">
+
             <div class="panel-header">
               <div>
                 <p class="eyebrow">RECENT</p>
@@ -155,6 +217,7 @@
             <div id="recentTransactions" class="recent-transactions">
               <p class="empty-state">No transactions yet.</p>
             </div>
+
           </section>
 
         </div>
@@ -166,20 +229,37 @@
       <section id="transactionsPage" class="page">
 
         <div class="page-heading">
+
           <div>
             <p class="eyebrow">ACTIVITY</p>
             <h2>Transactions</h2>
           </div>
 
-          <button id="openTransactionModalButton2" class="primary-button">
-            + Add Transaction
-          </button>
+          <div class="transaction-button-group">
+
+            <button
+              id="transactionsAddMoneyButton"
+              class="money-button"
+            >
+              + Add Money
+            </button>
+
+            <button
+              id="transactionsAddExpenseButton"
+              class="expense-button"
+            >
+              + Add Expense
+            </button>
+
+          </div>
+
         </div>
 
 
         <section class="panel">
 
           <div class="filters">
+
             <select id="transactionTypeFilter">
               <option value="all">All Types</option>
               <option value="expense">Expenses</option>
@@ -189,11 +269,14 @@
             <select id="transactionCategoryFilter">
               <option value="all">All Categories</option>
             </select>
+
           </div>
 
 
           <div class="transaction-table-wrapper">
+
             <table class="transaction-table">
+
               <thead>
                 <tr>
                   <th>Date</th>
@@ -205,9 +288,10 @@
                 </tr>
               </thead>
 
-              <tbody id="transactionTableBody">
-              </tbody>
+              <tbody id="transactionTableBody"></tbody>
+
             </table>
+
           </div>
 
           <div id="transactionEmptyState" class="empty-state">
@@ -223,6 +307,7 @@
       <section id="budgetPage" class="page">
 
         <div class="page-heading">
+
           <div>
             <p class="eyebrow">PLAN</p>
             <h2>Monthly Budget</h2>
@@ -231,20 +316,57 @@
           <button id="saveBudgetButton" class="primary-button">
             Save Budget
           </button>
+
         </div>
 
 
         <section class="panel">
 
           <div class="budget-intro">
-            Set the maximum amount you want to spend in each category this month.
+            Decide how much money is reserved for each category and how much you want to save this month.
+          </div>
+
+
+          <div class="savings-target-section">
+
+            <div>
+              <p class="eyebrow">PAY YOURSELF FIRST</p>
+              <h3>Monthly Savings Target</h3>
+              <p>
+                This amount is removed from Safe to Spend before discretionary money is calculated.
+              </p>
+            </div>
+
+            <div class="savings-target-input-wrapper">
+              <span>$</span>
+
+              <input
+                id="savingsTargetInput"
+                type="number"
+                min="0"
+                step="1"
+                value="0"
+              >
+            </div>
+
+          </div>
+
+
+          <div class="budget-section-title">
+            Category Budgets
           </div>
 
           <div id="budgetForm" class="budget-form"></div>
 
+
           <div class="budget-total">
-            <span>Total Monthly Budget</span>
+            <span>Total Category Budget</span>
             <strong id="budgetTotal">$0.00</strong>
+          </div>
+
+          <div class="budget-total grand-total">
+            <span>Total Planned + Savings</span>
+            <strong id="plannedTotal">$0.00</strong>
           </div>
 
           <div id="budgetSaveStatus" class="save-status"></div>
@@ -258,6 +380,7 @@
       <section id="goalsPage" class="page">
 
         <div class="page-heading">
+
           <div>
             <p class="eyebrow">SAVINGS</p>
             <h2>Goals</h2>
@@ -266,6 +389,7 @@
           <button id="openGoalModalButton" class="primary-button">
             + Add Goal
           </button>
+
         </div>
 
         <div id="goalsGrid" class="goals-grid">
@@ -287,6 +411,7 @@
     <div class="modal-card">
 
       <div class="modal-header">
+
         <div>
           <p class="eyebrow">ENTRY</p>
           <h2 id="transactionModalTitle">Add Transaction</h2>
@@ -299,6 +424,7 @@
         >
           ×
         </button>
+
       </div>
 
 
@@ -310,6 +436,7 @@
         <label>Type</label>
 
         <div class="segmented-control">
+
           <button
             type="button"
             class="transaction-type-button active"
@@ -325,6 +452,7 @@
           >
             Money In
           </button>
+
         </div>
 
         <input id="transactionType" type="hidden" value="expense">
@@ -334,6 +462,7 @@
 
           <div>
             <label for="transactionAmount">Amount</label>
+
             <input
               id="transactionAmount"
               type="number"
@@ -346,6 +475,7 @@
 
           <div>
             <label for="transactionDate">Date</label>
+
             <input
               id="transactionDate"
               type="date"
@@ -357,6 +487,7 @@
 
 
         <label for="transactionDescription">Description</label>
+
         <input
           id="transactionDescription"
           type="text"
@@ -368,12 +499,14 @@
         <div id="expenseFields">
 
           <label for="transactionCategory">Category</label>
+
           <select id="transactionCategory"></select>
 
 
           <label>Need or Want</label>
 
           <div class="segmented-control">
+
             <button
               type="button"
               class="need-want-button active"
@@ -389,6 +522,7 @@
             >
               Want
             </button>
+
           </div>
 
           <input id="transactionNeedWant" type="hidden" value="need">
@@ -397,6 +531,7 @@
 
 
         <label for="transactionAccount">Account / Payment Method</label>
+
         <input
           id="transactionAccount"
           type="text"
@@ -405,6 +540,7 @@
 
 
         <label for="transactionNotes">Notes</label>
+
         <textarea
           id="transactionNotes"
           rows="3"
@@ -448,20 +584,27 @@
     <div class="modal-card">
 
       <div class="modal-header">
+
         <div>
           <p class="eyebrow">SAVINGS</p>
           <h2>Add Goal</h2>
         </div>
 
-        <button class="icon-button" data-close-goal-modal>
+        <button
+          class="icon-button"
+          data-close-goal-modal
+          type="button"
+        >
           ×
         </button>
+
       </div>
 
 
       <form id="goalForm">
 
         <label for="goalName">Goal Name</label>
+
         <input
           id="goalName"
           type="text"
@@ -474,6 +617,7 @@
 
           <div>
             <label for="goalTarget">Target</label>
+
             <input
               id="goalTarget"
               type="number"
@@ -485,6 +629,7 @@
 
           <div>
             <label for="goalSaved">Already Saved</label>
+
             <input
               id="goalSaved"
               type="number"
