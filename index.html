@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Household Budget</title>
+
+  <title>Ninth Inning Kennesaw</title>
+
   <link rel="stylesheet" href="style.css">
 </head>
 
@@ -14,35 +16,43 @@
 
     <div class="login-card">
 
-      <div class="brand-mark">$</div>
+      <div class="brand-mark">NI</div>
 
-      <h1>Household Budget</h1>
+      <p class="eyebrow">NINTH INNING</p>
+
+      <h1>Kennesaw</h1>
 
       <p class="login-subtitle">
-        Sign in to your shared household budget.
+        Sign in to access the financial dashboard.
       </p>
 
       <form id="loginForm">
 
-        <label for="email">Email</label>
+        <label for="email">
+          Email
+        </label>
 
         <input
           id="email"
           type="email"
-          placeholder="Email address"
           autocomplete="email"
+          placeholder="Email address"
           required
         >
 
-        <label for="password">Password</label>
+
+        <label for="password">
+          Password
+        </label>
 
         <input
           id="password"
           type="password"
-          placeholder="Password"
           autocomplete="current-password"
+          placeholder="Password"
           required
         >
+
 
         <button
           type="submit"
@@ -51,7 +61,11 @@
           Sign In
         </button>
 
-        <p id="loginError" class="error-message"></p>
+
+        <p
+          id="loginError"
+          class="error-message"
+        ></p>
 
       </form>
 
@@ -63,12 +77,29 @@
   <!-- APP -->
   <div id="app" class="app hidden">
 
+    <!-- TOP BAR -->
     <header class="topbar">
 
-      <div>
-        <p class="eyebrow">HOUSEHOLD</p>
-        <h1>Budget</h1>
+      <div class="topbar-brand">
+
+        <div class="mini-logo">
+          NI
+        </div>
+
+        <div>
+
+          <p class="eyebrow">
+            NINTH INNING
+          </p>
+
+          <h1>
+            Kennesaw
+          </h1>
+
+        </div>
+
       </div>
+
 
       <div class="topbar-actions">
 
@@ -76,6 +107,7 @@
           id="monthSelector"
           class="month-selector"
         ></select>
+
 
         <button
           id="logoutButton"
@@ -91,7 +123,7 @@
 
     <main class="app-shell">
 
-      <!-- NAV -->
+      <!-- NAVIGATION -->
       <nav class="main-nav">
 
         <button
@@ -101,6 +133,7 @@
           Dashboard
         </button>
 
+
         <button
           class="nav-button"
           data-page="transactions"
@@ -108,18 +141,12 @@
           Transactions
         </button>
 
-        <button
-          class="nav-button"
-          data-page="budget"
-        >
-          Budget
-        </button>
 
         <button
           class="nav-button"
-          data-page="goals"
+          data-page="reports"
         >
-          Goals
+          Fiscal Year
         </button>
 
       </nav>
@@ -135,23 +162,26 @@
 
           <div>
 
-            <p class="eyebrow">OVERVIEW</p>
+            <p class="eyebrow">
+              MONTHLY P&L
+            </p>
 
             <h2 id="dashboardMonthTitle">
-              This Month
+              August 2026
             </h2>
 
           </div>
 
 
-          <div class="transaction-button-group">
+          <div class="action-buttons">
 
             <button
-              id="dashboardAddMoneyButton"
-              class="money-button"
+              id="dashboardAddRevenueButton"
+              class="revenue-button"
             >
-              + Add Money
+              + Add Revenue
             </button>
+
 
             <button
               id="dashboardAddExpenseButton"
@@ -165,22 +195,24 @@
         </div>
 
 
-        <!-- MONTHLY SUMMARY -->
+        <!-- MONTH SUMMARY -->
         <div class="summary-grid">
 
           <div class="summary-card">
 
-            <p>Money In</p>
+            <p>
+              Revenue
+            </p>
 
-            <h3 id="moneyInTotal">
-              $10,800.00
+            <h3
+              id="monthlyRevenue"
+              class="positive-text"
+            >
+              $0.00
             </h3>
 
-            <span
-              id="moneyInDetail"
-              class="summary-detail"
-            >
-              $10,800 monthly
+            <span class="summary-detail">
+              Total revenue this month
             </span>
 
           </div>
@@ -188,50 +220,56 @@
 
           <div class="summary-card">
 
-            <p>Spent</p>
+            <p>
+              Expenses
+            </p>
 
-            <h3 id="spentTotal">
+            <h3
+              id="monthlyExpenses"
+              class="negative-text"
+            >
+              $20,321.90
+            </h3>
+
+            <span id="monthlyExpenseDetail" class="summary-detail">
+              Includes fixed operating costs
+            </span>
+
+          </div>
+
+
+          <div class="summary-card">
+
+            <p>
+              Net Profit
+            </p>
+
+            <h3 id="monthlyProfit">
               $0.00
             </h3>
 
             <span class="summary-detail">
-              This month
+              Revenue less all expenses
             </span>
 
           </div>
 
 
           <div
-            id="budgetRemainingCard"
-            class="summary-card"
+            id="marginCard"
+            class="summary-card dark-card"
           >
 
-            <p>Budget Remaining</p>
+            <p>
+              Profit Margin
+            </p>
 
-            <h3 id="budgetRemainingTotal">
-              $0.00
+            <h3 id="monthlyMargin">
+              0.0%
             </h3>
 
-            <span class="summary-detail">
-              Across all categories
-            </span>
-
-          </div>
-
-
-          <div
-            id="safeToSpendCard"
-            class="summary-card safe-card positive"
-          >
-
-            <p>Safe to Spend</p>
-
-            <h3 id="safeToSpendTotal">
-              $0.00
-            </h3>
-
-            <span class="safe-detail">
-              After remaining budget obligations
+            <span class="dark-detail">
+              Net profit ÷ revenue
             </span>
 
           </div>
@@ -239,148 +277,67 @@
         </div>
 
 
-        <!-- SAFE TO SPEND FORMULA -->
-        <div class="safe-spend-breakdown">
+        <!-- FIXED COST STRIP -->
+        <section class="fixed-cost-panel">
 
-          <div>
-
-            <span>Money In</span>
-
-            <strong id="safeMoneyIn">
-              $0.00
-            </strong>
-
-          </div>
-
-          <span class="formula-symbol">
-            −
-          </span>
-
-
-          <div>
-
-            <span>Already Spent</span>
-
-            <strong id="safeExpenses">
-              $0.00
-            </strong>
-
-          </div>
-
-          <span class="formula-symbol">
-            −
-          </span>
-
-
-          <div>
-
-            <span>Still Reserved</span>
-
-            <strong id="safeReserved">
-              $0.00
-            </strong>
-
-          </div>
-
-          <span class="formula-symbol">
-            =
-          </span>
-
-
-          <div>
-
-            <span>Safe to Spend</span>
-
-            <strong id="safeResult">
-              $0.00
-            </strong>
-
-          </div>
-
-        </div>
-
-
-        <!-- YTD -->
-        <section class="ytd-panel">
-
-          <div class="ytd-heading">
+          <div class="fixed-cost-heading">
 
             <div>
 
               <p class="eyebrow">
-                ROLLING ACCOUNT
+                AUTOMATIC MONTHLY EXPENSES
               </p>
 
-              <h3 id="ytdTitle">
-                2026 Year to Date
+              <h3>
+                Fixed Operating Costs
               </h3>
 
             </div>
 
 
-            <div
-              id="ytdBalanceBadge"
-              class="ytd-balance-badge positive"
-            >
-
-              <span>YTD Balance</span>
-
-              <strong id="ytdBalance">
-                $0.00
-              </strong>
-
-            </div>
+            <strong class="fixed-cost-total">
+              $20,321.90
+            </strong>
 
           </div>
 
 
-          <div class="ytd-grid">
+          <div class="fixed-cost-grid">
 
-            <div class="ytd-stat">
+            <div class="fixed-cost-item">
 
-              <span>Base Contributions</span>
+              <span>
+                W2 Staff
+              </span>
 
-              <strong id="ytdBaseIncome">
-                $0.00
+              <strong>
+                $9,583.00
               </strong>
 
             </div>
 
 
-            <div class="ytd-stat">
+            <div class="fixed-cost-item">
 
-              <span>Extra Money</span>
+              <span>
+                Rent
+              </span>
 
-              <strong
-                id="ytdExtraIncome"
-                class="positive-text"
-              >
-                $0.00
+              <strong>
+                $8,938.90
               </strong>
 
             </div>
 
 
-            <div class="ytd-stat">
+            <div class="fixed-cost-item">
 
-              <span>Total Money In</span>
+              <span>
+                Utilities
+              </span>
 
-              <strong id="ytdIncome">
-                $0.00
-              </strong>
-
-            </div>
-
-
-            <div class="ytd-stat">
-
-              <span>Total Spent</span>
-
-              <strong
-                id="ytdSpent"
-                class="negative-text"
-              >
-                $0.00
+              <strong>
+                $1,800.00
               </strong>
 
             </div>
@@ -390,8 +347,8 @@
         </section>
 
 
-        <!-- DASHBOARD LOWER GRID -->
-        <div class="dashboard-layout">
+        <!-- BREAKDOWNS -->
+        <div class="dashboard-grid">
 
           <section class="panel">
 
@@ -400,27 +357,22 @@
               <div>
 
                 <p class="eyebrow">
-                  SPENDING
+                  REVENUE
                 </p>
 
                 <h3>
-                  Budget by Category
+                  Revenue by Category
                 </h3>
 
               </div>
 
             </div>
 
+
             <div
-              id="categoryProgressList"
-              class="category-progress-list"
-            >
-
-              <p class="empty-state">
-                No monthly budget has been set yet.
-              </p>
-
-            </div>
+              id="revenueBreakdown"
+              class="breakdown-list"
+            ></div>
 
           </section>
 
@@ -432,11 +384,11 @@
               <div>
 
                 <p class="eyebrow">
-                  RECENT
+                  EXPENSES
                 </p>
 
                 <h3>
-                  Recent Transactions
+                  Expenses by Category
                 </h3>
 
               </div>
@@ -445,19 +397,41 @@
 
 
             <div
-              id="recentTransactions"
-              class="recent-transactions"
-            >
-
-              <p class="empty-state">
-                No transactions yet.
-              </p>
-
-            </div>
+              id="expenseBreakdown"
+              class="breakdown-list"
+            ></div>
 
           </section>
 
         </div>
+
+
+        <!-- RECENT -->
+        <section class="panel recent-panel">
+
+          <div class="panel-header">
+
+            <div>
+
+              <p class="eyebrow">
+                ACTIVITY
+              </p>
+
+              <h3>
+                Recent Transactions
+              </h3>
+
+            </div>
+
+          </div>
+
+
+          <div
+            id="recentTransactions"
+            class="recent-transactions"
+          ></div>
+
+        </section>
 
       </section>
 
@@ -483,14 +457,15 @@
           </div>
 
 
-          <div class="transaction-button-group">
+          <div class="action-buttons">
 
             <button
-              id="transactionsAddMoneyButton"
-              class="money-button"
+              id="transactionsAddRevenueButton"
+              class="revenue-button"
             >
-              + Add Money
+              + Add Revenue
             </button>
+
 
             <button
               id="transactionsAddExpenseButton"
@@ -511,15 +486,15 @@
             <select id="transactionTypeFilter">
 
               <option value="all">
-                All Types
+                All Transactions
+              </option>
+
+              <option value="revenue">
+                Revenue
               </option>
 
               <option value="expense">
                 Expenses
-              </option>
-
-              <option value="income">
-                Extra Money
               </option>
 
             </select>
@@ -544,11 +519,26 @@
 
                 <tr>
 
-                  <th>Date</th>
-                  <th>Description</th>
-                  <th>Category</th>
-                  <th>Need / Want</th>
-                  <th>Amount</th>
+                  <th>
+                    Date
+                  </th>
+
+                  <th>
+                    Description
+                  </th>
+
+                  <th>
+                    Type
+                  </th>
+
+                  <th>
+                    Category
+                  </th>
+
+                  <th>
+                    Amount
+                  </th>
+
                   <th></th>
 
                 </tr>
@@ -568,7 +558,7 @@
             id="transactionEmptyState"
             class="empty-state"
           >
-            No transactions for this month.
+            No manual transactions for this month.
           </div>
 
         </section>
@@ -576,9 +566,9 @@
       </section>
 
 
-      <!-- BUDGET -->
+      <!-- FISCAL YEAR -->
       <section
-        id="budgetPage"
+        id="reportsPage"
         class="page"
       >
 
@@ -587,149 +577,196 @@
           <div>
 
             <p class="eyebrow">
-              PLAN
+              FISCAL YEAR
             </p>
 
-            <h2>
-              Monthly Budget
+            <h2 id="fiscalYearTitle">
+              FY2027
             </h2>
 
           </div>
 
+        </div>
 
-          <button
-            id="saveBudgetButton"
-            class="primary-button"
-          >
-            Save Budget
-          </button>
+
+        <div class="fy-summary-grid">
+
+          <div class="summary-card">
+
+            <p>
+              Fiscal YTD Revenue
+            </p>
+
+            <h3
+              id="fyRevenue"
+              class="positive-text"
+            >
+              $0.00
+            </h3>
+
+          </div>
+
+
+          <div class="summary-card">
+
+            <p>
+              Fiscal YTD Expenses
+            </p>
+
+            <h3
+              id="fyExpenses"
+              class="negative-text"
+            >
+              $0.00
+            </h3>
+
+          </div>
+
+
+          <div class="summary-card">
+
+            <p>
+              Fiscal YTD Profit
+            </p>
+
+            <h3 id="fyProfit">
+              $0.00
+            </h3>
+
+          </div>
+
+
+          <div class="summary-card dark-card">
+
+            <p>
+              Fiscal YTD Margin
+            </p>
+
+            <h3 id="fyMargin">
+              0.0%
+            </h3>
+
+          </div>
 
         </div>
 
 
         <section class="panel">
 
-          <div class="budget-intro">
-
-            Your household starts each month with
-            <strong>$10,800</strong>.
-
-            Set how much of that money you want reserved
-            for each spending category.
-
-            Anything left over stays in your rolling
-            year-to-date balance.
-
-          </div>
-
-
-          <div class="budget-income-banner">
+          <div class="panel-header">
 
             <div>
 
               <p class="eyebrow">
-                MONTHLY HOUSEHOLD MONEY
+                AUGUST — JULY
               </p>
 
               <h3>
-                $10,800
+                Monthly Performance
               </h3>
 
             </div>
 
-            <span>
-              Automatically included every month
-            </span>
-
           </div>
 
 
-          <div class="budget-section-title">
-            Category Budgets
+          <div class="fy-table-wrapper">
+
+            <table class="fy-table">
+
+              <thead>
+
+                <tr>
+
+                  <th>
+                    Month
+                  </th>
+
+                  <th>
+                    Revenue
+                  </th>
+
+                  <th>
+                    Expenses
+                  </th>
+
+                  <th>
+                    Profit
+                  </th>
+
+                  <th>
+                    Margin
+                  </th>
+
+                </tr>
+
+              </thead>
+
+
+              <tbody id="fyTableBody">
+              </tbody>
+
+            </table>
+
           </div>
-
-
-          <div
-            id="budgetForm"
-            class="budget-form"
-          ></div>
-
-
-          <div class="budget-total">
-
-            <span>
-              Total Monthly Budget
-            </span>
-
-            <strong id="budgetTotal">
-              $0.00
-            </strong>
-
-          </div>
-
-
-          <div class="budget-total grand-total">
-
-            <span>
-              Unallocated Monthly Money
-            </span>
-
-            <strong id="unallocatedTotal">
-              $10,800.00
-            </strong>
-
-          </div>
-
-
-          <div
-            id="budgetSaveStatus"
-            class="save-status"
-          ></div>
 
         </section>
 
-      </section>
+
+        <div class="dashboard-grid reports-breakdown">
+
+          <section class="panel">
+
+            <div class="panel-header">
+
+              <div>
+
+                <p class="eyebrow">
+                  FISCAL YTD
+                </p>
+
+                <h3>
+                  Revenue Mix
+                </h3>
+
+              </div>
+
+            </div>
 
 
-      <!-- GOALS -->
-      <section
-        id="goalsPage"
-        class="page"
-      >
+            <div
+              id="fyRevenueBreakdown"
+              class="breakdown-list"
+            ></div>
 
-        <div class="page-heading">
-
-          <div>
-
-            <p class="eyebrow">
-              SAVINGS
-            </p>
-
-            <h2>
-              Goals
-            </h2>
-
-          </div>
+          </section>
 
 
-          <button
-            id="openGoalModalButton"
-            class="primary-button"
-          >
-            + Add Goal
-          </button>
+          <section class="panel">
 
-        </div>
+            <div class="panel-header">
+
+              <div>
+
+                <p class="eyebrow">
+                  FISCAL YTD
+                </p>
+
+                <h3>
+                  Expense Mix
+                </h3>
+
+              </div>
+
+            </div>
 
 
-        <div
-          id="goalsGrid"
-          class="goals-grid"
-        >
+            <div
+              id="fyExpenseBreakdown"
+              class="breakdown-list"
+            ></div>
 
-          <p class="empty-state">
-            No savings goals yet.
-          </p>
+          </section>
 
         </div>
 
@@ -763,16 +800,16 @@
           </p>
 
           <h2 id="transactionModalTitle">
-            Add Expense
+            Add Revenue
           </h2>
 
         </div>
 
 
         <button
+          type="button"
           class="icon-button"
           data-close-transaction-modal
-          type="button"
         >
           ×
         </button>
@@ -788,37 +825,35 @@
         >
 
 
-        <label>
-          Type
-        </label>
+        <input
+          id="transactionType"
+          type="hidden"
+          value="revenue"
+        >
 
 
-        <div class="segmented-control">
+        <div class="type-display">
 
           <button
+            id="modalRevenueTypeButton"
             type="button"
-            class="transaction-type-button active"
+            class="type-button revenue active"
+            data-type="revenue"
+          >
+            Revenue
+          </button>
+
+
+          <button
+            id="modalExpenseTypeButton"
+            type="button"
+            class="type-button expense"
             data-type="expense"
           >
             Expense
           </button>
 
-          <button
-            type="button"
-            class="transaction-type-button"
-            data-type="income"
-          >
-            Extra Money
-          </button>
-
         </div>
-
-
-        <input
-          id="transactionType"
-          type="hidden"
-          value="expense"
-        >
 
 
         <div class="form-grid">
@@ -862,76 +897,27 @@
           Description
         </label>
 
-
         <input
           id="transactionDescription"
           type="text"
-          placeholder="Publix, mortgage, gift, bonus..."
+          placeholder="June lessons, tournament fees..."
           required
         >
 
 
-        <div id="expenseFields">
-
-          <label for="transactionCategory">
-            Category
-          </label>
-
-          <select id="transactionCategory">
-          </select>
-
-
-          <label>
-            Need or Want
-          </label>
-
-
-          <div class="segmented-control">
-
-            <button
-              type="button"
-              class="need-want-button active"
-              data-value="need"
-            >
-              Need
-            </button>
-
-            <button
-              type="button"
-              class="need-want-button"
-              data-value="want"
-            >
-              Want
-            </button>
-
-          </div>
-
-
-          <input
-            id="transactionNeedWant"
-            type="hidden"
-            value="need"
-          >
-
-        </div>
-
-
-        <label for="transactionAccount">
-          Account / Payment Method
+        <label for="transactionCategory">
+          Category
         </label>
 
-
-        <input
-          id="transactionAccount"
-          type="text"
-          placeholder="Amex, checking, cash..."
-        >
+        <select
+          id="transactionCategory"
+          required
+        ></select>
 
 
         <label for="transactionNotes">
           Notes
         </label>
-
 
         <textarea
           id="transactionNotes"
@@ -956,7 +942,7 @@
             type="submit"
             class="primary-button"
           >
-            Save Transaction
+            Save
           </button>
 
         </div>
@@ -966,126 +952,6 @@
           id="transactionFormError"
           class="error-message"
         ></p>
-
-      </form>
-
-    </div>
-
-  </div>
-
-
-  <!-- GOAL MODAL -->
-  <div
-    id="goalModal"
-    class="modal hidden"
-  >
-
-    <div
-      class="modal-backdrop"
-      data-close-goal-modal
-    ></div>
-
-
-    <div class="modal-card">
-
-      <div class="modal-header">
-
-        <div>
-
-          <p class="eyebrow">
-            SAVINGS
-          </p>
-
-          <h2>
-            Add Goal
-          </h2>
-
-        </div>
-
-
-        <button
-          class="icon-button"
-          data-close-goal-modal
-          type="button"
-        >
-          ×
-        </button>
-
-      </div>
-
-
-      <form id="goalForm">
-
-        <label for="goalName">
-          Goal Name
-        </label>
-
-
-        <input
-          id="goalName"
-          type="text"
-          placeholder="Vacation"
-          required
-        >
-
-
-        <div class="form-grid">
-
-          <div>
-
-            <label for="goalTarget">
-              Target
-            </label>
-
-            <input
-              id="goalTarget"
-              type="number"
-              min="0"
-              step="0.01"
-              required
-            >
-
-          </div>
-
-
-          <div>
-
-            <label for="goalSaved">
-              Already Saved
-            </label>
-
-            <input
-              id="goalSaved"
-              type="number"
-              min="0"
-              step="0.01"
-              value="0"
-              required
-            >
-
-          </div>
-
-        </div>
-
-
-        <div class="modal-actions">
-
-          <button
-            type="button"
-            class="secondary-button"
-            data-close-goal-modal
-          >
-            Cancel
-          </button>
-
-          <button
-            type="submit"
-            class="primary-button"
-          >
-            Save Goal
-          </button>
-
-        </div>
 
       </form>
 
