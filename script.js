@@ -2785,11 +2785,11 @@ function renderDashboard() {
     );
 
 
-  const lessons =
-    Number(
-      metrics.lessonsCompleted ||
-      0
-    );
+  const lessonHours =
+  Number(
+    metrics.lessonHours ||
+    0
+  );
 
 
   const availableHours =
@@ -2831,16 +2831,21 @@ function renderDashboard() {
     REVENUE PER PLAYER
   */
 
-  revenuePerPlayerEl.textContent =
-    players >
-    0
+ revenuePerLessonEl.textContent =
+  lessonHours >
+  0
 
-      ? currency(
-          totals.teamRevenue /
-          players
-        )
+    ? currency(
+        (
+          totals.revenueCats[
+            "Lessons"
+          ] ||
+          0
+        ) /
+        lessonHours
+      )
 
-      : "—";
+    : "—";
 
 
   /*
