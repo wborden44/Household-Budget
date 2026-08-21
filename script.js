@@ -478,7 +478,7 @@ const metricFieldIds = [
 
   "rosteredPlayers",
 
-  "lessonsCompleted",
+ "lessonHours",
 
   "programParticipants",
 
