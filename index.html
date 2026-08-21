@@ -1,59 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ninth Inning Kennesaw</title>
-
-  <link
-    rel="stylesheet"
-    href="style.css"
-  >
+  <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
-  <!-- =================================================
-       LOGIN
-  ================================================== -->
-
-  <section
-    id="loginScreen"
-    class="login-screen"
-  >
-
+  <!-- LOGIN -->
+  <section id="loginScreen" class="login-screen">
     <div class="login-card">
 
-      <div class="brand-mark">
-        NI
-      </div>
+      <div class="brand-mark">NI</div>
 
-      <p class="eyebrow">
-        NINTH INNING
-      </p>
-
-      <h1>
-        Kennesaw
-      </h1>
+      <p class="eyebrow">NINTH INNING</p>
+      <h1>Kennesaw</h1>
 
       <p class="login-subtitle">
         Sign in to access the financial dashboard.
       </p>
 
-
       <form id="loginForm">
 
-        <label for="email">
-          Email
-        </label>
-
+        <label for="email">Email</label>
         <input
           id="email"
           type="email"
@@ -62,11 +33,7 @@
           required
         >
 
-
-        <label for="password">
-          Password
-        </label>
-
+        <label for="password">Password</label>
         <input
           id="password"
           type="password"
@@ -75,7 +42,6 @@
           required
         >
 
-
         <button
           type="submit"
           class="primary-button full-width"
@@ -83,32 +49,20 @@
           Sign In
         </button>
 
-
         <p
           id="loginError"
           class="error-message"
         ></p>
 
       </form>
-
     </div>
-
   </section>
 
 
-
-  <!-- =================================================
-       APPLICATION
-  ================================================== -->
-
-  <div
-    id="app"
-    class="app hidden"
-  >
-
+  <!-- APPLICATION -->
+  <div id="app" class="app hidden">
 
     <!-- TOP BAR -->
-
     <header class="topbar">
 
       <div class="topbar-brand">
@@ -117,17 +71,9 @@
           NI
         </div>
 
-
         <div>
-
-          <p class="eyebrow">
-            NINTH INNING
-          </p>
-
-          <h1>
-            Kennesaw
-          </h1>
-
+          <p class="eyebrow">NINTH INNING</p>
+          <h1>Kennesaw</h1>
         </div>
 
       </div>
@@ -139,7 +85,6 @@
           id="monthSelector"
           class="month-selector"
         ></select>
-
 
         <button
           id="logoutButton"
@@ -153,14 +98,9 @@
     </header>
 
 
-
     <main class="app-shell">
 
-
-      <!-- =============================================
-           NAVIGATION
-      ============================================== -->
-
+      <!-- NAV -->
       <nav class="main-nav">
 
         <button
@@ -170,7 +110,6 @@
           Dashboard
         </button>
 
-
         <button
           class="nav-button"
           data-page="transactions"
@@ -178,22 +117,17 @@
           Transactions
         </button>
 
-
         <button
           class="nav-button"
           data-page="reports"
         >
-          Fiscal Year
+          Year
         </button>
 
       </nav>
 
 
-
-      <!-- =============================================
-           DASHBOARD
-      ============================================== -->
-
+      <!-- DASHBOARD -->
       <section
         id="dashboardPage"
         class="page active-page"
@@ -202,15 +136,13 @@
         <div class="page-heading">
 
           <div>
-
             <p class="eyebrow">
-              MONTHLY P&L
+              MONTHLY P&amp;L
             </p>
 
             <h2 id="dashboardMonthTitle">
               August 2026
             </h2>
-
           </div>
 
 
@@ -222,7 +154,6 @@
             >
               + Add Revenue
             </button>
-
 
             <button
               id="dashboardAddExpenseButton"
@@ -236,17 +167,12 @@
         </div>
 
 
-
-        <!-- SUMMARY CARDS -->
-
+        <!-- MONTH SUMMARY -->
         <div class="summary-grid">
-
 
           <div class="summary-card">
 
-            <p>
-              Revenue
-            </p>
+            <p>Revenue</p>
 
             <h3
               id="monthlyRevenue"
@@ -262,12 +188,9 @@
           </div>
 
 
-
           <div class="summary-card">
 
-            <p>
-              Expenses
-            </p>
+            <p>Expenses</p>
 
             <h3
               id="monthlyExpenses"
@@ -280,29 +203,25 @@
               id="monthlyExpenseDetail"
               class="summary-detail"
             >
-              Includes automatic monthly expenses
+              Includes recurring fixed expenses
             </span>
 
           </div>
 
 
-
           <div class="summary-card">
 
-            <p>
-              Net Profit
-            </p>
+            <p>Operating Profit</p>
 
             <h3 id="monthlyProfit">
               $0.00
             </h3>
 
             <span class="summary-detail">
-              Revenue less all expenses
+              Revenue less all tracked expenses
             </span>
 
           </div>
-
 
 
           <div
@@ -310,16 +229,14 @@
             class="summary-card dark-card"
           >
 
-            <p>
-              Profit Margin
-            </p>
+            <p>Operating Margin</p>
 
             <h3 id="monthlyMargin">
               0.0%
             </h3>
 
             <span class="dark-detail">
-              Net profit ÷ revenue
+              Operating profit ÷ revenue
             </span>
 
           </div>
@@ -327,15 +244,397 @@
         </div>
 
 
+        <!-- CFO SCORECARD -->
+        <section class="panel metrics-panel">
 
-        <!-- =========================================
-             CHARTS
-        ========================================== -->
+          <div class="panel-header">
 
+            <div>
+              <p class="eyebrow">
+                CFO SCORECARD
+              </p>
+
+              <h3>
+                Operating Metrics
+              </h3>
+            </div>
+
+            <span
+              id="metricsStatus"
+              class="panel-badge"
+            >
+              Monthly inputs not saved
+            </span>
+
+          </div>
+
+
+          <div class="metric-grid">
+
+            <div class="metric-card">
+              <span>Organic Revenue</span>
+
+              <strong id="organicRevenue">
+                $0
+              </strong>
+
+              <small id="organicRevenueDetail">
+                Excludes team revenue
+              </small>
+            </div>
+
+
+            <div class="metric-card">
+              <span>Team Revenue Mix</span>
+
+              <strong id="teamRevenueMix">
+                0.0%
+              </strong>
+
+              <small>
+                Lower concentration = more diversified
+              </small>
+            </div>
+
+
+            <div class="metric-card">
+              <span>Revenue / Player</span>
+
+              <strong id="revenuePerPlayer">
+                —
+              </strong>
+
+              <small>
+                Team revenue ÷ rostered players
+              </small>
+            </div>
+
+
+            <div class="metric-card">
+              <span>Team Contribution</span>
+
+              <strong id="teamContribution">
+                —
+              </strong>
+
+              <small id="teamContributionDetail">
+                Direct team costs required
+              </small>
+            </div>
+
+
+            <div class="metric-card">
+              <span>Team Margin</span>
+
+              <strong id="teamContributionMargin">
+                —
+              </strong>
+
+              <small>
+                Contribution ÷ team revenue
+              </small>
+            </div>
+
+
+            <div class="metric-card">
+              <span>Revenue / Lesson</span>
+
+              <strong id="revenuePerLesson">
+                —
+              </strong>
+
+              <small>
+                Lesson revenue ÷ completed lessons
+              </small>
+            </div>
+
+
+            <div class="metric-card">
+              <span>Facility Utilization</span>
+
+              <strong id="facilityUtilization">
+                —
+              </strong>
+
+              <small>
+                Used ÷ available facility hours
+              </small>
+            </div>
+
+
+            <div class="metric-card">
+              <span>Revenue / Available Hour</span>
+
+              <strong id="revenuePerFacilityHour">
+                —
+              </strong>
+
+              <small>
+                Organic revenue ÷ available hours
+              </small>
+            </div>
+
+
+            <div class="metric-card">
+              <span>Membership Churn</span>
+
+              <strong id="membershipChurn">
+                —
+              </strong>
+
+              <small>
+                Cancellations ÷ estimated opening members
+              </small>
+            </div>
+
+
+            <div class="metric-card">
+              <span>Break-Even Revenue</span>
+
+              <strong id="breakEvenRevenue">
+                —
+              </strong>
+
+              <small>
+                Based on current direct-cost ratio
+              </small>
+            </div>
+
+          </div>
+
+        </section>
+
+
+        <!-- MONTHLY BUSINESS INPUTS -->
+        <section class="panel monthly-input-panel">
+
+          <div class="panel-header">
+
+            <div>
+
+              <p class="eyebrow">
+                MONTHLY CLOSE
+              </p>
+
+              <h3>
+                Business Inputs
+              </h3>
+
+              <p class="panel-copy">
+                Enter only operating counts the transaction ledger cannot calculate.
+              </p>
+
+            </div>
+
+          </div>
+
+
+          <form id="monthlyMetricsForm">
+
+            <div class="input-section-title">
+              Teams &amp; Players
+            </div>
+
+
+            <div class="metrics-input-grid">
+
+              <div>
+                <label for="activeTeams">
+                  Active Teams
+                </label>
+
+                <input
+                  id="activeTeams"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                >
+              </div>
+
+
+              <div>
+                <label for="rosteredPlayers">
+                  Rostered Players
+                </label>
+
+                <input
+                  id="rosteredPlayers"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                >
+              </div>
+
+
+              <div>
+                <label for="lessonsCompleted">
+                  Lessons Completed
+                </label>
+
+                <input
+                  id="lessonsCompleted"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                >
+              </div>
+
+
+              <div>
+                <label for="programParticipants">
+                  Camp / Program Participants
+                </label>
+
+                <input
+                  id="programParticipants"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                >
+              </div>
+
+            </div>
+
+
+            <div class="input-section-title">
+              Memberships
+            </div>
+
+
+            <div class="metrics-input-grid">
+
+              <div>
+                <label for="activeMemberships">
+                  Active Memberships
+                </label>
+
+                <input
+                  id="activeMemberships"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                >
+              </div>
+
+
+              <div>
+                <label for="newMemberships">
+                  New Memberships
+                </label>
+
+                <input
+                  id="newMemberships"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                >
+              </div>
+
+
+              <div>
+                <label for="membershipCancellations">
+                  Membership Cancellations
+                </label>
+
+                <input
+                  id="membershipCancellations"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                >
+              </div>
+
+            </div>
+
+
+            <div class="input-section-title">
+              Facility
+            </div>
+
+
+            <div class="metrics-input-grid">
+
+              <div>
+                <label for="availableFacilityHours">
+                  Available Facility Hours
+                </label>
+
+                <input
+                  id="availableFacilityHours"
+                  type="number"
+                  min="0"
+                  step="0.25"
+                  placeholder="0"
+                >
+              </div>
+
+
+              <div>
+                <label for="usedFacilityHours">
+                  Used Facility Hours
+                </label>
+
+                <input
+                  id="usedFacilityHours"
+                  type="number"
+                  min="0"
+                  step="0.25"
+                  placeholder="0"
+                >
+              </div>
+
+
+              <div>
+                <label for="paidFacilityHours">
+                  Paid Facility Hours
+                  <span class="optional">
+                    Optional
+                  </span>
+                </label>
+
+                <input
+                  id="paidFacilityHours"
+                  type="number"
+                  min="0"
+                  step="0.25"
+                  placeholder="0"
+                >
+              </div>
+
+            </div>
+
+
+            <div class="form-footer-inline">
+
+              <span
+                id="monthlyMetricsMessage"
+                class="save-message"
+              ></span>
+
+              <button
+                id="saveMonthlyMetricsButton"
+                type="submit"
+                class="primary-button"
+              >
+                Save Monthly Inputs
+              </button>
+
+            </div>
+
+          </form>
+
+        </section>
+
+
+        <!-- CHARTS -->
         <div class="chart-grid">
-
-
-          <!-- FISCAL PERFORMANCE -->
 
           <section class="panel chart-panel large-chart-panel">
 
@@ -344,37 +643,31 @@
               <div>
 
                 <p class="eyebrow">
-                  FISCAL YEAR
+                  CALENDAR YEAR
                 </p>
 
                 <h3>
-                  Revenue, Expenses & Profit
+                  Revenue, Expenses &amp; Profit
                 </h3>
 
               </div>
 
-
               <span
-                id="chartFiscalLabel"
+                id="chartYearLabel"
                 class="panel-badge"
               >
-                FY2027
+                2026
               </span>
 
             </div>
 
 
             <div class="chart-container performance-chart-container">
-
               <canvas id="performanceChart"></canvas>
-
             </div>
 
           </section>
 
-
-
-          <!-- REVENUE MIX -->
 
           <section class="panel chart-panel">
 
@@ -396,11 +689,8 @@
 
 
             <div class="chart-container doughnut-chart-container">
-
               <canvas id="revenueMixChart"></canvas>
-
             </div>
-
 
             <div
               id="revenueMixEmpty"
@@ -414,20 +704,14 @@
         </div>
 
 
-
-        <!-- =========================================
-             CATEGORY BREAKDOWNS
-        ========================================== -->
-
+        <!-- BREAKDOWNS -->
         <div class="dashboard-grid">
-
 
           <section class="panel">
 
             <div class="panel-header">
 
               <div>
-
                 <p class="eyebrow">
                   REVENUE
                 </p>
@@ -435,11 +719,9 @@
                 <h3>
                   Revenue by Category
                 </h3>
-
               </div>
 
             </div>
-
 
             <div
               id="revenueBreakdown"
@@ -449,13 +731,11 @@
           </section>
 
 
-
           <section class="panel">
 
             <div class="panel-header">
 
               <div>
-
                 <p class="eyebrow">
                   EXPENSES
                 </p>
@@ -463,11 +743,9 @@
                 <h3>
                   Expenses by Category
                 </h3>
-
               </div>
 
             </div>
-
 
             <div
               id="expenseBreakdown"
@@ -479,15 +757,12 @@
         </div>
 
 
-
         <!-- RECENT TRANSACTIONS -->
-
         <section class="panel recent-panel">
 
           <div class="panel-header">
 
             <div>
-
               <p class="eyebrow">
                 ACTIVITY
               </p>
@@ -495,11 +770,9 @@
               <h3>
                 Recent Transactions
               </h3>
-
             </div>
 
           </div>
-
 
           <div
             id="recentTransactions"
@@ -511,11 +784,7 @@
       </section>
 
 
-
-      <!-- =============================================
-           TRANSACTIONS PAGE
-      ============================================== -->
-
+      <!-- TRANSACTIONS PAGE -->
       <section
         id="transactionsPage"
         class="page"
@@ -524,7 +793,6 @@
         <div class="page-heading">
 
           <div>
-
             <p class="eyebrow">
               ACTIVITY
             </p>
@@ -532,7 +800,6 @@
             <h2>
               Transactions
             </h2>
-
           </div>
 
 
@@ -545,7 +812,6 @@
               + Add Revenue
             </button>
 
-
             <button
               id="transactionsAddExpenseButton"
               class="expense-button"
@@ -556,7 +822,6 @@
           </div>
 
         </div>
-
 
 
         <section class="panel">
@@ -591,7 +856,6 @@
           </div>
 
 
-
           <div class="transaction-table-wrapper">
 
             <table class="transaction-table">
@@ -600,32 +864,23 @@
 
                 <tr>
 
-                  <th>
-                    Date
-                  </th>
+                  <th>Date</th>
 
-                  <th>
-                    Description
-                  </th>
+                  <th>Description</th>
 
-                  <th>
-                    Type
-                  </th>
+                  <th>Type</th>
 
-                  <th>
-                    Category
-                  </th>
+                  <th>Category</th>
 
-                  <th>
-                    Amount
-                  </th>
+                  <th>Business Area</th>
+
+                  <th>Amount</th>
 
                   <th></th>
 
                 </tr>
 
               </thead>
-
 
               <tbody id="transactionTableBody">
               </tbody>
@@ -647,11 +902,7 @@
       </section>
 
 
-
-      <!-- =============================================
-           FISCAL YEAR PAGE
-      ============================================== -->
-
+      <!-- YEAR PAGE -->
       <section
         id="reportsPage"
         class="page"
@@ -662,11 +913,11 @@
           <div>
 
             <p class="eyebrow">
-              FISCAL YEAR
+              CALENDAR YEAR
             </p>
 
-            <h2 id="fiscalYearTitle">
-              FY2027 Financial Performance
+            <h2 id="yearTitle">
+              2026 Financial Performance
             </h2>
 
           </div>
@@ -674,18 +925,16 @@
         </div>
 
 
-
-        <div class="fy-summary-grid">
-
+        <div class="fy-summary-grid five-up">
 
           <div class="summary-card">
 
             <p>
-              Fiscal YTD Revenue
+              YTD Revenue
             </p>
 
             <h3
-              id="fyRevenue"
+              id="yearRevenue"
               class="positive-text"
             >
               $0.00
@@ -694,15 +943,14 @@
           </div>
 
 
-
           <div class="summary-card">
 
             <p>
-              Fiscal YTD Expenses
+              YTD Expenses
             </p>
 
             <h3
-              id="fyExpenses"
+              id="yearExpenses"
               class="negative-text"
             >
               $0.00
@@ -711,41 +959,53 @@
           </div>
 
 
-
           <div class="summary-card">
 
             <p>
-              Fiscal YTD Profit
+              YTD Profit
             </p>
 
-            <h3 id="fyProfit">
+            <h3 id="yearProfit">
               $0.00
             </h3>
 
           </div>
 
 
-
           <div
-            id="fyMarginCard"
+            id="yearMarginCard"
             class="summary-card dark-card"
           >
 
             <p>
-              Fiscal YTD Margin
+              YTD Margin
             </p>
 
-            <h3 id="fyMargin">
+            <h3 id="yearMargin">
               0.0%
             </h3>
 
           </div>
 
+
+          <div class="summary-card forecast-card">
+
+            <p>
+              Run-Rate Revenue Forecast
+            </p>
+
+            <h3 id="yearRevenueForecast">
+              $0.00
+            </h3>
+
+            <span class="summary-detail">
+              YTD average × 12
+            </span>
+
+          </div>
+
         </div>
 
-
-
-        <!-- FISCAL TABLE -->
 
         <section class="panel">
 
@@ -754,7 +1014,7 @@
             <div>
 
               <p class="eyebrow">
-                AUGUST — JULY
+                JANUARY — DECEMBER
               </p>
 
               <h3>
@@ -774,32 +1034,24 @@
 
                 <tr>
 
-                  <th>
-                    Month
-                  </th>
+                  <th>Month</th>
 
-                  <th>
-                    Revenue
-                  </th>
+                  <th>Revenue</th>
 
-                  <th>
-                    Expenses
-                  </th>
+                  <th>Expenses</th>
 
-                  <th>
-                    Profit
-                  </th>
+                  <th>Profit</th>
 
-                  <th>
-                    Margin
-                  </th>
+                  <th>Margin</th>
+
+                  <th>Status</th>
 
                 </tr>
 
               </thead>
 
 
-              <tbody id="fyTableBody">
+              <tbody id="yearTableBody">
               </tbody>
 
             </table>
@@ -809,11 +1061,7 @@
         </section>
 
 
-
-        <!-- FISCAL BREAKDOWNS -->
-
         <div class="dashboard-grid reports-breakdown">
-
 
           <section class="panel">
 
@@ -822,7 +1070,7 @@
               <div>
 
                 <p class="eyebrow">
-                  FISCAL YTD
+                  YTD
                 </p>
 
                 <h3>
@@ -833,14 +1081,12 @@
 
             </div>
 
-
             <div
-              id="fyRevenueBreakdown"
+              id="yearRevenueBreakdown"
               class="breakdown-list"
             ></div>
 
           </section>
-
 
 
           <section class="panel">
@@ -850,7 +1096,7 @@
               <div>
 
                 <p class="eyebrow">
-                  FISCAL YTD
+                  YTD
                 </p>
 
                 <h3>
@@ -861,9 +1107,8 @@
 
             </div>
 
-
             <div
-              id="fyExpenseBreakdown"
+              id="yearExpenseBreakdown"
               class="breakdown-list"
             ></div>
 
@@ -878,11 +1123,7 @@
   </div>
 
 
-
-  <!-- =================================================
-       TRANSACTION MODAL
-  ================================================== -->
-
+  <!-- TRANSACTION MODAL -->
   <div
     id="transactionModal"
     class="modal hidden"
@@ -922,7 +1163,6 @@
       </div>
 
 
-
       <form id="transactionForm">
 
         <input
@@ -930,13 +1170,11 @@
           type="hidden"
         >
 
-
         <input
           id="transactionType"
           type="hidden"
           value="revenue"
         >
-
 
 
         <div class="type-display">
@@ -961,7 +1199,6 @@
           </button>
 
         </div>
-
 
 
         <div class="form-grid">
@@ -1001,18 +1238,16 @@
         </div>
 
 
-
         <label for="transactionDescription">
-          Description
+          Vendor / Description
         </label>
 
         <input
           id="transactionDescription"
           type="text"
-          placeholder="Private lessons, tournament fees..."
+          placeholder="Perfect Game, private lessons, field rental..."
           required
         >
-
 
 
         <label for="transactionCategory">
@@ -1024,6 +1259,89 @@
           required
         ></select>
 
+
+        <!-- EXPENSE ATTRIBUTION -->
+        <div
+          id="expenseAttributionFields"
+          class="hidden"
+        >
+
+          <div class="form-grid">
+
+            <div>
+
+              <label for="transactionCostType">
+                Cost Type
+              </label>
+
+              <select id="transactionCostType">
+
+                <option value="direct">
+                  Direct
+                </option>
+
+                <option value="overhead">
+                  Overhead
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div>
+
+              <label for="transactionBusinessArea">
+                Business Area
+              </label>
+
+              <select id="transactionBusinessArea">
+
+                <option value="Teams">
+                  Teams
+                </option>
+
+                <option value="Lessons">
+                  Lessons
+                </option>
+
+                <option value="Camps/Programs">
+                  Camps / Programs
+                </option>
+
+                <option value="Facility">
+                  Facility
+                </option>
+
+                <option value="Administration">
+                  Administration
+                </option>
+
+                <option value="General">
+                  General
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+
+          <label for="transactionTeamProgram">
+            Specific Team / Program
+            <span class="optional">
+              Optional
+            </span>
+          </label>
+
+          <input
+            id="transactionTeamProgram"
+            type="text"
+            placeholder="14U Hall, Summer Camp, ADP..."
+          >
+
+        </div>
 
 
         <label for="transactionNotes">
@@ -1037,7 +1355,6 @@
         ></textarea>
 
 
-
         <div class="modal-actions">
 
           <button
@@ -1047,7 +1364,6 @@
           >
             Cancel
           </button>
-
 
           <button
             id="saveTransactionButton"
@@ -1072,21 +1388,16 @@
   </div>
 
 
-
-  <!-- Chart.js -->
-
+  <!-- CHART.JS -->
   <script
     src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
   ></script>
 
-
-  <!-- Application -->
-
+  <!-- APPLICATION -->
   <script
     type="module"
     src="script.js"
   ></script>
 
 </body>
-
 </html>
