@@ -26,6 +26,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
 
 
+
 /* ======================================================
    FIREBASE
 ====================================================== */
@@ -65,6 +66,7 @@ const db =
   getFirestore(firebaseApp);
 
 
+
 /* ======================================================
    BUSINESS SETTINGS
 ====================================================== */
@@ -77,36 +79,32 @@ const FIRST_MONTH =
   "2026-01";
 
 
+const LAST_MONTH =
+  "2031-12";
+
+
 const FIRST_DATE =
   "2026-01-01";
 
 
+
 /* ======================================================
-   AUTOMATIC MONTHLY EXPENSES
+   DEFAULT FIXED MONTHLY EXPENSES
 ====================================================== */
 
-const FIXED_EXPENSES = {
+const DEFAULT_FIXED_COSTS = {
 
-  "W2 Staff":
-    9583,
-
-  "Rent":
+  rent:
     8938.90,
 
-  "Utilities":
+  w2:
+    9583,
+
+  utilities:
     1800
 
 };
 
-
-const FIXED_MONTHLY_TOTAL =
-  Object.values(
-    FIXED_EXPENSES
-  ).reduce(
-    (sum, value) =>
-      sum + value,
-    0
-  );
 
 
 /* ======================================================
@@ -149,6 +147,17 @@ const MANUAL_EXPENSE_CATEGORIES = [
 ];
 
 
+const FIXED_EXPENSE_CATEGORY_NAMES = [
+
+  "Rent",
+
+  "W2 Staff",
+
+  "Utilities"
+
+];
+
+
 const REVENUE_CATEGORIES = [
 
   "Lessons",
@@ -175,6 +184,7 @@ const ALL_CATEGORIES = [
 ];
 
 
+
 /* ======================================================
    STATE
 ====================================================== */
@@ -190,6 +200,17 @@ if (
 
   currentMonth =
     FIRST_MONTH;
+
+}
+
+
+if (
+  monthToIndex(currentMonth) >
+  monthToIndex(LAST_MONTH)
+) {
+
+  currentMonth =
+    LAST_MONTH;
 
 }
 
@@ -218,8 +239,9 @@ let revenueMixChart =
   null;
 
 
+
 /* ======================================================
-   DOM HELPERS
+   DOM HELPER
 ====================================================== */
 
 const $ =
@@ -227,7 +249,12 @@ const $ =
     document.getElementById(id);
 
 
-/* AUTH */
+
+/* ======================================================
+   DOM
+====================================================== */
+
+/* LOGIN */
 
 const loginScreen =
   $("loginScreen");
@@ -249,9 +276,23 @@ const logoutButton =
   $("logoutButton");
 
 
+
+/* MONTH NAV */
+
 const monthSelector =
   $("monthSelector");
 
+
+const previousMonthButton =
+  $("previousMonthButton");
+
+
+const nextMonthButton =
+  $("nextMonthButton");
+
+
+
+/* NAV */
 
 const navButtons =
   document.querySelectorAll(
@@ -263,6 +304,7 @@ const pages =
   document.querySelectorAll(
     ".page"
   );
+
 
 
 /* DASHBOARD */
@@ -319,7 +361,47 @@ const recentTransactions =
   $("recentTransactions");
 
 
-/* CFO METRICS */
+
+/* ======================================================
+   FIXED COSTS
+====================================================== */
+
+const fixedCostsForm =
+  $("fixedCostsForm");
+
+
+const fixedRent =
+  $("fixedRent");
+
+
+const fixedW2 =
+  $("fixedW2");
+
+
+const fixedUtilities =
+  $("fixedUtilities");
+
+
+const fixedCostTotal =
+  $("fixedCostTotal");
+
+
+const startingMonthlyCost =
+  $("startingMonthlyCost");
+
+
+const fixedCostsMessage =
+  $("fixedCostsMessage");
+
+
+const saveFixedCostsButton =
+  $("saveFixedCostsButton");
+
+
+
+/* ======================================================
+   CFO METRICS
+====================================================== */
 
 const organicRevenueEl =
   $("organicRevenue");
@@ -373,7 +455,10 @@ const metricsStatus =
   $("metricsStatus");
 
 
-/* MONTHLY INPUTS */
+
+/* ======================================================
+   MONTHLY BUSINESS INPUTS
+====================================================== */
 
 const monthlyMetricsForm =
   $("monthlyMetricsForm");
@@ -412,7 +497,10 @@ const metricFieldIds = [
 ];
 
 
-/* TRANSACTIONS */
+
+/* ======================================================
+   TRANSACTIONS
+====================================================== */
 
 const transactionTypeFilter =
   $("transactionTypeFilter");
@@ -430,7 +518,10 @@ const transactionEmptyState =
   $("transactionEmptyState");
 
 
-/* YEAR */
+
+/* ======================================================
+   YEAR
+====================================================== */
 
 const yearTitle =
   $("yearTitle");
@@ -472,7 +563,10 @@ const yearExpenseBreakdown =
   $("yearExpenseBreakdown");
 
 
-/* MODAL */
+
+/* ======================================================
+   TRANSACTION MODAL
+====================================================== */
 
 const transactionModal =
   $("transactionModal");
@@ -542,11 +636,14 @@ const transactionTeamProgram =
   $("transactionTeamProgram");
 
 
+
 /* ======================================================
    HELPERS
 ====================================================== */
 
-function currency(value) {
+function currency(
+  value
+) {
 
   return new Intl.NumberFormat(
     "en-US",
@@ -558,19 +655,29 @@ function currency(value) {
         "USD"
     }
   ).format(
-    Number(value || 0)
+    Number(
+      value ||
+      0
+    )
   );
 
 }
 
 
-function percent(value) {
+
+function percent(
+  value
+) {
 
   return (
-    `${Number(value || 0).toFixed(1)}%`
+    `${Number(
+      value ||
+      0
+    ).toFixed(1)}%`
   );
 
 }
+
 
 
 function getCurrentMonth() {
@@ -592,54 +699,57 @@ function getCurrentMonth() {
 }
 
 
+
 function todayString() {
 
   const now =
     new Date();
 
 
-  return (
+  return [
 
-    `${now.getFullYear()}-` +
+    now.getFullYear(),
 
-    `${String(
+    String(
       now.getMonth() + 1
     ).padStart(
       2,
       "0"
-    )}-` +
+    ),
 
-    `${String(
+    String(
       now.getDate()
     ).padStart(
       2,
       "0"
-    )}`
+    )
 
-  );
+  ].join("-");
 
 }
+
 
 
 function getMonthFromDate(
   dateString
 ) {
 
-  if (!dateString) {
+  if (
+    !dateString
+  ) {
 
     return "";
 
   }
 
 
-  return (
-    dateString.slice(
-      0,
-      7
-    )
+  return dateString.slice(
+    0,
+    7
   );
 
 }
+
 
 
 function monthToIndex(
@@ -656,12 +766,14 @@ function monthToIndex(
 
 
   return (
-    year * 12 +
+    year *
+    12 +
     month -
     1
   );
 
 }
+
 
 
 function formatMonth(
@@ -695,6 +807,7 @@ function formatMonth(
 }
 
 
+
 function shortMonth(
   monthKey
 ) {
@@ -723,11 +836,14 @@ function shortMonth(
 }
 
 
+
 function formatDate(
   dateString
 ) {
 
-  if (!dateString) {
+  if (
+    !dateString
+  ) {
 
     return "";
 
@@ -765,11 +881,14 @@ function formatDate(
 }
 
 
+
 function escapeHtml(
   value = ""
 ) {
 
-  return String(value)
+  return String(
+    value
+  )
 
     .replaceAll(
       "&",
@@ -799,6 +918,7 @@ function escapeHtml(
 }
 
 
+
 function yearFromMonth(
   monthKey
 ) {
@@ -813,6 +933,7 @@ function yearFromMonth(
 }
 
 
+
 function buildYearMonths(
   year
 ) {
@@ -825,16 +946,22 @@ function buildYearMonths(
     (
       _,
       index
-    ) =>
-      `${year}-${String(
-        index + 1
-      ).padStart(
-        2,
-        "0"
-      )}`
+    ) => {
+
+      return (
+        `${year}-${String(
+          index + 1
+        ).padStart(
+          2,
+          "0"
+        )}`
+      );
+
+    }
   );
 
 }
+
 
 
 function normalizeExpenseCategory(
@@ -854,6 +981,317 @@ function normalizeExpenseCategory(
   return category;
 
 }
+
+
+
+function isFixedExpenseCategory(
+  category
+) {
+
+  return FIXED_EXPENSE_CATEGORY_NAMES.includes(
+    normalizeExpenseCategory(
+      category
+    )
+  );
+
+}
+
+
+
+/* ======================================================
+   FIXED COST HELPERS
+====================================================== */
+
+function getFixedCostsForMonth(
+  monthKey
+) {
+
+  const metrics =
+    monthlyMetrics[
+      monthKey
+    ] ||
+    {};
+
+
+  return {
+
+    rent:
+      metrics.fixedRent !== undefined
+
+        ? Number(
+            metrics.fixedRent
+          )
+
+        : DEFAULT_FIXED_COSTS.rent,
+
+
+    w2:
+      metrics.fixedW2 !== undefined
+
+        ? Number(
+            metrics.fixedW2
+          )
+
+        : DEFAULT_FIXED_COSTS.w2,
+
+
+    utilities:
+      metrics.fixedUtilities !== undefined
+
+        ? Number(
+            metrics.fixedUtilities
+          )
+
+        : DEFAULT_FIXED_COSTS.utilities
+
+  };
+
+}
+
+
+
+function getFixedCostTotal(
+  monthKey
+) {
+
+  const costs =
+    getFixedCostsForMonth(
+      monthKey
+    );
+
+
+  return (
+    costs.rent +
+    costs.w2 +
+    costs.utilities
+  );
+
+}
+
+
+
+function updateFixedCostPreview() {
+
+  const rent =
+    Number(
+      fixedRent.value ||
+      0
+    );
+
+
+  const w2 =
+    Number(
+      fixedW2.value ||
+      0
+    );
+
+
+  const utilities =
+    Number(
+      fixedUtilities.value ||
+      0
+    );
+
+
+  const total =
+    rent +
+    w2 +
+    utilities;
+
+
+  fixedCostTotal.textContent =
+    currency(
+      total
+    );
+
+
+  startingMonthlyCost.textContent =
+    `-${currency(
+      total
+    )}`;
+
+}
+
+
+
+function loadFixedCostForm() {
+
+  const costs =
+    getFixedCostsForMonth(
+      currentMonth
+    );
+
+
+  fixedRent.value =
+    costs.rent.toFixed(
+      2
+    );
+
+
+  fixedW2.value =
+    costs.w2.toFixed(
+      2
+    );
+
+
+  fixedUtilities.value =
+    costs.utilities.toFixed(
+      2
+    );
+
+
+  fixedCostsMessage.textContent =
+    "";
+
+
+  updateFixedCostPreview();
+
+}
+
+
+
+[
+  fixedRent,
+  fixedW2,
+  fixedUtilities
+].forEach(
+  element => {
+
+    element.addEventListener(
+      "input",
+      updateFixedCostPreview
+    );
+
+  }
+);
+
+
+
+fixedCostsForm.addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+
+    fixedCostsMessage.textContent =
+      "";
+
+
+    saveFixedCostsButton.disabled =
+      true;
+
+
+    const rent =
+      Number(
+        fixedRent.value ||
+        0
+      );
+
+
+    const w2 =
+      Number(
+        fixedW2.value ||
+        0
+      );
+
+
+    const utilities =
+      Number(
+        fixedUtilities.value ||
+        0
+      );
+
+
+    if (
+      rent <
+      0 ||
+      w2 <
+      0 ||
+      utilities <
+      0
+    ) {
+
+      fixedCostsMessage.textContent =
+        "Fixed costs cannot be negative.";
+
+
+      saveFixedCostsButton.disabled =
+        false;
+
+
+      return;
+
+    }
+
+
+    try {
+
+      await setDoc(
+
+        doc(
+          db,
+          "businesses",
+          BUSINESS_ID,
+          "monthlyMetrics",
+          currentMonth
+        ),
+
+        {
+          month:
+            currentMonth,
+
+          year:
+            yearFromMonth(
+              currentMonth
+            ),
+
+          fixedRent:
+            rent,
+
+          fixedW2:
+            w2,
+
+          fixedUtilities:
+            utilities,
+
+          updatedAt:
+            serverTimestamp()
+        },
+
+        {
+          merge:
+            true
+        }
+
+      );
+
+
+      fixedCostsMessage.textContent =
+        "Fixed costs saved.";
+
+    } catch (
+      error
+    ) {
+
+      console.error(
+        error
+      );
+
+
+      fixedCostsMessage.textContent =
+        "Unable to save fixed costs.";
+
+    } finally {
+
+      saveFixedCostsButton.disabled =
+        false;
+
+    }
+
+  }
+);
+
 
 
 /* ======================================================
@@ -883,7 +1321,9 @@ function buildMonthSelector() {
 
 
   const cursor =
-    new Date(start);
+    new Date(
+      start
+    );
 
 
   while (
@@ -941,6 +1381,144 @@ function buildMonthSelector() {
 }
 
 
+
+function moveMonth(
+  offset
+) {
+
+  const [
+    year,
+    month
+  ] =
+    currentMonth
+      .split("-")
+      .map(Number);
+
+
+  const newDate =
+    new Date(
+      year,
+      month - 1 +
+      offset,
+      1
+    );
+
+
+  const newMonth =
+    `${newDate.getFullYear()}-${String(
+      newDate.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    )}`;
+
+
+  if (
+    monthToIndex(
+      newMonth
+    ) <
+    monthToIndex(
+      FIRST_MONTH
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  if (
+    monthToIndex(
+      newMonth
+    ) >
+    monthToIndex(
+      LAST_MONTH
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  currentMonth =
+    newMonth;
+
+
+  monthSelector.value =
+    currentMonth;
+
+
+  renderEverything();
+
+}
+
+
+
+function updateMonthNavigation() {
+
+  previousMonthButton.disabled =
+    monthToIndex(
+      currentMonth
+    ) <=
+    monthToIndex(
+      FIRST_MONTH
+    );
+
+
+  nextMonthButton.disabled =
+    monthToIndex(
+      currentMonth
+    ) >=
+    monthToIndex(
+      LAST_MONTH
+    );
+
+}
+
+
+
+previousMonthButton.addEventListener(
+  "click",
+  () => {
+
+    moveMonth(
+      -1
+    );
+
+  }
+);
+
+
+
+nextMonthButton.addEventListener(
+  "click",
+  () => {
+
+    moveMonth(
+      1
+    );
+
+  }
+);
+
+
+
+monthSelector.addEventListener(
+  "change",
+  event => {
+
+    currentMonth =
+      event.target.value;
+
+
+    renderEverything();
+
+  }
+);
+
+
+
 /* ======================================================
    FILTER CATEGORIES
 ====================================================== */
@@ -978,6 +1556,7 @@ function buildFilterCategories() {
 }
 
 
+
 /* ======================================================
    AUTHENTICATION
 ====================================================== */
@@ -1008,7 +1587,9 @@ loginForm.addEventListener(
 
       );
 
-    } catch (error) {
+    } catch (
+      error
+    ) {
 
       console.error(
         error
@@ -1024,18 +1605,27 @@ loginForm.addEventListener(
 );
 
 
+
 logoutButton.addEventListener(
   "click",
-  () =>
-    signOut(auth)
+  async () => {
+
+    await signOut(
+      auth
+    );
+
+  }
 );
+
 
 
 onAuthStateChanged(
   auth,
   user => {
 
-    if (!user) {
+    if (
+      !user
+    ) {
 
       if (
         transactionsUnsubscribe
@@ -1097,8 +1687,9 @@ onAuthStateChanged(
 );
 
 
+
 /* ======================================================
-   INITIALIZATION
+   INITIALIZE
 ====================================================== */
 
 function initializeAppData() {
@@ -1114,6 +1705,7 @@ function initializeAppData() {
   listenForMonthlyMetrics();
 
 }
+
 
 
 /* ======================================================
@@ -1154,10 +1746,13 @@ navButtons.forEach(
         );
 
 
+        const target =
+          button.dataset.page;
+
+
         const targetPage =
           $(
-            button.dataset.page +
-            "Page"
+            `${target}Page`
           );
 
 
@@ -1173,7 +1768,7 @@ navButtons.forEach(
 
 
         if (
-          button.dataset.page ===
+          target ===
           "reports"
         ) {
 
@@ -1183,12 +1778,13 @@ navButtons.forEach(
 
 
         if (
-          button.dataset.page ===
+          target ===
           "dashboard"
         ) {
 
-          requestAnimationFrame(
-            renderCharts
+          setTimeout(
+            renderCharts,
+            10
           );
 
         }
@@ -1200,25 +1796,10 @@ navButtons.forEach(
 );
 
 
+
 /* ======================================================
-   MONTH CHANGE
+   SELECTED MONTH DISPLAY
 ====================================================== */
-
-monthSelector.addEventListener(
-  "change",
-  event => {
-
-    currentMonth =
-      event.target.value;
-
-
-    updateSelectedMonthDisplay();
-
-    renderEverything();
-
-  }
-);
-
 
 function updateSelectedMonthDisplay() {
 
@@ -1235,7 +1816,9 @@ function updateSelectedMonthDisplay() {
 
 
   revenueMixTitle.textContent =
-    `${shortMonth(currentMonth)} Revenue`;
+    `${shortMonth(
+      currentMonth
+    )} Revenue`;
 
 
   chartYearLabel.textContent =
@@ -1246,9 +1829,18 @@ function updateSelectedMonthDisplay() {
     `${year} Financial Performance`;
 
 
+  monthSelector.value =
+    currentMonth;
+
+
+  updateMonthNavigation();
+
+  loadFixedCostForm();
+
   loadMonthlyMetricsForm();
 
 }
+
 
 
 /* ======================================================
@@ -1268,28 +1860,20 @@ function listenForTransactions() {
 
   const transactionsRef =
     collection(
-
       db,
-
       "businesses",
-
       BUSINESS_ID,
-
       "transactions"
-
     );
 
 
   const transactionsQuery =
     query(
-
       transactionsRef,
-
       orderBy(
         "date",
         "desc"
       )
-
     );
 
 
@@ -1345,6 +1929,7 @@ function listenForTransactions() {
 }
 
 
+
 function listenForMonthlyMetrics() {
 
   if (
@@ -1358,15 +1943,10 @@ function listenForMonthlyMetrics() {
 
   const metricsRef =
     collection(
-
       db,
-
       "businesses",
-
       BUSINESS_ID,
-
       "monthlyMetrics"
-
     );
 
 
@@ -1396,8 +1976,6 @@ function listenForMonthlyMetrics() {
         );
 
 
-        loadMonthlyMetricsForm();
-
         renderEverything();
 
       },
@@ -1416,12 +1994,14 @@ function listenForMonthlyMetrics() {
 }
 
 
+
 /* ======================================================
    TRANSACTION DATA
 ====================================================== */
 
 function getMonthlyTransactions(
-  monthKey = currentMonth
+  monthKey =
+    currentMonth
 ) {
 
   return transactions.filter(
@@ -1433,6 +2013,7 @@ function getMonthlyTransactions(
 }
 
 
+
 function getRevenueByCategory(
   monthKey
 ) {
@@ -1442,8 +2023,11 @@ function getRevenueByCategory(
 
       REVENUE_CATEGORIES.map(
         category => [
+
           category,
+
           0
+
         ]
       )
 
@@ -1489,6 +2073,7 @@ function getRevenueByCategory(
 }
 
 
+
 function getExpenseByCategory(
   monthKey
 ) {
@@ -1498,31 +2083,39 @@ function getExpenseByCategory(
 
       EXPENSE_CATEGORIES.map(
         category => [
+
           category,
+
           0
+
         ]
       )
 
     );
 
 
-  Object.entries(
-    FIXED_EXPENSES
-  ).forEach(
-    (
-      [
-        category,
-        amount
-      ]
-    ) => {
+  const fixedCosts =
+    getFixedCostsForMonth(
+      monthKey
+    );
 
-      totals[
-        category
-      ] +=
-        amount;
 
-    }
-  );
+  totals[
+    "Rent"
+  ] =
+    fixedCosts.rent;
+
+
+  totals[
+    "W2 Staff"
+  ] =
+    fixedCosts.w2;
+
+
+  totals[
+    "Utilities"
+  ] =
+    fixedCosts.utilities;
 
 
   getMonthlyTransactions(
@@ -1542,6 +2135,24 @@ function getExpenseByCategory(
           normalizeExpenseCategory(
             transaction.category
           );
+
+
+        /*
+          Rent, W2 and Utilities are handled
+          through the monthly fixed-cost panel.
+          Ignore legacy manual entries in these categories
+          so they are not double-counted.
+        */
+
+        if (
+          isFixedExpenseCategory(
+            category
+          )
+        ) {
+
+          return;
+
+        }
 
 
         if (
@@ -1568,6 +2179,7 @@ function getExpenseByCategory(
   return totals;
 
 }
+
 
 
 /* ======================================================
@@ -1620,6 +2232,7 @@ function inferBusinessArea(
 }
 
 
+
 function inferCostType(
   transaction
 ) {
@@ -1656,6 +2269,7 @@ function inferCostType(
 }
 
 
+
 /* ======================================================
    MONTH CALCULATIONS
 ====================================================== */
@@ -1683,51 +2297,61 @@ function calculateMonth(
         (
           sum,
           transaction
-        ) =>
-          sum +
-          Number(
-            transaction.amount ||
-            0
-          ),
+        ) => {
+
+          return (
+            sum +
+            Number(
+              transaction.amount ||
+              0
+            )
+          );
+
+        },
         0
       );
+
+
+  const manualExpenseTransactions =
+    monthly.filter(
+      transaction => {
+
+        return (
+          transaction.type ===
+          "expense" &&
+          !isFixedExpenseCategory(
+            transaction.category
+          )
+        );
+
+      }
+    );
 
 
   const manualExpenses =
-    monthly
+    manualExpenseTransactions.reduce(
+      (
+        sum,
+        transaction
+      ) => {
 
-      .filter(
-        transaction =>
-          transaction.type ===
-          "expense"
-      )
-
-      .reduce(
-        (
-          sum,
-          transaction
-        ) =>
+        return (
           sum +
           Number(
             transaction.amount ||
             0
-          ),
-        0
-      );
+          )
+        );
+
+      },
+      0
+    );
 
 
   const fixedExpenses =
-
-    monthToIndex(
+    getFixedCostTotal(
       monthKey
-    ) >=
-    monthToIndex(
-      FIRST_MONTH
-    )
-
-      ? FIXED_MONTHLY_TOTAL
-
-      : 0;
+    );
 
 
   const expenses =
@@ -1741,7 +2365,8 @@ function calculateMonth(
 
 
   const margin =
-    revenue > 0
+    revenue >
+    0
 
       ? (
           profit /
@@ -1771,7 +2396,8 @@ function calculateMonth(
 
 
   const teamRevenueMix =
-    revenue > 0
+    revenue >
+    0
 
       ? (
           teamRevenue /
@@ -1782,35 +2408,37 @@ function calculateMonth(
       : 0;
 
 
-  const manualExpenseTransactions =
-    monthly.filter(
-      transaction =>
-        transaction.type ===
-        "expense"
-    );
-
-
   const directExpenses =
     manualExpenseTransactions
 
       .filter(
-        transaction =>
-          inferCostType(
-            transaction
-          ) ===
-          "direct"
+        transaction => {
+
+          return (
+            inferCostType(
+              transaction
+            ) ===
+            "direct"
+          );
+
+        }
       )
 
       .reduce(
         (
           sum,
           transaction
-        ) =>
-          sum +
-          Number(
-            transaction.amount ||
-            0
-          ),
+        ) => {
+
+          return (
+            sum +
+            Number(
+              transaction.amount ||
+              0
+            )
+          );
+
+        },
         0
       );
 
@@ -1819,23 +2447,33 @@ function calculateMonth(
     manualExpenseTransactions
 
       .filter(
-        transaction =>
-          inferCostType(
-            transaction
-          ) !==
-          "direct"
+        transaction => {
+
+          return (
+            inferCostType(
+              transaction
+            ) !==
+            "direct"
+          );
+
+        }
       )
 
       .reduce(
         (
           sum,
           transaction
-        ) =>
-          sum +
-          Number(
-            transaction.amount ||
-            0
-          ),
+        ) => {
+
+          return (
+            sum +
+            Number(
+              transaction.amount ||
+              0
+            )
+          );
+
+        },
         0
       );
 
@@ -1849,85 +2487,38 @@ function calculateMonth(
     manualExpenseTransactions
 
       .filter(
-        transaction =>
-          inferCostType(
-            transaction
-          ) ===
-          "direct" &&
-          inferBusinessArea(
-            transaction
-          ) ===
-          "Teams"
+        transaction => {
+
+          return (
+            inferCostType(
+              transaction
+            ) ===
+            "direct" &&
+
+            inferBusinessArea(
+              transaction
+            ) ===
+            "Teams"
+          );
+
+        }
       )
 
       .reduce(
         (
           sum,
           transaction
-        ) =>
-          sum +
-          Number(
-            transaction.amount ||
-            0
-          ),
-        0
-      );
+        ) => {
 
+          return (
+            sum +
+            Number(
+              transaction.amount ||
+              0
+            )
+          );
 
-  const lessonDirectCosts =
-    manualExpenseTransactions
-
-      .filter(
-        transaction =>
-          inferCostType(
-            transaction
-          ) ===
-          "direct" &&
-          inferBusinessArea(
-            transaction
-          ) ===
-          "Lessons"
-      )
-
-      .reduce(
-        (
-          sum,
-          transaction
-        ) =>
-          sum +
-          Number(
-            transaction.amount ||
-            0
-          ),
-        0
-      );
-
-
-  const programDirectCosts =
-    manualExpenseTransactions
-
-      .filter(
-        transaction =>
-          inferCostType(
-            transaction
-          ) ===
-          "direct" &&
-          inferBusinessArea(
-            transaction
-          ) ===
-          "Camps/Programs"
-      )
-
-      .reduce(
-        (
-          sum,
-          transaction
-        ) =>
-          sum +
-          Number(
-            transaction.amount ||
-            0
-          ),
+        },
         0
       );
 
@@ -1938,7 +2529,8 @@ function calculateMonth(
 
 
   const teamContributionMargin =
-    teamRevenue > 0
+    teamRevenue >
+    0
 
       ? (
           teamContribution /
@@ -1950,7 +2542,8 @@ function calculateMonth(
 
 
   const contributionMarginRatio =
-    revenue > 0
+    revenue >
+    0
 
       ? Math.max(
           0,
@@ -1965,10 +2558,13 @@ function calculateMonth(
 
 
   const breakEvenRevenue =
-    contributionMarginRatio > 0
+    contributionMarginRatio >
+    0
 
-      ? overhead /
-        contributionMarginRatio
+      ? (
+          overhead /
+          contributionMarginRatio
+        )
 
       : NaN;
 
@@ -2001,10 +2597,6 @@ function calculateMonth(
 
     teamDirectCosts,
 
-    lessonDirectCosts,
-
-    programDirectCosts,
-
     teamContribution,
 
     teamContributionMargin,
@@ -2014,6 +2606,7 @@ function calculateMonth(
   };
 
 }
+
 
 
 /* ======================================================
@@ -2030,6 +2623,7 @@ function currentMetrics() {
   );
 
 }
+
 
 
 function renderEverything() {
@@ -2051,13 +2645,15 @@ function renderEverything() {
       )
   ) {
 
-    requestAnimationFrame(
-      renderCharts
+    setTimeout(
+      renderCharts,
+      10
     );
 
   }
 
 }
+
 
 
 function renderDashboard() {
@@ -2087,9 +2683,9 @@ function renderDashboard() {
   monthlyExpenseDetail.textContent =
     `${currency(
       totals.fixedExpenses
-    )} recurring + ${currency(
+    )} fixed starting cost + ${currency(
       totals.manualExpenses
-    )} entered`;
+    )} variable expenses`;
 
 
   monthlyProfit.textContent =
@@ -2099,7 +2695,8 @@ function renderDashboard() {
 
 
   monthlyProfit.className =
-    totals.profit >= 0
+    totals.profit >=
+    0
 
       ? "positive-text"
 
@@ -2107,16 +2704,44 @@ function renderDashboard() {
 
 
   monthlyMargin.textContent =
-    percent(
-      totals.margin
-    );
+    totals.revenue >
+    0
+
+      ? percent(
+          totals.margin
+        )
+
+      : "—";
 
 
   marginCard.classList.toggle(
     "loss-card",
-    totals.profit < 0
+    totals.profit <
+    0
   );
 
+
+  const fixedCosts =
+    getFixedCostsForMonth(
+      currentMonth
+    );
+
+
+  fixedCostTotal.textContent =
+    currency(
+      totals.fixedExpenses
+    );
+
+
+  startingMonthlyCost.textContent =
+    `-${currency(
+      totals.fixedExpenses
+    )}`;
+
+
+  /*
+    ORGANIC REVENUE
+  */
 
   organicRevenueEl.textContent =
     currency(
@@ -2126,18 +2751,32 @@ function renderDashboard() {
 
   organicRevenueDetail.textContent =
     `${percent(
-      totals.revenue
-        ? 100 -
-          totals.teamRevenueMix
-        : 0
-    )} of monthly revenue`;
+      totals.revenue >
+      0
 
+        ? (
+            totals.organicRevenue /
+            totals.revenue
+          ) *
+          100
+
+        : 0
+    )} of revenue`;
+
+
+  /*
+    TEAM MIX
+  */
 
   teamRevenueMixEl.textContent =
     percent(
       totals.teamRevenueMix
     );
 
+
+  /*
+    OPERATING INPUT VALUES
+  */
 
   const players =
     Number(
@@ -2188,9 +2827,13 @@ function renderDashboard() {
     );
 
 
-  revenuePerPlayerEl.textContent =
+  /*
+    REVENUE PER PLAYER
+  */
 
-    players > 0
+  revenuePerPlayerEl.textContent =
+    players >
+    0
 
       ? currency(
           totals.teamRevenue /
@@ -2200,9 +2843,13 @@ function renderDashboard() {
       : "—";
 
 
-  teamContributionEl.textContent =
+  /*
+    TEAM CONTRIBUTION
+  */
 
-    totals.teamRevenue > 0
+  teamContributionEl.textContent =
+    totals.teamRevenue >
+    0
 
       ? currency(
           totals.teamContribution
@@ -2212,18 +2859,21 @@ function renderDashboard() {
 
 
   teamContributionDetail.textContent =
-
-    totals.teamRevenue > 0
+    totals.teamRevenue >
+    0
 
       ? `${currency(
           totals.teamDirectCosts
         )} direct team costs`
 
-      : "Add/tag team expenses";
+      : "Add team revenue and direct team expenses";
 
+
+  /*
+    TEAM MARGIN
+  */
 
   teamContributionMarginEl.textContent =
-
     Number.isFinite(
       totals.teamContributionMargin
     )
@@ -2235,9 +2885,13 @@ function renderDashboard() {
       : "—";
 
 
-  revenuePerLessonEl.textContent =
+  /*
+    LESSON REVENUE PER LESSON
+  */
 
-    lessons > 0
+  revenuePerLessonEl.textContent =
+    lessons >
+    0
 
       ? currency(
           (
@@ -2252,9 +2906,13 @@ function renderDashboard() {
       : "—";
 
 
-  facilityUtilizationEl.textContent =
+  /*
+    FACILITY UTILIZATION
+  */
 
-    availableHours > 0
+  facilityUtilizationEl.textContent =
+    availableHours >
+    0
 
       ? percent(
           (
@@ -2267,9 +2925,13 @@ function renderDashboard() {
       : "—";
 
 
-  revenuePerFacilityHourEl.textContent =
+  /*
+    ORGANIC REVENUE PER AVAILABLE HOUR
+  */
 
-    availableHours > 0
+  revenuePerFacilityHourEl.textContent =
+    availableHours >
+    0
 
       ? currency(
           totals.organicRevenue /
@@ -2279,21 +2941,22 @@ function renderDashboard() {
       : "—";
 
 
+  /*
+    MEMBERSHIP CHURN
+  */
+
   const estimatedOpeningMembers =
     Math.max(
-
       0,
-
       activeMembers -
       newMembers +
       cancellations
-
     );
 
 
   membershipChurnEl.textContent =
-
-    estimatedOpeningMembers > 0
+    estimatedOpeningMembers >
+    0
 
       ? percent(
           (
@@ -2306,8 +2969,11 @@ function renderDashboard() {
       : "—";
 
 
-  breakEvenRevenueEl.textContent =
+  /*
+    BREAK EVEN
+  */
 
+  breakEvenRevenueEl.textContent =
     Number.isFinite(
       totals.breakEvenRevenue
     )
@@ -2316,20 +2982,37 @@ function renderDashboard() {
           totals.breakEvenRevenue
         )
 
-      : "—";
+      : currency(
+          totals.fixedExpenses
+        );
 
 
-  const hasSavedMetrics =
-    Boolean(
-      monthlyMetrics[
-        currentMonth
-      ]
+  /*
+    MONTHLY INPUT STATUS
+  */
+
+  const hasOperatingMetrics =
+    metricFieldIds.some(
+      id => {
+
+        return (
+          monthlyMetrics[
+            currentMonth
+          ] &&
+          monthlyMetrics[
+            currentMonth
+          ][
+            id
+          ] !==
+          undefined
+        );
+
+      }
     );
 
 
   metricsStatus.textContent =
-
-    hasSavedMetrics
+    hasOperatingMetrics
 
       ? "Inputs saved"
 
@@ -2338,9 +3021,13 @@ function renderDashboard() {
 
   metricsStatus.classList.toggle(
     "saved-badge",
-    hasSavedMetrics
+    hasOperatingMetrics
   );
 
+
+  /*
+    BREAKDOWNS
+  */
 
   renderBreakdownList(
 
@@ -2375,8 +3062,9 @@ function renderDashboard() {
 }
 
 
+
 /* ======================================================
-   MONTHLY INPUT FORM
+   MONTHLY BUSINESS INPUT FORM
 ====================================================== */
 
 function loadMonthlyMetricsForm() {
@@ -2392,7 +3080,9 @@ function loadMonthlyMetricsForm() {
     id => {
 
       const element =
-        $(id);
+        $(
+          id
+        );
 
 
       if (
@@ -2415,6 +3105,7 @@ function loadMonthlyMetricsForm() {
     "";
 
 }
+
 
 
 monthlyMetricsForm.addEventListener(
@@ -2455,7 +3146,9 @@ monthlyMetricsForm.addEventListener(
           id
         ] =
           Number(
-            $(id).value ||
+            $(
+              id
+            ).value ||
             0
           );
 
@@ -2464,13 +3157,10 @@ monthlyMetricsForm.addEventListener(
 
 
     if (
-
-      data.usedFacilityHours >
-        data.availableFacilityHours &&
-
       data.availableFacilityHours >
-        0
-
+      0 &&
+      data.usedFacilityHours >
+      data.availableFacilityHours
     ) {
 
       monthlyMetricsMessage.textContent =
@@ -2491,17 +3181,11 @@ monthlyMetricsForm.addEventListener(
       await setDoc(
 
         doc(
-
           db,
-
           "businesses",
-
           BUSINESS_ID,
-
           "monthlyMetrics",
-
           currentMonth
-
         ),
 
         data,
@@ -2515,9 +3199,11 @@ monthlyMetricsForm.addEventListener(
 
 
       monthlyMetricsMessage.textContent =
-        "Saved.";
+        "Monthly inputs saved.";
 
-    } catch (error) {
+    } catch (
+      error
+    ) {
 
       console.error(
         error
@@ -2536,6 +3222,7 @@ monthlyMetricsForm.addEventListener(
 
   }
 );
+
 
 
 /* ======================================================
@@ -2570,6 +3257,7 @@ function destroyCharts() {
 }
 
 
+
 function renderCharts() {
 
   renderPerformanceChart();
@@ -2577,6 +3265,7 @@ function renderCharts() {
   renderRevenueMixChart();
 
 }
+
 
 
 function renderPerformanceChart() {
@@ -2588,7 +3277,7 @@ function renderPerformanceChart() {
   if (
     !canvas ||
     typeof Chart ===
-      "undefined"
+    "undefined"
   ) {
 
     return;
@@ -2615,28 +3304,37 @@ function renderPerformanceChart() {
 
   const revenueData =
     months.map(
-      month =>
-        calculateMonth(
+      month => {
+
+        return calculateMonth(
           month
-        ).revenue
+        ).revenue;
+
+      }
     );
 
 
   const expenseData =
     months.map(
-      month =>
-        calculateMonth(
+      month => {
+
+        return calculateMonth(
           month
-        ).expenses
+        ).expenses;
+
+      }
     );
 
 
   const profitData =
     months.map(
-      month =>
-        calculateMonth(
+      month => {
+
+        return calculateMonth(
           month
-        ).profit
+        ).profit;
+
+      }
     );
 
 
@@ -2664,7 +3362,10 @@ function renderPerformanceChart() {
                 "Revenue",
 
               data:
-                revenueData
+                revenueData,
+
+              backgroundColor:
+                "#177a49"
             },
 
             {
@@ -2672,7 +3373,10 @@ function renderPerformanceChart() {
                 "Expenses",
 
               data:
-                expenseData
+                expenseData,
+
+              backgroundColor:
+                "#c0261c"
             },
 
             {
@@ -2684,6 +3388,12 @@ function renderPerformanceChart() {
 
               type:
                 "line",
+
+              borderColor:
+                "#17375e",
+
+              backgroundColor:
+                "#17375e",
 
               tension:
                 0.25
@@ -2725,10 +3435,15 @@ function renderPerformanceChart() {
               callbacks: {
 
                 label:
-                  context =>
-                    `${context.dataset.label}: ${currency(
-                      context.raw
-                    )}`
+                  context => {
+
+                    return (
+                      `${context.dataset.label}: ${currency(
+                        context.raw
+                      )}`
+                    );
+
+                  }
 
               }
 
@@ -2746,11 +3461,16 @@ function renderPerformanceChart() {
               ticks: {
 
                 callback:
-                  value =>
-                    `$${Math.round(
-                      value /
-                      1000
-                    )}k`
+                  value => {
+
+                    return (
+                      `$${Math.round(
+                        value /
+                        1000
+                      )}k`
+                    );
+
+                  }
 
               }
 
@@ -2778,6 +3498,7 @@ function renderPerformanceChart() {
 }
 
 
+
 function renderRevenueMixChart() {
 
   const canvas =
@@ -2787,7 +3508,7 @@ function renderRevenueMixChart() {
   if (
     !canvas ||
     typeof Chart ===
-      "undefined"
+    "undefined"
   ) {
 
     return;
@@ -2819,23 +3540,28 @@ function renderRevenueMixChart() {
           ,
           value
         ]
-      ) =>
-        value >
-        0
+      ) => {
+
+        return (
+          value >
+          0
+        );
+
+      }
     );
 
 
   revenueMixEmpty.classList.toggle(
     "hidden",
     entries.length >
-      0
+    0
   );
 
 
   canvas.classList.toggle(
     "hidden",
     entries.length ===
-      0
+    0
   );
 
 
@@ -2862,10 +3588,13 @@ function renderRevenueMixChart() {
 
           labels:
             entries.map(
-              entry =>
-                entry[
+              entry => {
+
+                return entry[
                   0
-                ]
+                ];
+
+              }
             ),
 
           datasets: [
@@ -2874,11 +3603,30 @@ function renderRevenueMixChart() {
 
               data:
                 entries.map(
-                  entry =>
-                    entry[
+                  entry => {
+
+                    return entry[
                       1
-                    ]
-                )
+                    ];
+
+                  }
+                ),
+
+              backgroundColor: [
+
+                "#17375e",
+
+                "#177a49",
+
+                "#4c78a8",
+
+                "#7b61a8",
+
+                "#d18c38",
+
+                "#5b6573"
+
+              ]
 
             }
 
@@ -2918,10 +3666,15 @@ function renderRevenueMixChart() {
               callbacks: {
 
                 label:
-                  context =>
-                    `${context.label}: ${currency(
-                      context.raw
-                    )}`
+                  context => {
+
+                    return (
+                      `${context.label}: ${currency(
+                        context.raw
+                      )}`
+                    );
+
+                  }
 
               }
 
@@ -2936,6 +3689,7 @@ function renderRevenueMixChart() {
     );
 
 }
+
 
 
 /* ======================================================
@@ -2974,7 +3728,8 @@ function renderBreakdownList(
 
 
       const percentage =
-        total > 0
+        total >
+        0
 
           ? (
               value /
@@ -2990,20 +3745,27 @@ function renderBreakdownList(
         <div class="breakdown-top">
 
           <span class="breakdown-name">
-            ${escapeHtml(name)}
+            ${escapeHtml(
+              name
+            )}
           </span>
 
           <span class="breakdown-value">
 
-            ${currency(value)}
+            ${currency(
+              value
+            )}
 
             <em>
-              ${percentage.toFixed(1)}%
+              ${percentage.toFixed(
+                1
+              )}%
             </em>
 
           </span>
 
         </div>
+
 
         <div class="breakdown-track">
 
@@ -3028,6 +3790,7 @@ function renderBreakdownList(
   );
 
 }
+
 
 
 /* ======================================================
@@ -3118,6 +3881,7 @@ function renderRecentTransactions() {
 
         </div>
 
+
         <div
           class="recent-amount ${
             transaction.type ===
@@ -3157,6 +3921,7 @@ function renderRecentTransactions() {
 }
 
 
+
 /* ======================================================
    TRANSACTION TABLE
 ====================================================== */
@@ -3178,23 +3943,15 @@ function renderTransactions() {
       transaction => {
 
         const typeMatches =
-
           typeFilter ===
-          "all"
-
-            ||
-
+          "all" ||
           transaction.type ===
           typeFilter;
 
 
         const categoryMatches =
-
           categoryFilter ===
-          "all"
-
-            ||
-
+          "all" ||
           normalizeExpenseCategory(
             transaction.category
           ) ===
@@ -3217,7 +3974,7 @@ function renderTransactions() {
   transactionEmptyState.classList.toggle(
     "hidden",
     rows.length >
-      0
+    0
   );
 
 
@@ -3237,6 +3994,7 @@ function renderTransactions() {
             transaction.date
           )}
         </td>
+
 
         <td>
 
@@ -3262,6 +4020,7 @@ function renderTransactions() {
 
         </td>
 
+
         <td>
 
           <span
@@ -3272,15 +4031,15 @@ function renderTransactions() {
 
         </td>
 
-        <td>
 
+        <td>
           ${escapeHtml(
             normalizeExpenseCategory(
               transaction.category
             )
           )}
-
         </td>
+
 
         <td>
 
@@ -3299,6 +4058,7 @@ function renderTransactions() {
 
         </td>
 
+
         <td
           class="${
             transaction.type ===
@@ -3309,12 +4069,11 @@ function renderTransactions() {
               : "negative-text"
           }"
         >
-
           ${currency(
             transaction.amount
           )}
-
         </td>
+
 
         <td>
 
@@ -3326,6 +4085,7 @@ function renderTransactions() {
             >
               Edit
             </button>
+
 
             <button
               class="small-button delete"
@@ -3356,10 +4116,13 @@ function renderTransactions() {
 
       button.addEventListener(
         "click",
-        () =>
+        () => {
+
           openEditTransaction(
             button.dataset.id
-          )
+          );
+
+        }
       );
 
     }
@@ -3373,10 +4136,13 @@ function renderTransactions() {
 
       button.addEventListener(
         "click",
-        () =>
+        () => {
+
           deleteTransaction(
             button.dataset.id
-          )
+          );
+
+        }
       );
 
     }
@@ -3385,10 +4151,12 @@ function renderTransactions() {
 }
 
 
+
 transactionTypeFilter.addEventListener(
   "change",
   renderTransactions
 );
+
 
 
 transactionCategoryFilter.addEventListener(
@@ -3397,8 +4165,9 @@ transactionCategoryFilter.addEventListener(
 );
 
 
+
 /* ======================================================
-   OPEN MODAL
+   OPEN TRANSACTION MODAL
 ====================================================== */
 
 [
@@ -3407,16 +4176,22 @@ transactionCategoryFilter.addEventListener(
 ].forEach(
   id => {
 
-    $(id).addEventListener(
+    $(
+      id
+    ).addEventListener(
       "click",
-      () =>
+      () => {
+
         openNewTransaction(
           "revenue"
-        )
+        );
+
+      }
     );
 
   }
 );
+
 
 
 [
@@ -3425,16 +4200,22 @@ transactionCategoryFilter.addEventListener(
 ].forEach(
   id => {
 
-    $(id).addEventListener(
+    $(
+      id
+    ).addEventListener(
       "click",
-      () =>
+      () => {
+
         openNewTransaction(
           "expense"
-        )
+        );
+
+      }
     );
 
   }
 );
+
 
 
 document.querySelectorAll(
@@ -3451,22 +4232,31 @@ document.querySelectorAll(
 );
 
 
+
 modalRevenueTypeButton.addEventListener(
   "click",
-  () =>
+  () => {
+
     setModalType(
       "revenue"
-    )
+    );
+
+  }
 );
+
 
 
 modalExpenseTypeButton.addEventListener(
   "click",
-  () =>
+  () => {
+
     setModalType(
       "expense"
-    )
+    );
+
+  }
 );
+
 
 
 /* ======================================================
@@ -3482,7 +4272,6 @@ function setModalType(
 
 
   transactionModalTitle.textContent =
-
     type ===
     "revenue"
 
@@ -3519,12 +4308,12 @@ function setModalType(
 }
 
 
+
 function buildTransactionCategories(
   type
 ) {
 
   const categories =
-
     type ===
     "revenue"
 
@@ -3582,6 +4371,7 @@ function buildTransactionCategories(
 }
 
 
+
 /* ======================================================
    NEW TRANSACTION
 ====================================================== */
@@ -3598,7 +4388,6 @@ function openNewTransaction(
 
 
   transactionDate.value =
-
     currentMonth ===
     getCurrentMonth()
 
@@ -3616,7 +4405,6 @@ function openNewTransaction(
 
 
   transactionBusinessArea.value =
-
     type ===
     "expense"
 
@@ -3635,6 +4423,7 @@ function openNewTransaction(
   );
 
 }
+
 
 
 /* ======================================================
@@ -3692,11 +4481,6 @@ function openEditTransaction(
   );
 
 
-  buildTransactionCategories(
-    transaction.type
-  );
-
-
   const category =
     normalizeExpenseCategory(
       transaction.category
@@ -3748,7 +4532,6 @@ function openEditTransaction(
 
 
   transactionModalTitle.textContent =
-
     transaction.type ===
     "revenue"
 
@@ -3764,6 +4547,7 @@ function openEditTransaction(
 }
 
 
+
 function closeTransactionModal() {
 
   transactionModal.classList.add(
@@ -3775,6 +4559,7 @@ function closeTransactionModal() {
     "";
 
 }
+
 
 
 /* ======================================================
@@ -3819,7 +4604,7 @@ transactionForm.addEventListener(
     if (
       !amount ||
       amount <=
-        0
+      0
     ) {
 
       transactionFormError.textContent =
@@ -3845,11 +4630,12 @@ transactionForm.addEventListener(
 
 
     if (
-      !description
+      date <
+      FIRST_DATE
     ) {
 
       transactionFormError.textContent =
-        "Enter a vendor or description.";
+        "Financial tracking begins January 1, 2026.";
 
 
       return;
@@ -3858,12 +4644,11 @@ transactionForm.addEventListener(
 
 
     if (
-      date <
-      FIRST_DATE
+      !description
     ) {
 
       transactionFormError.textContent =
-        "Financial tracking begins January 1, 2026.";
+        "Enter a vendor or description.";
 
 
       return;
@@ -3946,17 +4731,11 @@ transactionForm.addEventListener(
         await updateDoc(
 
           doc(
-
             db,
-
             "businesses",
-
             BUSINESS_ID,
-
             "transactions",
-
             id
-
           ),
 
           data
@@ -3972,15 +4751,10 @@ transactionForm.addEventListener(
         await addDoc(
 
           collection(
-
             db,
-
             "businesses",
-
             BUSINESS_ID,
-
             "transactions"
-
           ),
 
           data
@@ -4000,7 +4774,9 @@ transactionForm.addEventListener(
 
       closeTransactionModal();
 
-    } catch (error) {
+    } catch (
+      error
+    ) {
 
       console.error(
         "Save error:",
@@ -4015,6 +4791,7 @@ transactionForm.addEventListener(
 
   }
 );
+
 
 
 /* ======================================================
@@ -4062,22 +4839,18 @@ async function deleteTransaction(
     await deleteDoc(
 
       doc(
-
         db,
-
         "businesses",
-
         BUSINESS_ID,
-
         "transactions",
-
         id
-
       )
 
     );
 
-  } catch (error) {
+  } catch (
+    error
+  ) {
 
     console.error(
       error
@@ -4093,8 +4866,9 @@ async function deleteTransaction(
 }
 
 
+
 /* ======================================================
-   CALENDAR YEAR REPORT
+   YEAR REPORT
 ====================================================== */
 
 function renderYear() {
@@ -4119,11 +4893,16 @@ function renderYear() {
 
   const activeMonths =
     months.filter(
-      month =>
-        monthToIndex(
-          month
-        ) <=
-        selectedIndex
+      month => {
+
+        return (
+          monthToIndex(
+            month
+          ) <=
+          selectedIndex
+        );
+
+      }
     );
 
 
@@ -4184,32 +4963,41 @@ function renderYear() {
       row.innerHTML = `
 
         <td>
-          ${formatMonth(month)}
+          ${formatMonth(
+            month
+          )}
         </td>
+
 
         <td class="positive-text">
 
           ${
             active
+
               ? currency(
                   totals.revenue
                 )
+
               : "—"
           }
 
         </td>
+
 
         <td class="negative-text">
 
           ${
             active
+
               ? currency(
                   totals.expenses
                 )
+
               : "—"
           }
 
         </td>
+
 
         <td
           class="${
@@ -4230,39 +5018,51 @@ function renderYear() {
 
           ${
             active
+
               ? currency(
                   totals.profit
                 )
+
               : "—"
           }
 
         </td>
+
 
         <td>
 
           ${
-            active
+            active &&
+            totals.revenue >
+            0
+
               ? percent(
                   totals.margin
                 )
+
               : "—"
           }
 
         </td>
+
 
         <td>
 
           <span
             class="status-pill ${
               active
+
                 ? "actual"
+
                 : "future"
             }"
           >
 
             ${
               active
+
                 ? "Actual"
+
                 : "Future"
             }
 
@@ -4287,7 +5087,8 @@ function renderYear() {
 
 
   const margin =
-    totalRevenue > 0
+    totalRevenue >
+    0
 
       ? (
           profit /
@@ -4336,7 +5137,8 @@ function renderYear() {
 
 
   yearProfit.className =
-    profit >= 0
+    profit >=
+    0
 
       ? "positive-text"
 
@@ -4344,14 +5146,20 @@ function renderYear() {
 
 
   yearMargin.textContent =
-    percent(
-      margin
-    );
+    totalRevenue >
+    0
+
+      ? percent(
+          margin
+        )
+
+      : "—";
 
 
   yearMarginCard.classList.toggle(
     "loss-card",
-    profit < 0
+    profit <
+    0
   );
 
 
@@ -4366,8 +5174,11 @@ function renderYear() {
 
       REVENUE_CATEGORIES.map(
         category => [
+
           category,
+
           0
+
         ]
       )
 
@@ -4379,8 +5190,11 @@ function renderYear() {
 
       EXPENSE_CATEGORIES.map(
         category => [
+
           category,
+
           0
+
         ]
       )
 
@@ -4465,10 +5279,3 @@ function renderYear() {
   );
 
 }
-
-
-/* ======================================================
-   INITIAL SELECTOR BUILD
-====================================================== */
-
-buildMonthSelector();
