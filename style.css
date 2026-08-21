@@ -2,7 +2,6 @@
   box-sizing: border-box;
 }
 
-
 :root {
   --background: #f3f5f8;
   --surface: #ffffff;
@@ -23,6 +22,8 @@
   --red: #c0261c;
   --red-dark: #961b14;
   --red-soft: #fff0ee;
+
+  --amber: #9a6700;
 
   --shadow: 0 8px 28px rgba(16, 24, 40, 0.06);
 
@@ -71,7 +72,6 @@ button {
 .hidden {
   display: none !important;
 }
-
 
 
 /* =====================================================
@@ -142,6 +142,10 @@ button {
 }
 
 
+/* =====================================================
+   FORMS
+===================================================== */
+
 label {
   display: block;
 
@@ -175,6 +179,10 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--navy);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(23, 55, 94, 0.08);
 }
 
 
@@ -182,6 +190,12 @@ textarea {
   resize: vertical;
 }
 
+
+.optional {
+  font-weight: 500;
+
+  color: var(--muted);
+}
 
 
 /* =====================================================
@@ -213,6 +227,13 @@ textarea {
 
 .primary-button:hover {
   background: var(--navy-dark);
+}
+
+
+.primary-button:disabled {
+  opacity: 0.55;
+
+  cursor: default;
 }
 
 
@@ -259,7 +280,6 @@ textarea {
 
   gap: 9px;
 }
-
 
 
 /* =====================================================
@@ -327,9 +347,8 @@ textarea {
 }
 
 
-
 /* =====================================================
-   GENERAL APP
+   APP
 ===================================================== */
 
 .app-shell {
@@ -370,7 +389,9 @@ textarea {
 
   color: var(--navy);
 
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 1px 4px
+    rgba(0, 0, 0, 0.06);
 }
 
 
@@ -415,7 +436,6 @@ textarea {
 }
 
 
-
 /* =====================================================
    SUMMARY CARDS
 ===================================================== */
@@ -424,7 +444,8 @@ textarea {
 .fy-summary-grid {
   display: grid;
 
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns:
+    repeat(4, 1fr);
 
   gap: 16px;
 
@@ -432,10 +453,18 @@ textarea {
 }
 
 
+.fy-summary-grid.five-up {
+  grid-template-columns:
+    repeat(5, 1fr);
+}
+
+
 .summary-card {
   background: var(--surface);
 
-  border: 1px solid var(--border);
+  border:
+    1px solid
+    var(--border);
 
   border-radius: var(--radius);
 
@@ -484,18 +513,41 @@ textarea {
 
 
 .dark-card p {
-  color: rgba(255, 255, 255, 0.68);
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.68
+    );
 }
 
 
 .dark-detail {
   display: block;
 
-  color: rgba(255, 255, 255, 0.65);
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.65
+    );
 
   font-size: 11px;
 
   margin-top: 8px;
+}
+
+
+.loss-card {
+  background:
+    var(--red)
+    !important;
+
+  border-color:
+    var(--red)
+    !important;
 }
 
 
@@ -509,6 +561,233 @@ textarea {
 }
 
 
+/* =====================================================
+   PANELS
+===================================================== */
+
+.panel {
+  background: var(--surface);
+
+  border:
+    1px solid
+    var(--border);
+
+  border-radius: var(--radius);
+
+  padding: 22px;
+
+  box-shadow: var(--shadow);
+}
+
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 16px;
+
+  margin-bottom: 18px;
+}
+
+
+.panel-header h3 {
+  margin: 4px 0 0;
+}
+
+
+.panel-copy {
+  margin: 7px 0 0;
+
+  color: var(--muted);
+
+  font-size: 13px;
+}
+
+
+.panel-badge {
+  padding: 6px 10px;
+
+  border-radius: 999px;
+
+  background: #edf2f7;
+
+  color: var(--navy);
+
+  font-size: 11px;
+
+  font-weight: 850;
+}
+
+
+.panel-badge.saved-badge {
+  background: var(--green-soft);
+
+  color: var(--green);
+}
+
+
+/* =====================================================
+   CFO METRICS
+===================================================== */
+
+.metrics-panel {
+  margin-bottom: 18px;
+}
+
+
+.metric-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      5,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 12px;
+}
+
+
+.metric-card {
+  padding: 15px;
+
+  border:
+    1px solid
+    #e7ebf0;
+
+  border-radius: 12px;
+
+  background:
+    var(--surface-soft);
+
+  min-width: 0;
+}
+
+
+.metric-card span {
+  display: block;
+
+  color: var(--muted);
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  text-transform:
+    uppercase;
+
+  letter-spacing:
+    0.45px;
+}
+
+
+.metric-card strong {
+  display: block;
+
+  margin-top: 8px;
+
+  font-size: 21px;
+}
+
+
+.metric-card small {
+  display: block;
+
+  margin-top: 5px;
+
+  color: var(--muted);
+
+  font-size: 10px;
+
+  line-height: 1.35;
+}
+
+
+/* =====================================================
+   MONTHLY INPUTS
+===================================================== */
+
+.monthly-input-panel {
+  margin-bottom: 18px;
+}
+
+
+.input-section-title {
+  margin: 22px 0 0;
+
+  padding-top: 18px;
+
+  border-top:
+    1px solid
+    #edf0f3;
+
+  font-size: 12px;
+
+  font-weight: 900;
+
+  color: var(--navy);
+
+  text-transform:
+    uppercase;
+
+  letter-spacing:
+    0.7px;
+}
+
+
+.input-section-title:first-of-type {
+  margin-top: 0;
+
+  padding-top: 0;
+
+  border-top: none;
+}
+
+
+.metrics-input-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      1fr
+    );
+
+  gap: 14px;
+}
+
+
+.metrics-input-grid label {
+  margin-top: 12px;
+}
+
+
+.form-footer-inline {
+  display: flex;
+
+  justify-content:
+    flex-end;
+
+  align-items: center;
+
+  gap: 14px;
+
+  margin-top: 24px;
+}
+
+
+.save-message {
+  font-size: 13px;
+
+  color: var(--muted);
+
+  margin-right: auto;
+}
+
 
 /* =====================================================
    CHARTS
@@ -517,7 +796,15 @@ textarea {
 .chart-grid {
   display: grid;
 
-  grid-template-columns: minmax(0, 1.65fr) minmax(320px, 0.75fr);
+  grid-template-columns:
+    minmax(
+      0,
+      1.65fr
+    )
+    minmax(
+      320px,
+      0.75fr
+    );
 
   gap: 18px;
 
@@ -551,21 +838,6 @@ textarea {
 }
 
 
-.panel-badge {
-  padding: 6px 10px;
-
-  border-radius: 999px;
-
-  background: #edf2f7;
-
-  color: var(--navy);
-
-  font-size: 11px;
-
-  font-weight: 850;
-}
-
-
 .chart-empty {
   padding: 20px;
 
@@ -577,15 +849,15 @@ textarea {
 }
 
 
-
 /* =====================================================
-   PANELS
+   GRID
 ===================================================== */
 
 .dashboard-grid {
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns:
+    1fr 1fr;
 
   gap: 18px;
 
@@ -593,44 +865,16 @@ textarea {
 }
 
 
-.panel {
-  background: var(--surface);
-
-  border: 1px solid var(--border);
-
-  border-radius: var(--radius);
-
-  padding: 22px;
-
-  box-shadow: var(--shadow);
-}
-
-
-.panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  gap: 16px;
-
-  margin-bottom: 18px;
-}
-
-
-.panel-header h3 {
-  margin: 4px 0 0;
-}
-
-
-
 /* =====================================================
-   CATEGORY BREAKDOWN
+   BREAKDOWN
 ===================================================== */
 
 .breakdown-row {
   padding: 13px 0;
 
-  border-bottom: 1px solid #edf0f3;
+  border-bottom:
+    1px solid
+    #edf0f3;
 }
 
 
@@ -641,7 +885,9 @@ textarea {
 
 .breakdown-top {
   display: flex;
-  justify-content: space-between;
+
+  justify-content:
+    space-between;
 
   gap: 20px;
 
@@ -656,6 +902,17 @@ textarea {
 
 .breakdown-value {
   font-weight: 800;
+}
+
+
+.breakdown-value em {
+  font-style: normal;
+
+  color: var(--muted);
+
+  font-size: 11px;
+
+  margin-left: 5px;
 }
 
 
@@ -687,20 +944,23 @@ textarea {
 }
 
 
-
 /* =====================================================
    RECENT TRANSACTIONS
 ===================================================== */
 
 .recent-transaction {
   display: flex;
-  justify-content: space-between;
+
+  justify-content:
+    space-between;
 
   gap: 20px;
 
   padding: 13px 0;
 
-  border-bottom: 1px solid #edf0f3;
+  border-bottom:
+    1px solid
+    #edf0f3;
 }
 
 
@@ -730,9 +990,8 @@ textarea {
 }
 
 
-
 /* =====================================================
-   TRANSACTION TABLE
+   FILTERS
 ===================================================== */
 
 .filters {
@@ -751,6 +1010,10 @@ textarea {
 }
 
 
+/* =====================================================
+   TABLES
+===================================================== */
+
 .transaction-table-wrapper,
 .fy-table-wrapper {
   overflow-x: auto;
@@ -761,7 +1024,8 @@ textarea {
 .fy-table {
   width: 100%;
 
-  border-collapse: collapse;
+  border-collapse:
+    collapse;
 }
 
 
@@ -773,7 +1037,9 @@ textarea {
 
   text-align: left;
 
-  border-bottom: 1px solid #edf0f3;
+  border-bottom:
+    1px solid
+    #edf0f3;
 }
 
 
@@ -801,7 +1067,9 @@ textarea {
 .small-button {
   padding: 5px 9px;
 
-  border: 1px solid var(--border);
+  border:
+    1px solid
+    var(--border);
 
   border-radius: 7px;
 
@@ -818,10 +1086,68 @@ textarea {
 }
 
 
+.table-note {
+  margin-top: 3px;
 
-/* =====================================================
-   FISCAL YEAR
-===================================================== */
+  color: var(--muted);
+
+  font-size: 11px;
+}
+
+
+.type-pill,
+.status-pill {
+  display: inline-block;
+
+  padding: 4px 8px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+
+  font-weight: 850;
+
+  text-transform:
+    uppercase;
+}
+
+
+.type-pill.revenue {
+  background:
+    var(--green-soft);
+
+  color:
+    var(--green);
+}
+
+
+.type-pill.expense {
+  background:
+    var(--red-soft);
+
+  color:
+    var(--red);
+}
+
+
+.status-pill.actual {
+  background: #edf2f7;
+
+  color: var(--navy);
+}
+
+
+.status-pill.future {
+  background: #f1f3f5;
+
+  color: var(--muted);
+}
+
+
+.future-row {
+  opacity: 0.55;
+}
+
 
 .fy-profit-positive {
   color: var(--green);
@@ -841,6 +1167,10 @@ textarea {
   margin-top: 18px;
 }
 
+
+.forecast-card {
+  border-color: #cdd8e5;
+}
 
 
 /* =====================================================
@@ -867,7 +1197,13 @@ textarea {
 
   inset: 0;
 
-  background: rgba(15, 23, 42, 0.58);
+  background:
+    rgba(
+      15,
+      23,
+      42,
+      0.58
+    );
 }
 
 
@@ -875,7 +1211,7 @@ textarea {
   position: relative;
 
   width: 100%;
-  max-width: 560px;
+  max-width: 620px;
 
   max-height: 92vh;
 
@@ -887,14 +1223,25 @@ textarea {
 
   padding: 26px;
 
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.24);
+  box-shadow:
+    0 30px 70px
+    rgba(
+      0,
+      0,
+      0,
+      0.24
+    );
 }
 
 
 .modal-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+
+  justify-content:
+    space-between;
+
+  align-items:
+    flex-start;
 }
 
 
@@ -906,9 +1253,11 @@ textarea {
 .icon-button {
   border: none;
 
-  background: transparent;
+  background:
+    transparent;
 
-  color: var(--muted);
+  color:
+    var(--muted);
 
   font-size: 30px;
 
@@ -919,7 +1268,8 @@ textarea {
 .type-display {
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns:
+    1fr 1fr;
 
   gap: 5px;
 
@@ -927,7 +1277,9 @@ textarea {
 
   margin-top: 20px;
 
-  border: 1px solid var(--border);
+  border:
+    1px solid
+    var(--border);
 
   border-radius: 10px;
 }
@@ -940,30 +1292,36 @@ textarea {
 
   border-radius: 7px;
 
-  background: transparent;
+  background:
+    transparent;
 
   font-weight: 800;
 }
 
 
 .type-button.revenue.active {
-  background: var(--green);
+  background:
+    var(--green);
 
-  color: #ffffff;
+  color:
+    #ffffff;
 }
 
 
 .type-button.expense.active {
-  background: var(--red);
+  background:
+    var(--red);
 
-  color: #ffffff;
+  color:
+    #ffffff;
 }
 
 
 .form-grid {
   display: grid;
 
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns:
+    1fr 1fr;
 
   gap: 14px;
 }
@@ -971,13 +1329,14 @@ textarea {
 
 .modal-actions {
   display: flex;
-  justify-content: flex-end;
+
+  justify-content:
+    flex-end;
 
   gap: 8px;
 
   margin-top: 24px;
 }
-
 
 
 /* =====================================================
@@ -1004,15 +1363,41 @@ textarea {
 }
 
 
-
 /* =====================================================
-   TABLET
+   RESPONSIVE
 ===================================================== */
 
-@media (max-width: 1000px) {
+@media (
+  max-width: 1150px
+) {
+
+  .metric-grid {
+    grid-template-columns:
+      repeat(
+        3,
+        1fr
+      );
+  }
+
+
+  .fy-summary-grid.five-up {
+    grid-template-columns:
+      repeat(
+        3,
+        1fr
+      );
+  }
+
+}
+
+
+@media (
+  max-width: 1000px
+) {
 
   .chart-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
 
@@ -1020,35 +1405,59 @@ textarea {
     height: 330px;
   }
 
+
+  .metrics-input-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        1fr
+      );
+  }
+
 }
 
 
-@media (max-width: 900px) {
+@media (
+  max-width: 900px
+) {
 
   .summary-grid,
-  .fy-summary-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .fy-summary-grid,
+  .fy-summary-grid.five-up {
+    grid-template-columns:
+      repeat(
+        2,
+        1fr
+      );
   }
 
 
   .dashboard-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .metric-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        1fr
+      );
   }
 
 }
 
 
-
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media (max-width: 650px) {
+@media (
+  max-width: 650px
+) {
 
   .topbar {
     padding: 14px;
 
-    align-items: flex-start;
+    align-items:
+      flex-start;
   }
 
 
@@ -1058,9 +1467,11 @@ textarea {
 
 
   .topbar-actions {
-    flex-direction: column;
+    flex-direction:
+      column;
 
-    align-items: stretch;
+    align-items:
+      stretch;
   }
 
 
@@ -1070,7 +1481,10 @@ textarea {
 
 
   .app-shell {
-    padding: 18px 14px 90px;
+    padding:
+      18px
+      14px
+      90px;
   }
 
 
@@ -1084,15 +1498,20 @@ textarea {
     z-index: 500;
 
     display: flex;
-    justify-content: space-around;
+
+    justify-content:
+      space-around;
 
     margin: 0;
 
     padding: 7px;
 
-    background: #ffffff;
+    background:
+      #ffffff;
 
-    border-top: 1px solid var(--border);
+    border-top:
+      1px solid
+      var(--border);
   }
 
 
@@ -1104,9 +1523,11 @@ textarea {
 
 
   .page-heading {
-    flex-direction: column;
+    flex-direction:
+      column;
 
-    align-items: flex-start;
+    align-items:
+      flex-start;
   }
 
 
@@ -1121,8 +1542,10 @@ textarea {
 
 
   .summary-grid,
-  .fy-summary-grid {
-    grid-template-columns: 1fr 1fr;
+  .fy-summary-grid,
+  .fy-summary-grid.five-up {
+    grid-template-columns:
+      1fr 1fr;
 
     gap: 10px;
   }
@@ -1138,18 +1561,32 @@ textarea {
   }
 
 
-  .performance-chart-container {
-    height: 280px;
+  .metric-grid {
+    grid-template-columns:
+      1fr 1fr;
   }
 
 
+  .metric-card strong {
+    font-size: 18px;
+  }
+
+
+  .metrics-input-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .performance-chart-container,
   .doughnut-chart-container {
     height: 280px;
   }
 
 
   .filters {
-    flex-direction: column;
+    flex-direction:
+      column;
   }
 
 
@@ -1159,12 +1596,29 @@ textarea {
 
 
   .form-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
   }
 
 
   .login-card {
-    padding: 28px 22px;
+    padding:
+      28px
+      22px;
+  }
+
+
+  .form-footer-inline {
+    align-items:
+      stretch;
+
+    flex-direction:
+      column;
+  }
+
+
+  .form-footer-inline .primary-button {
+    width: 100%;
   }
 
 }
