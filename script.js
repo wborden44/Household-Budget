@@ -18,12 +18,12 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  setDoc,
   onSnapshot,
   query,
   orderBy,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js";
-
 
 
 /* ======================================================
@@ -65,7 +65,6 @@ const db =
   getFirestore(firebaseApp);
 
 
-
 /* ======================================================
    BUSINESS SETTINGS
 ====================================================== */
@@ -74,13 +73,12 @@ const BUSINESS_ID =
   "ninth-inning-kennesaw";
 
 
-const FISCAL_START_DATE =
-  "2026-08-01";
-
-
 const FIRST_MONTH =
-  "2026-08";
+  "2026-01";
 
+
+const FIRST_DATE =
+  "2026-01-01";
 
 
 /* ======================================================
@@ -111,7 +109,6 @@ const FIXED_MONTHLY_TOTAL =
   );
 
 
-
 /* ======================================================
    CATEGORIES
 ====================================================== */
@@ -130,7 +127,24 @@ const EXPENSE_CATEGORIES = [
 
   "Utilities",
 
-  "Misc."
+  "Building Supplies",
+
+  "Other"
+
+];
+
+
+const MANUAL_EXPENSE_CATEGORIES = [
+
+  "1099 Staff",
+
+  "Tournaments",
+
+  "Field Rentals",
+
+  "Building Supplies",
+
+  "Other"
 
 ];
 
@@ -161,7 +175,6 @@ const ALL_CATEGORIES = [
 ];
 
 
-
 /* ======================================================
    STATE
 ====================================================== */
@@ -185,7 +198,15 @@ let transactions =
   [];
 
 
+let monthlyMetrics =
+  {};
+
+
 let transactionsUnsubscribe =
+  null;
+
+
+let metricsUnsubscribe =
   null;
 
 
@@ -197,45 +218,39 @@ let revenueMixChart =
   null;
 
 
-
 /* ======================================================
-   DOM
+   DOM HELPERS
 ====================================================== */
 
+const $ =
+  id =>
+    document.getElementById(id);
+
+
+/* AUTH */
+
 const loginScreen =
-  document.getElementById(
-    "loginScreen"
-  );
+  $("loginScreen");
 
 
 const appElement =
-  document.getElementById(
-    "app"
-  );
+  $("app");
 
 
 const loginForm =
-  document.getElementById(
-    "loginForm"
-  );
+  $("loginForm");
 
 
 const loginError =
-  document.getElementById(
-    "loginError"
-  );
+  $("loginError");
 
 
 const logoutButton =
-  document.getElementById(
-    "logoutButton"
-  );
+  $("logoutButton");
 
 
 const monthSelector =
-  document.getElementById(
-    "monthSelector"
-  );
+  $("monthSelector");
 
 
 const navButtons =
@@ -250,257 +265,281 @@ const pages =
   );
 
 
-
 /* DASHBOARD */
 
 const dashboardMonthTitle =
-  document.getElementById(
-    "dashboardMonthTitle"
-  );
+  $("dashboardMonthTitle");
 
 
 const monthlyRevenue =
-  document.getElementById(
-    "monthlyRevenue"
-  );
+  $("monthlyRevenue");
 
 
 const monthlyExpenses =
-  document.getElementById(
-    "monthlyExpenses"
-  );
+  $("monthlyExpenses");
 
 
 const monthlyExpenseDetail =
-  document.getElementById(
-    "monthlyExpenseDetail"
-  );
+  $("monthlyExpenseDetail");
 
 
 const monthlyProfit =
-  document.getElementById(
-    "monthlyProfit"
-  );
+  $("monthlyProfit");
 
 
 const monthlyMargin =
-  document.getElementById(
-    "monthlyMargin"
-  );
+  $("monthlyMargin");
 
 
 const marginCard =
-  document.getElementById(
-    "marginCard"
-  );
+  $("marginCard");
 
 
-const chartFiscalLabel =
-  document.getElementById(
-    "chartFiscalLabel"
-  );
+const chartYearLabel =
+  $("chartYearLabel");
 
 
 const revenueMixTitle =
-  document.getElementById(
-    "revenueMixTitle"
-  );
+  $("revenueMixTitle");
 
 
 const revenueMixEmpty =
-  document.getElementById(
-    "revenueMixEmpty"
-  );
+  $("revenueMixEmpty");
 
 
 const revenueBreakdown =
-  document.getElementById(
-    "revenueBreakdown"
-  );
+  $("revenueBreakdown");
 
 
 const expenseBreakdown =
-  document.getElementById(
-    "expenseBreakdown"
-  );
+  $("expenseBreakdown");
 
 
 const recentTransactions =
-  document.getElementById(
-    "recentTransactions"
-  );
+  $("recentTransactions");
 
+
+/* CFO METRICS */
+
+const organicRevenueEl =
+  $("organicRevenue");
+
+
+const organicRevenueDetail =
+  $("organicRevenueDetail");
+
+
+const teamRevenueMixEl =
+  $("teamRevenueMix");
+
+
+const revenuePerPlayerEl =
+  $("revenuePerPlayer");
+
+
+const teamContributionEl =
+  $("teamContribution");
+
+
+const teamContributionDetail =
+  $("teamContributionDetail");
+
+
+const teamContributionMarginEl =
+  $("teamContributionMargin");
+
+
+const revenuePerLessonEl =
+  $("revenuePerLesson");
+
+
+const facilityUtilizationEl =
+  $("facilityUtilization");
+
+
+const revenuePerFacilityHourEl =
+  $("revenuePerFacilityHour");
+
+
+const membershipChurnEl =
+  $("membershipChurn");
+
+
+const breakEvenRevenueEl =
+  $("breakEvenRevenue");
+
+
+const metricsStatus =
+  $("metricsStatus");
+
+
+/* MONTHLY INPUTS */
+
+const monthlyMetricsForm =
+  $("monthlyMetricsForm");
+
+
+const monthlyMetricsMessage =
+  $("monthlyMetricsMessage");
+
+
+const saveMonthlyMetricsButton =
+  $("saveMonthlyMetricsButton");
+
+
+const metricFieldIds = [
+
+  "activeTeams",
+
+  "rosteredPlayers",
+
+  "lessonsCompleted",
+
+  "programParticipants",
+
+  "activeMemberships",
+
+  "newMemberships",
+
+  "membershipCancellations",
+
+  "availableFacilityHours",
+
+  "usedFacilityHours",
+
+  "paidFacilityHours"
+
+];
 
 
 /* TRANSACTIONS */
 
 const transactionTypeFilter =
-  document.getElementById(
-    "transactionTypeFilter"
-  );
+  $("transactionTypeFilter");
 
 
 const transactionCategoryFilter =
-  document.getElementById(
-    "transactionCategoryFilter"
-  );
+  $("transactionCategoryFilter");
 
 
 const transactionTableBody =
-  document.getElementById(
-    "transactionTableBody"
-  );
+  $("transactionTableBody");
 
 
 const transactionEmptyState =
-  document.getElementById(
-    "transactionEmptyState"
-  );
+  $("transactionEmptyState");
 
 
+/* YEAR */
 
-/* FISCAL YEAR */
-
-const fiscalYearTitle =
-  document.getElementById(
-    "fiscalYearTitle"
-  );
+const yearTitle =
+  $("yearTitle");
 
 
-const fyRevenue =
-  document.getElementById(
-    "fyRevenue"
-  );
+const yearRevenue =
+  $("yearRevenue");
 
 
-const fyExpenses =
-  document.getElementById(
-    "fyExpenses"
-  );
+const yearExpenses =
+  $("yearExpenses");
 
 
-const fyProfit =
-  document.getElementById(
-    "fyProfit"
-  );
+const yearProfit =
+  $("yearProfit");
 
 
-const fyMargin =
-  document.getElementById(
-    "fyMargin"
-  );
+const yearMargin =
+  $("yearMargin");
 
 
-const fyMarginCard =
-  document.getElementById(
-    "fyMarginCard"
-  );
+const yearMarginCard =
+  $("yearMarginCard");
 
 
-const fyTableBody =
-  document.getElementById(
-    "fyTableBody"
-  );
+const yearRevenueForecast =
+  $("yearRevenueForecast");
 
 
-const fyRevenueBreakdown =
-  document.getElementById(
-    "fyRevenueBreakdown"
-  );
+const yearTableBody =
+  $("yearTableBody");
 
 
-const fyExpenseBreakdown =
-  document.getElementById(
-    "fyExpenseBreakdown"
-  );
+const yearRevenueBreakdown =
+  $("yearRevenueBreakdown");
 
+
+const yearExpenseBreakdown =
+  $("yearExpenseBreakdown");
 
 
 /* MODAL */
 
 const transactionModal =
-  document.getElementById(
-    "transactionModal"
-  );
+  $("transactionModal");
 
 
 const transactionForm =
-  document.getElementById(
-    "transactionForm"
-  );
+  $("transactionForm");
 
 
 const transactionModalTitle =
-  document.getElementById(
-    "transactionModalTitle"
-  );
+  $("transactionModalTitle");
 
 
 const transactionId =
-  document.getElementById(
-    "transactionId"
-  );
+  $("transactionId");
 
 
 const transactionType =
-  document.getElementById(
-    "transactionType"
-  );
+  $("transactionType");
 
 
 const transactionAmount =
-  document.getElementById(
-    "transactionAmount"
-  );
+  $("transactionAmount");
 
 
 const transactionDate =
-  document.getElementById(
-    "transactionDate"
-  );
+  $("transactionDate");
 
 
 const transactionDescription =
-  document.getElementById(
-    "transactionDescription"
-  );
+  $("transactionDescription");
 
 
 const transactionCategory =
-  document.getElementById(
-    "transactionCategory"
-  );
+  $("transactionCategory");
 
 
 const transactionNotes =
-  document.getElementById(
-    "transactionNotes"
-  );
+  $("transactionNotes");
 
 
 const transactionFormError =
-  document.getElementById(
-    "transactionFormError"
-  );
-
-
-const saveTransactionButton =
-  document.getElementById(
-    "saveTransactionButton"
-  );
+  $("transactionFormError");
 
 
 const modalRevenueTypeButton =
-  document.getElementById(
-    "modalRevenueTypeButton"
-  );
+  $("modalRevenueTypeButton");
 
 
 const modalExpenseTypeButton =
-  document.getElementById(
-    "modalExpenseTypeButton"
-  );
+  $("modalExpenseTypeButton");
 
+
+const expenseAttributionFields =
+  $("expenseAttributionFields");
+
+
+const transactionCostType =
+  $("transactionCostType");
+
+
+const transactionBusinessArea =
+  $("transactionBusinessArea");
+
+
+const transactionTeamProgram =
+  $("transactionTeamProgram");
 
 
 /* ======================================================
@@ -525,7 +564,6 @@ function currency(value) {
 }
 
 
-
 function percent(value) {
 
   return (
@@ -533,45 +571,6 @@ function percent(value) {
   );
 
 }
-
-
-
-function compactMoney(value) {
-
-  const number =
-    Number(value || 0);
-
-
-  if (
-    Math.abs(number) >=
-    1000000
-  ) {
-
-    return (
-      `$${(number / 1000000).toFixed(1)}M`
-    );
-
-  }
-
-
-  if (
-    Math.abs(number) >=
-    1000
-  ) {
-
-    return (
-      `$${(number / 1000).toFixed(0)}k`
-    );
-
-  }
-
-
-  return (
-    `$${number.toFixed(0)}`
-  );
-
-}
-
 
 
 function getCurrentMonth() {
@@ -582,11 +581,15 @@ function getCurrentMonth() {
 
   return (
     `${now.getFullYear()}-` +
-    `${String(now.getMonth() + 1).padStart(2, "0")}`
+    `${String(
+      now.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    )}`
   );
 
 }
-
 
 
 function todayString() {
@@ -595,28 +598,27 @@ function todayString() {
     new Date();
 
 
-  return [
+  return (
 
-    now.getFullYear(),
+    `${now.getFullYear()}-` +
 
-    String(
+    `${String(
       now.getMonth() + 1
     ).padStart(
       2,
       "0"
-    ),
+    )}-` +
 
-    String(
+    `${String(
       now.getDate()
     ).padStart(
       2,
       "0"
-    )
+    )}`
 
-  ].join("-");
+  );
 
 }
-
 
 
 function getMonthFromDate(
@@ -639,6 +641,27 @@ function getMonthFromDate(
 
 }
 
+
+function monthToIndex(
+  monthKey
+) {
+
+  const [
+    year,
+    month
+  ] =
+    monthKey
+      .split("-")
+      .map(Number);
+
+
+  return (
+    year * 12 +
+    month -
+    1
+  );
+
+}
 
 
 function formatMonth(
@@ -672,7 +695,6 @@ function formatMonth(
 }
 
 
-
 function shortMonth(
   monthKey
 ) {
@@ -699,7 +721,6 @@ function shortMonth(
   );
 
 }
-
 
 
 function formatDate(
@@ -744,7 +765,6 @@ function formatDate(
 }
 
 
-
 function escapeHtml(
   value = ""
 ) {
@@ -779,161 +799,61 @@ function escapeHtml(
 }
 
 
-
-function monthToIndex(
+function yearFromMonth(
   monthKey
 ) {
 
-  const [
-    year,
-    month
-  ] =
-    monthKey
-      .split("-")
-      .map(Number);
-
-
-  return (
-    year * 12 +
-    month -
-    1
+  return Number(
+    monthKey.slice(
+      0,
+      4
+    )
   );
 
 }
 
 
-
-function monthInRange(
-  monthKey,
-  startMonth,
-  endMonth
+function buildYearMonths(
+  year
 ) {
 
-  const current =
-    monthToIndex(
-      monthKey
-    );
-
-
-  return (
-    current >=
-      monthToIndex(
-        startMonth
-      ) &&
-
-    current <=
-      monthToIndex(
-        endMonth
-      )
-  );
-
-}
-
-
-
-/* ======================================================
-   FISCAL YEAR
-====================================================== */
-
-function getFiscalYearInfo(
-  monthKey
-) {
-
-  const [
-    year,
-    month
-  ] =
-    monthKey
-      .split("-")
-      .map(Number);
-
-
-  let startYear;
-
-  let endYear;
-
-
-  if (
-    month >=
-    8
-  ) {
-
-    startYear =
-      year;
-
-    endYear =
-      year + 1;
-
-  } else {
-
-    startYear =
-      year - 1;
-
-    endYear =
-      year;
-
-  }
-
-
-  return {
-
-    startYear,
-
-    endYear,
-
-    label:
-      `FY${endYear}`,
-
-    startMonth:
-      `${startYear}-08`,
-
-    endMonth:
-      `${endYear}-07`
-
-  };
-
-}
-
-
-
-function buildFiscalMonths(
-  startYear
-) {
-
-  const months =
-    [];
-
-
-  for (
-    let offset = 0;
-    offset < 12;
-    offset++
-  ) {
-
-    const date =
-      new Date(
-        startYear,
-        7 + offset,
-        1
-      );
-
-
-    months.push(
-      `${date.getFullYear()}-${String(
-        date.getMonth() + 1
+  return Array.from(
+    {
+      length:
+        12
+    },
+    (
+      _,
+      index
+    ) =>
+      `${year}-${String(
+        index + 1
       ).padStart(
         2,
         "0"
       )}`
-    );
+  );
+
+}
+
+
+function normalizeExpenseCategory(
+  category
+) {
+
+  if (
+    category ===
+    "Misc."
+  ) {
+
+    return "Other";
 
   }
 
 
-  return months;
+  return category;
 
 }
-
 
 
 /* ======================================================
@@ -949,7 +869,7 @@ function buildMonthSelector() {
   const start =
     new Date(
       2026,
-      7,
+      0,
       1
     );
 
@@ -957,7 +877,7 @@ function buildMonthSelector() {
   const end =
     new Date(
       2031,
-      6,
+      11,
       1
     );
 
@@ -1021,6 +941,42 @@ function buildMonthSelector() {
 }
 
 
+/* ======================================================
+   FILTER CATEGORIES
+====================================================== */
+
+function buildFilterCategories() {
+
+  transactionCategoryFilter.innerHTML =
+    '<option value="all">All Categories</option>';
+
+
+  ALL_CATEGORIES.forEach(
+    category => {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+
+      option.value =
+        category;
+
+
+      option.textContent =
+        category;
+
+
+      transactionCategoryFilter.appendChild(
+        option
+      );
+
+    }
+  );
+
+}
+
 
 /* ======================================================
    AUTHENTICATION
@@ -1037,29 +993,19 @@ loginForm.addEventListener(
       "";
 
 
-    const email =
-      document
-        .getElementById(
-          "email"
-        )
-        .value
-        .trim();
-
-
-    const password =
-      document
-        .getElementById(
-          "password"
-        )
-        .value;
-
-
     try {
 
       await signInWithEmailAndPassword(
+
         auth,
-        email,
-        password
+
+        $("email")
+          .value
+          .trim(),
+
+        $("password")
+          .value
+
       );
 
     } catch (error) {
@@ -1078,18 +1024,11 @@ loginForm.addEventListener(
 );
 
 
-
 logoutButton.addEventListener(
   "click",
-  async () => {
-
-    await signOut(
-      auth
-    );
-
-  }
+  () =>
+    signOut(auth)
 );
-
 
 
 onAuthStateChanged(
@@ -1104,10 +1043,24 @@ onAuthStateChanged(
 
         transactionsUnsubscribe();
 
-        transactionsUnsubscribe =
-          null;
+      }
+
+
+      if (
+        metricsUnsubscribe
+      ) {
+
+        metricsUnsubscribe();
 
       }
+
+
+      transactionsUnsubscribe =
+        null;
+
+
+      metricsUnsubscribe =
+        null;
 
 
       destroyCharts();
@@ -1144,9 +1097,8 @@ onAuthStateChanged(
 );
 
 
-
 /* ======================================================
-   INITIALIZE
+   INITIALIZATION
 ====================================================== */
 
 function initializeAppData() {
@@ -1159,8 +1111,9 @@ function initializeAppData() {
 
   listenForTransactions();
 
-}
+  listenForMonthlyMetrics();
 
+}
 
 
 /* ======================================================
@@ -1173,10 +1126,6 @@ navButtons.forEach(
     button.addEventListener(
       "click",
       () => {
-
-        const target =
-          button.dataset.page;
-
 
         navButtons.forEach(
           nav => {
@@ -1206,8 +1155,9 @@ navButtons.forEach(
 
 
         const targetPage =
-          document.getElementById(
-            `${target}Page`
+          $(
+            button.dataset.page +
+            "Page"
           );
 
 
@@ -1223,27 +1173,22 @@ navButtons.forEach(
 
 
         if (
-          target ===
+          button.dataset.page ===
           "reports"
         ) {
 
-          renderFiscalYear();
+          renderYear();
 
         }
 
 
         if (
-          target ===
+          button.dataset.page ===
           "dashboard"
         ) {
 
-          setTimeout(
-            () => {
-
-              renderCharts();
-
-            },
-            10
+          requestAnimationFrame(
+            renderCharts
           );
 
         }
@@ -1253,7 +1198,6 @@ navButtons.forEach(
 
   }
 );
-
 
 
 /* ======================================================
@@ -1270,15 +1214,19 @@ monthSelector.addEventListener(
 
     updateSelectedMonthDisplay();
 
-
     renderEverything();
 
   }
 );
 
 
-
 function updateSelectedMonthDisplay() {
+
+  const year =
+    yearFromMonth(
+      currentMonth
+    );
+
 
   dashboardMonthTitle.textContent =
     formatMonth(
@@ -1290,21 +1238,17 @@ function updateSelectedMonthDisplay() {
     `${shortMonth(currentMonth)} Revenue`;
 
 
-  const fiscal =
-    getFiscalYearInfo(
-      currentMonth
-    );
+  chartYearLabel.textContent =
+    year;
 
 
-  fiscalYearTitle.textContent =
-    `${fiscal.label} Financial Performance`;
+  yearTitle.textContent =
+    `${year} Financial Performance`;
 
 
-  chartFiscalLabel.textContent =
-    fiscal.label;
+  loadMonthlyMetricsForm();
 
 }
-
 
 
 /* ======================================================
@@ -1324,20 +1268,28 @@ function listenForTransactions() {
 
   const transactionsRef =
     collection(
+
       db,
+
       "businesses",
+
       BUSINESS_ID,
+
       "transactions"
+
     );
 
 
   const transactionsQuery =
     query(
+
       transactionsRef,
+
       orderBy(
         "date",
         "desc"
       )
+
     );
 
 
@@ -1393,14 +1345,83 @@ function listenForTransactions() {
 }
 
 
+function listenForMonthlyMetrics() {
+
+  if (
+    metricsUnsubscribe
+  ) {
+
+    metricsUnsubscribe();
+
+  }
+
+
+  const metricsRef =
+    collection(
+
+      db,
+
+      "businesses",
+
+      BUSINESS_ID,
+
+      "monthlyMetrics"
+
+    );
+
+
+  metricsUnsubscribe =
+    onSnapshot(
+
+      metricsRef,
+
+      snapshot => {
+
+        monthlyMetrics =
+          {};
+
+
+        snapshot.docs.forEach(
+          documentSnapshot => {
+
+            monthlyMetrics[
+              documentSnapshot.id
+            ] = {
+
+              ...documentSnapshot.data()
+
+            };
+
+          }
+        );
+
+
+        loadMonthlyMetricsForm();
+
+        renderEverything();
+
+      },
+
+      error => {
+
+        console.error(
+          "Metrics listener error:",
+          error
+        );
+
+      }
+
+    );
+
+}
+
 
 /* ======================================================
-   TRANSACTION GETTERS
+   TRANSACTION DATA
 ====================================================== */
 
 function getMonthlyTransactions(
-  monthKey =
-    currentMonth
+  monthKey = currentMonth
 ) {
 
   return transactions.filter(
@@ -1412,32 +1433,245 @@ function getMonthlyTransactions(
 }
 
 
+function getRevenueByCategory(
+  monthKey
+) {
+
+  const totals =
+    Object.fromEntries(
+
+      REVENUE_CATEGORIES.map(
+        category => [
+          category,
+          0
+        ]
+      )
+
+    );
+
+
+  getMonthlyTransactions(
+    monthKey
+  )
+
+    .filter(
+      transaction =>
+        transaction.type ===
+        "revenue"
+    )
+
+    .forEach(
+      transaction => {
+
+        if (
+          totals[
+            transaction.category
+          ] !==
+          undefined
+        ) {
+
+          totals[
+            transaction.category
+          ] +=
+            Number(
+              transaction.amount ||
+              0
+            );
+
+        }
+
+      }
+    );
+
+
+  return totals;
+
+}
+
+
+function getExpenseByCategory(
+  monthKey
+) {
+
+  const totals =
+    Object.fromEntries(
+
+      EXPENSE_CATEGORIES.map(
+        category => [
+          category,
+          0
+        ]
+      )
+
+    );
+
+
+  Object.entries(
+    FIXED_EXPENSES
+  ).forEach(
+    (
+      [
+        category,
+        amount
+      ]
+    ) => {
+
+      totals[
+        category
+      ] +=
+        amount;
+
+    }
+  );
+
+
+  getMonthlyTransactions(
+    monthKey
+  )
+
+    .filter(
+      transaction =>
+        transaction.type ===
+        "expense"
+    )
+
+    .forEach(
+      transaction => {
+
+        const category =
+          normalizeExpenseCategory(
+            transaction.category
+          );
+
+
+        if (
+          totals[
+            category
+          ] !==
+          undefined
+        ) {
+
+          totals[
+            category
+          ] +=
+            Number(
+              transaction.amount ||
+              0
+            );
+
+        }
+
+      }
+    );
+
+
+  return totals;
+
+}
+
 
 /* ======================================================
-   MONTH CALCULATION
+   EXPENSE ATTRIBUTION
+====================================================== */
+
+function inferBusinessArea(
+  transaction
+) {
+
+  if (
+    transaction.businessArea
+  ) {
+
+    return transaction.businessArea;
+
+  }
+
+
+  const category =
+    normalizeExpenseCategory(
+      transaction.category
+    );
+
+
+  if (
+    category ===
+    "Tournaments" ||
+    category ===
+    "Field Rentals"
+  ) {
+
+    return "Teams";
+
+  }
+
+
+  if (
+    category ===
+    "Building Supplies"
+  ) {
+
+    return "Facility";
+
+  }
+
+
+  return "General";
+
+}
+
+
+function inferCostType(
+  transaction
+) {
+
+  if (
+    transaction.costType
+  ) {
+
+    return transaction.costType;
+
+  }
+
+
+  const category =
+    normalizeExpenseCategory(
+      transaction.category
+    );
+
+
+  if (
+    category ===
+    "Tournaments" ||
+    category ===
+    "Field Rentals"
+  ) {
+
+    return "direct";
+
+  }
+
+
+  return "overhead";
+
+}
+
+
+/* ======================================================
+   MONTH CALCULATIONS
 ====================================================== */
 
 function calculateMonth(
   monthKey
 ) {
 
-  const validMonth =
-    monthToIndex(
-      monthKey
-    ) >=
-    monthToIndex(
-      FIRST_MONTH
-    );
-
-
-  const monthlyTransactions =
+  const monthly =
     getMonthlyTransactions(
       monthKey
     );
 
 
   const revenue =
-    monthlyTransactions
+    monthly
 
       .filter(
         transaction =>
@@ -1446,7 +1680,10 @@ function calculateMonth(
       )
 
       .reduce(
-        (sum, transaction) =>
+        (
+          sum,
+          transaction
+        ) =>
           sum +
           Number(
             transaction.amount ||
@@ -1457,7 +1694,7 @@ function calculateMonth(
 
 
   const manualExpenses =
-    monthlyTransactions
+    monthly
 
       .filter(
         transaction =>
@@ -1466,7 +1703,10 @@ function calculateMonth(
       )
 
       .reduce(
-        (sum, transaction) =>
+        (
+          sum,
+          transaction
+        ) =>
           sum +
           Number(
             transaction.amount ||
@@ -1477,8 +1717,16 @@ function calculateMonth(
 
 
   const fixedExpenses =
-    validMonth
+
+    monthToIndex(
+      monthKey
+    ) >=
+    monthToIndex(
+      FIRST_MONTH
+    )
+
       ? FIXED_MONTHLY_TOTAL
+
       : 0;
 
 
@@ -1498,9 +1746,231 @@ function calculateMonth(
       ? (
           profit /
           revenue
-        ) * 100
+        ) *
+        100
 
       : 0;
+
+
+  const revenueCats =
+    getRevenueByCategory(
+      monthKey
+    );
+
+
+  const teamRevenue =
+    revenueCats[
+      "Team Revenue"
+    ] ||
+    0;
+
+
+  const organicRevenue =
+    revenue -
+    teamRevenue;
+
+
+  const teamRevenueMix =
+    revenue > 0
+
+      ? (
+          teamRevenue /
+          revenue
+        ) *
+        100
+
+      : 0;
+
+
+  const manualExpenseTransactions =
+    monthly.filter(
+      transaction =>
+        transaction.type ===
+        "expense"
+    );
+
+
+  const directExpenses =
+    manualExpenseTransactions
+
+      .filter(
+        transaction =>
+          inferCostType(
+            transaction
+          ) ===
+          "direct"
+      )
+
+      .reduce(
+        (
+          sum,
+          transaction
+        ) =>
+          sum +
+          Number(
+            transaction.amount ||
+            0
+          ),
+        0
+      );
+
+
+  const manualOverhead =
+    manualExpenseTransactions
+
+      .filter(
+        transaction =>
+          inferCostType(
+            transaction
+          ) !==
+          "direct"
+      )
+
+      .reduce(
+        (
+          sum,
+          transaction
+        ) =>
+          sum +
+          Number(
+            transaction.amount ||
+            0
+          ),
+        0
+      );
+
+
+  const overhead =
+    fixedExpenses +
+    manualOverhead;
+
+
+  const teamDirectCosts =
+    manualExpenseTransactions
+
+      .filter(
+        transaction =>
+          inferCostType(
+            transaction
+          ) ===
+          "direct" &&
+          inferBusinessArea(
+            transaction
+          ) ===
+          "Teams"
+      )
+
+      .reduce(
+        (
+          sum,
+          transaction
+        ) =>
+          sum +
+          Number(
+            transaction.amount ||
+            0
+          ),
+        0
+      );
+
+
+  const lessonDirectCosts =
+    manualExpenseTransactions
+
+      .filter(
+        transaction =>
+          inferCostType(
+            transaction
+          ) ===
+          "direct" &&
+          inferBusinessArea(
+            transaction
+          ) ===
+          "Lessons"
+      )
+
+      .reduce(
+        (
+          sum,
+          transaction
+        ) =>
+          sum +
+          Number(
+            transaction.amount ||
+            0
+          ),
+        0
+      );
+
+
+  const programDirectCosts =
+    manualExpenseTransactions
+
+      .filter(
+        transaction =>
+          inferCostType(
+            transaction
+          ) ===
+          "direct" &&
+          inferBusinessArea(
+            transaction
+          ) ===
+          "Camps/Programs"
+      )
+
+      .reduce(
+        (
+          sum,
+          transaction
+        ) =>
+          sum +
+          Number(
+            transaction.amount ||
+            0
+          ),
+        0
+      );
+
+
+  const teamContribution =
+    teamRevenue -
+    teamDirectCosts;
+
+
+  const teamContributionMargin =
+    teamRevenue > 0
+
+      ? (
+          teamContribution /
+          teamRevenue
+        ) *
+        100
+
+      : NaN;
+
+
+  const contributionMarginRatio =
+    revenue > 0
+
+      ? Math.max(
+          0,
+          1 -
+          (
+            directExpenses /
+            revenue
+          )
+        )
+
+      : 0;
+
+
+  const breakEvenRevenue =
+    contributionMarginRatio > 0
+
+      ? overhead /
+        contributionMarginRatio
+
+      : NaN;
 
 
   return {
@@ -1515,17 +1985,52 @@ function calculateMonth(
 
     profit,
 
-    margin
+    margin,
+
+    revenueCats,
+
+    teamRevenue,
+
+    organicRevenue,
+
+    teamRevenueMix,
+
+    directExpenses,
+
+    overhead,
+
+    teamDirectCosts,
+
+    lessonDirectCosts,
+
+    programDirectCosts,
+
+    teamContribution,
+
+    teamContributionMargin,
+
+    breakEvenRevenue
 
   };
 
 }
 
 
-
 /* ======================================================
-   MASTER RENDER
+   DASHBOARD
 ====================================================== */
+
+function currentMetrics() {
+
+  return (
+    monthlyMetrics[
+      currentMonth
+    ] ||
+    {}
+  );
+
+}
+
 
 function renderEverything() {
 
@@ -1535,30 +2040,19 @@ function renderEverything() {
 
   renderTransactions();
 
-  renderFiscalYear();
-
-
-  const dashboardActive =
-    document
-      .getElementById(
-        "dashboardPage"
-      )
-      .classList
-      .contains(
-        "active-page"
-      );
+  renderYear();
 
 
   if (
-    dashboardActive
+    $("dashboardPage")
+      .classList
+      .contains(
+        "active-page"
+      )
   ) {
 
     requestAnimationFrame(
-      () => {
-
-        renderCharts();
-
-      }
+      renderCharts
     );
 
   }
@@ -1566,17 +2060,16 @@ function renderEverything() {
 }
 
 
-
-/* ======================================================
-   DASHBOARD
-====================================================== */
-
 function renderDashboard() {
 
   const totals =
     calculateMonth(
       currentMonth
     );
+
+
+  const metrics =
+    currentMetrics();
 
 
   monthlyRevenue.textContent =
@@ -1591,20 +2084,12 @@ function renderDashboard() {
     );
 
 
-  if (
-    totals.manualExpenses >
-    0
-  ) {
-
-    monthlyExpenseDetail.textContent =
-      `${currency(totals.fixedExpenses)} automatic + ${currency(totals.manualExpenses)} manual`;
-
-  } else {
-
-    monthlyExpenseDetail.textContent =
-      `${currency(totals.fixedExpenses)} automatic monthly expenses`;
-
-  }
+  monthlyExpenseDetail.textContent =
+    `${currency(
+      totals.fixedExpenses
+    )} recurring + ${currency(
+      totals.manualExpenses
+    )} entered`;
 
 
   monthlyProfit.textContent =
@@ -1613,20 +2098,12 @@ function renderDashboard() {
     );
 
 
-  monthlyProfit.classList.remove(
-    "positive-text",
-    "negative-text"
-  );
-
-
-  monthlyProfit.classList.add(
-    totals.profit >=
-      0
+  monthlyProfit.className =
+    totals.profit >= 0
 
       ? "positive-text"
 
-      : "negative-text"
-  );
+      : "negative-text";
 
 
   monthlyMargin.textContent =
@@ -1635,42 +2112,434 @@ function renderDashboard() {
     );
 
 
-  if (
-    totals.profit <
-    0
-  ) {
-
-    marginCard.style.background =
-      "var(--red)";
+  marginCard.classList.toggle(
+    "loss-card",
+    totals.profit < 0
+  );
 
 
-    marginCard.style.borderColor =
-      "var(--red)";
-
-  } else {
-
-    marginCard.style.background =
-      "var(--navy)";
+  organicRevenueEl.textContent =
+    currency(
+      totals.organicRevenue
+    );
 
 
-    marginCard.style.borderColor =
-      "var(--navy)";
+  organicRevenueDetail.textContent =
+    `${percent(
+      totals.revenue
+        ? 100 -
+          totals.teamRevenueMix
+        : 0
+    )} of monthly revenue`;
 
-  }
+
+  teamRevenueMixEl.textContent =
+    percent(
+      totals.teamRevenueMix
+    );
 
 
-  renderRevenueBreakdown();
+  const players =
+    Number(
+      metrics.rosteredPlayers ||
+      0
+    );
 
-  renderExpenseBreakdown();
+
+  const lessons =
+    Number(
+      metrics.lessonsCompleted ||
+      0
+    );
+
+
+  const availableHours =
+    Number(
+      metrics.availableFacilityHours ||
+      0
+    );
+
+
+  const usedHours =
+    Number(
+      metrics.usedFacilityHours ||
+      0
+    );
+
+
+  const activeMembers =
+    Number(
+      metrics.activeMemberships ||
+      0
+    );
+
+
+  const newMembers =
+    Number(
+      metrics.newMemberships ||
+      0
+    );
+
+
+  const cancellations =
+    Number(
+      metrics.membershipCancellations ||
+      0
+    );
+
+
+  revenuePerPlayerEl.textContent =
+
+    players > 0
+
+      ? currency(
+          totals.teamRevenue /
+          players
+        )
+
+      : "—";
+
+
+  teamContributionEl.textContent =
+
+    totals.teamRevenue > 0
+
+      ? currency(
+          totals.teamContribution
+        )
+
+      : "—";
+
+
+  teamContributionDetail.textContent =
+
+    totals.teamRevenue > 0
+
+      ? `${currency(
+          totals.teamDirectCosts
+        )} direct team costs`
+
+      : "Add/tag team expenses";
+
+
+  teamContributionMarginEl.textContent =
+
+    Number.isFinite(
+      totals.teamContributionMargin
+    )
+
+      ? percent(
+          totals.teamContributionMargin
+        )
+
+      : "—";
+
+
+  revenuePerLessonEl.textContent =
+
+    lessons > 0
+
+      ? currency(
+          (
+            totals.revenueCats[
+              "Lessons"
+            ] ||
+            0
+          ) /
+          lessons
+        )
+
+      : "—";
+
+
+  facilityUtilizationEl.textContent =
+
+    availableHours > 0
+
+      ? percent(
+          (
+            usedHours /
+            availableHours
+          ) *
+          100
+        )
+
+      : "—";
+
+
+  revenuePerFacilityHourEl.textContent =
+
+    availableHours > 0
+
+      ? currency(
+          totals.organicRevenue /
+          availableHours
+        )
+
+      : "—";
+
+
+  const estimatedOpeningMembers =
+    Math.max(
+
+      0,
+
+      activeMembers -
+      newMembers +
+      cancellations
+
+    );
+
+
+  membershipChurnEl.textContent =
+
+    estimatedOpeningMembers > 0
+
+      ? percent(
+          (
+            cancellations /
+            estimatedOpeningMembers
+          ) *
+          100
+        )
+
+      : "—";
+
+
+  breakEvenRevenueEl.textContent =
+
+    Number.isFinite(
+      totals.breakEvenRevenue
+    )
+
+      ? currency(
+          totals.breakEvenRevenue
+        )
+
+      : "—";
+
+
+  const hasSavedMetrics =
+    Boolean(
+      monthlyMetrics[
+        currentMonth
+      ]
+    );
+
+
+  metricsStatus.textContent =
+
+    hasSavedMetrics
+
+      ? "Inputs saved"
+
+      : "Monthly inputs not saved";
+
+
+  metricsStatus.classList.toggle(
+    "saved-badge",
+    hasSavedMetrics
+  );
+
+
+  renderBreakdownList(
+
+    revenueBreakdown,
+
+    totals.revenueCats,
+
+    totals.revenue,
+
+    "revenue"
+
+  );
+
+
+  renderBreakdownList(
+
+    expenseBreakdown,
+
+    getExpenseByCategory(
+      currentMonth
+    ),
+
+    totals.expenses,
+
+    "expense"
+
+  );
+
 
   renderRecentTransactions();
 
 }
 
 
+/* ======================================================
+   MONTHLY INPUT FORM
+====================================================== */
+
+function loadMonthlyMetricsForm() {
+
+  const metrics =
+    monthlyMetrics[
+      currentMonth
+    ] ||
+    {};
+
+
+  metricFieldIds.forEach(
+    id => {
+
+      const element =
+        $(id);
+
+
+      if (
+        element
+      ) {
+
+        element.value =
+          metrics[
+            id
+          ] ??
+          "";
+
+      }
+
+    }
+  );
+
+
+  monthlyMetricsMessage.textContent =
+    "";
+
+}
+
+
+monthlyMetricsForm.addEventListener(
+  "submit",
+  async event => {
+
+    event.preventDefault();
+
+
+    monthlyMetricsMessage.textContent =
+      "";
+
+
+    saveMonthlyMetricsButton.disabled =
+      true;
+
+
+    const data = {
+
+      month:
+        currentMonth,
+
+      year:
+        yearFromMonth(
+          currentMonth
+        ),
+
+      updatedAt:
+        serverTimestamp()
+
+    };
+
+
+    metricFieldIds.forEach(
+      id => {
+
+        data[
+          id
+        ] =
+          Number(
+            $(id).value ||
+            0
+          );
+
+      }
+    );
+
+
+    if (
+
+      data.usedFacilityHours >
+        data.availableFacilityHours &&
+
+      data.availableFacilityHours >
+        0
+
+    ) {
+
+      monthlyMetricsMessage.textContent =
+        "Used hours cannot exceed available hours.";
+
+
+      saveMonthlyMetricsButton.disabled =
+        false;
+
+
+      return;
+
+    }
+
+
+    try {
+
+      await setDoc(
+
+        doc(
+
+          db,
+
+          "businesses",
+
+          BUSINESS_ID,
+
+          "monthlyMetrics",
+
+          currentMonth
+
+        ),
+
+        data,
+
+        {
+          merge:
+            true
+        }
+
+      );
+
+
+      monthlyMetricsMessage.textContent =
+        "Saved.";
+
+    } catch (error) {
+
+      console.error(
+        error
+      );
+
+
+      monthlyMetricsMessage.textContent =
+        "Unable to save monthly inputs.";
+
+    } finally {
+
+      saveMonthlyMetricsButton.disabled =
+        false;
+
+    }
+
+  }
+);
+
 
 /* ======================================================
-   DASHBOARD CHARTS
+   CHARTS
 ====================================================== */
 
 function destroyCharts() {
@@ -1701,22 +2570,7 @@ function destroyCharts() {
 }
 
 
-
 function renderCharts() {
-
-  if (
-    typeof Chart ===
-    "undefined"
-  ) {
-
-    console.error(
-      "Chart.js did not load."
-    );
-
-    return;
-
-  }
-
 
   renderPerformanceChart();
 
@@ -1725,21 +2579,16 @@ function renderCharts() {
 }
 
 
-
-/* ======================================================
-   PERFORMANCE CHART
-====================================================== */
-
 function renderPerformanceChart() {
 
   const canvas =
-    document.getElementById(
-      "performanceChart"
-    );
+    $("performanceChart");
 
 
   if (
-    !canvas
+    !canvas ||
+    typeof Chart ===
+      "undefined"
   ) {
 
     return;
@@ -1756,224 +2605,93 @@ function renderPerformanceChart() {
   }
 
 
-  const fiscal =
-    getFiscalYearInfo(
-      currentMonth
+  const months =
+    buildYearMonths(
+      yearFromMonth(
+        currentMonth
+      )
     );
 
-
-  const fiscalMonths =
-    buildFiscalMonths(
-      fiscal.startYear
-    );
-
-
-  const selectedIndex =
-    monthToIndex(
-      currentMonth
-    );
-
-
-  /*
-    Show the full Aug-Jul fiscal year.
-
-    Months after the selected month show
-    no value rather than pretending the
-    future has already happened.
-  */
 
   const revenueData =
-    [];
+    months.map(
+      month =>
+        calculateMonth(
+          month
+        ).revenue
+    );
 
 
   const expenseData =
-    [];
+    months.map(
+      month =>
+        calculateMonth(
+          month
+        ).expenses
+    );
 
 
   const profitData =
-    [];
-
-
-  fiscalMonths.forEach(
-    monthKey => {
-
-      if (
-        monthToIndex(
-          monthKey
-        ) >
-        selectedIndex
-      ) {
-
-        revenueData.push(
-          null
-        );
-
-
-        expenseData.push(
-          null
-        );
-
-
-        profitData.push(
-          null
-        );
-
-
-        return;
-
-      }
-
-
-      const totals =
+    months.map(
+      month =>
         calculateMonth(
-          monthKey
-        );
-
-
-      revenueData.push(
-        totals.revenue
-      );
-
-
-      expenseData.push(
-        totals.expenses
-      );
-
-
-      profitData.push(
-        totals.profit
-      );
-
-    }
-  );
-
-
-  const ctx =
-    canvas.getContext(
-      "2d"
+          month
+        ).profit
     );
 
 
   performanceChart =
     new Chart(
-      ctx,
+
+      canvas,
+
       {
+
+        type:
+          "bar",
 
         data: {
 
           labels:
-            fiscalMonths.map(
-              month =>
-                shortMonth(
-                  month
-                )
+            months.map(
+              shortMonth
             ),
-
 
           datasets: [
 
             {
-
-              type:
-                "bar",
-
               label:
                 "Revenue",
 
               data:
-                revenueData,
-
-              backgroundColor:
-                "rgba(23, 122, 73, 0.75)",
-
-              borderColor:
-                "#177a49",
-
-              borderWidth:
-                1,
-
-              borderRadius:
-                6,
-
-              order:
-                2
-
+                revenueData
             },
 
-
             {
-
-              type:
-                "bar",
-
               label:
                 "Expenses",
 
               data:
-                expenseData,
-
-              backgroundColor:
-                "rgba(192, 38, 28, 0.72)",
-
-              borderColor:
-                "#c0261c",
-
-              borderWidth:
-                1,
-
-              borderRadius:
-                6,
-
-              order:
-                2
-
+                expenseData
             },
 
-
             {
-
-              type:
-                "line",
-
               label:
-                "Net Profit",
+                "Profit",
 
               data:
                 profitData,
 
-              borderColor:
-                "#17375e",
-
-              backgroundColor:
-                "#17375e",
-
-              pointBackgroundColor:
-                "#17375e",
-
-              pointRadius:
-                4,
-
-              pointHoverRadius:
-                6,
-
-              borderWidth:
-                3,
+              type:
+                "line",
 
               tension:
-                0.25,
-
-              spanGaps:
-                false,
-
-              order:
-                1
-
+                0.25
             }
 
           ]
 
         },
-
 
         options: {
 
@@ -1982,7 +2700,6 @@ function renderPerformanceChart() {
 
           maintainAspectRatio:
             false,
-
 
           interaction: {
 
@@ -1994,75 +2711,24 @@ function renderPerformanceChart() {
 
           },
 
-
           plugins: {
 
             legend: {
 
               position:
-                "top",
-
-              align:
-                "start",
-
-              labels: {
-
-                usePointStyle:
-                  true,
-
-                boxWidth:
-                  8,
-
-                boxHeight:
-                  8,
-
-                padding:
-                  18,
-
-                font: {
-
-                  size:
-                    12,
-
-                  weight:
-                    "600"
-
-                }
-
-              }
+                "bottom"
 
             },
-
 
             tooltip: {
 
               callbacks: {
 
-                label(
-                  context
-                ) {
-
-                  const value =
-                    context.raw;
-
-
-                  if (
-                    value ===
-                    null
-                  ) {
-
-                    return (
-                      `${context.dataset.label}: —`
-                    );
-
-                  }
-
-
-                  return (
-                    `${context.dataset.label}: ${currency(value)}`
-                  );
-
-                }
+                label:
+                  context =>
+                    `${context.dataset.label}: ${currency(
+                      context.raw
+                    )}`
 
               }
 
@@ -2070,8 +2736,25 @@ function renderPerformanceChart() {
 
           },
 
-
           scales: {
+
+            y: {
+
+              beginAtZero:
+                true,
+
+              ticks: {
+
+                callback:
+                  value =>
+                    `$${Math.round(
+                      value /
+                      1000
+                    )}k`
+
+              }
+
+            },
 
             x: {
 
@@ -2079,57 +2762,6 @@ function renderPerformanceChart() {
 
                 display:
                   false
-
-              },
-
-
-              ticks: {
-
-                color:
-                  "#697382",
-
-                font: {
-
-                  size:
-                    11
-
-                }
-
-              }
-
-            },
-
-
-            y: {
-
-              beginAtZero:
-                true,
-
-
-              grid: {
-
-                color:
-                  "rgba(23, 32, 44, 0.08)"
-
-              },
-
-
-              ticks: {
-
-                color:
-                  "#697382",
-
-                callback(
-                  value
-                ) {
-
-                  return (
-                    compactMoney(
-                      value
-                    )
-                  );
-
-                }
 
               }
 
@@ -2140,26 +2772,22 @@ function renderPerformanceChart() {
         }
 
       }
+
     );
 
 }
 
 
-
-/* ======================================================
-   REVENUE MIX CHART
-====================================================== */
-
 function renderRevenueMixChart() {
 
   const canvas =
-    document.getElementById(
-      "revenueMixChart"
-    );
+    $("revenueMixChart");
 
 
   if (
-    !canvas
+    !canvas ||
+    typeof Chart ===
+      "undefined"
   ) {
 
     return;
@@ -2173,71 +2801,46 @@ function renderRevenueMixChart() {
 
     revenueMixChart.destroy();
 
-    revenueMixChart =
-      null;
-
   }
 
 
-  const monthly =
-    getMonthlyTransactions(
+  const categories =
+    getRevenueByCategory(
       currentMonth
     );
 
 
-  const totals =
-    REVENUE_CATEGORIES.map(
-      category => {
-
-        return monthly
-
-          .filter(
-            transaction =>
-              transaction.type ===
-                "revenue" &&
-              transaction.category ===
-                category
-          )
-
-          .reduce(
-            (sum, transaction) =>
-              sum +
-              Number(
-                transaction.amount ||
-                0
-              ),
-            0
-          );
-
-      }
-    );
-
-
-  const totalRevenue =
-    totals.reduce(
-      (sum, amount) =>
-        sum + amount,
-      0
+  const entries =
+    Object.entries(
+      categories
+    ).filter(
+      (
+        [
+          ,
+          value
+        ]
+      ) =>
+        value >
+        0
     );
 
 
   revenueMixEmpty.classList.toggle(
     "hidden",
-    totalRevenue >
+    entries.length >
       0
   );
 
 
   canvas.classList.toggle(
     "hidden",
-    totalRevenue ===
+    entries.length ===
       0
   );
 
 
   if (
-    totalRevenue ===
-    0
+    !entries.length
   ) {
 
     return;
@@ -2245,49 +2848,43 @@ function renderRevenueMixChart() {
   }
 
 
-  const ctx =
-    canvas.getContext(
-      "2d"
-    );
-
-
   revenueMixChart =
     new Chart(
-      ctx,
+
+      canvas,
+
       {
 
         type:
           "doughnut",
 
-
         data: {
 
           labels:
-            REVENUE_CATEGORIES,
-
+            entries.map(
+              entry =>
+                entry[
+                  0
+                ]
+            ),
 
           datasets: [
 
             {
 
               data:
-                totals,
-
-              borderWidth:
-                3,
-
-              borderColor:
-                "#ffffff",
-
-              hoverOffset:
-                8
+                entries.map(
+                  entry =>
+                    entry[
+                      1
+                    ]
+                )
 
             }
 
           ]
 
         },
-
 
         options: {
 
@@ -2298,8 +2895,7 @@ function renderRevenueMixChart() {
             false,
 
           cutout:
-            "65%",
-
+            "66%",
 
           plugins: {
 
@@ -2310,62 +2906,22 @@ function renderRevenueMixChart() {
 
               labels: {
 
-                usePointStyle:
-                  true,
-
-                pointStyle:
-                  "circle",
-
-                padding:
-                  13,
-
                 boxWidth:
-                  7,
-
-                font: {
-
-                  size:
-                    11
-
-                }
+                  12
 
               }
 
             },
 
-
             tooltip: {
 
               callbacks: {
 
-                label(
-                  context
-                ) {
-
-                  const value =
-                    Number(
-                      context.raw ||
-                      0
-                    );
-
-
-                  const share =
-                    totalRevenue >
-                    0
-
-                      ? (
-                          value /
-                          totalRevenue
-                        ) * 100
-
-                      : 0;
-
-
-                  return (
-                    `${context.label}: ${currency(value)} (${share.toFixed(1)}%)`
-                  );
-
-                }
+                label:
+                  context =>
+                    `${context.label}: ${currency(
+                      context.raw
+                    )}`
 
               }
 
@@ -2376,163 +2932,19 @@ function renderRevenueMixChart() {
         }
 
       }
+
     );
 
 }
 
 
-
 /* ======================================================
-   MONTHLY REVENUE BREAKDOWN
-====================================================== */
-
-function renderRevenueBreakdown() {
-
-  const monthly =
-    getMonthlyTransactions();
-
-
-  const categoryTotals =
-    {};
-
-
-  REVENUE_CATEGORIES.forEach(
-    category => {
-
-      categoryTotals[
-        category
-      ] =
-        monthly
-
-          .filter(
-            item =>
-              item.type ===
-                "revenue" &&
-              item.category ===
-                category
-          )
-
-          .reduce(
-            (sum, item) =>
-              sum +
-              Number(
-                item.amount ||
-                0
-              ),
-            0
-          );
-
-    }
-  );
-
-
-  const total =
-    Object.values(
-      categoryTotals
-    ).reduce(
-      (sum, value) =>
-        sum + value,
-      0
-    );
-
-
-  renderBreakdownList(
-    revenueBreakdown,
-    categoryTotals,
-    total,
-    "revenue"
-  );
-
-}
-
-
-
-/* ======================================================
-   MONTHLY EXPENSE BREAKDOWN
-====================================================== */
-
-function renderExpenseBreakdown() {
-
-  const monthly =
-    getMonthlyTransactions();
-
-
-  const categoryTotals =
-    {};
-
-
-  EXPENSE_CATEGORIES.forEach(
-    category => {
-
-      const manual =
-        monthly
-
-          .filter(
-            item =>
-              item.type ===
-                "expense" &&
-              item.category ===
-                category
-          )
-
-          .reduce(
-            (sum, item) =>
-              sum +
-              Number(
-                item.amount ||
-                0
-              ),
-            0
-          );
-
-
-      const automatic =
-        Number(
-          FIXED_EXPENSES[
-            category
-          ] ||
-          0
-        );
-
-
-      categoryTotals[
-        category
-      ] =
-        manual +
-        automatic;
-
-    }
-  );
-
-
-  const total =
-    Object.values(
-      categoryTotals
-    ).reduce(
-      (sum, value) =>
-        sum + value,
-      0
-    );
-
-
-  renderBreakdownList(
-    expenseBreakdown,
-    categoryTotals,
-    total,
-    "expense"
-  );
-
-}
-
-
-
-/* ======================================================
-   BREAKDOWN LIST
+   BREAKDOWNS
 ====================================================== */
 
 function renderBreakdownList(
   container,
-  categoryTotals,
+  data,
   total,
   type
 ) {
@@ -2542,24 +2954,14 @@ function renderBreakdownList(
 
 
   Object.entries(
-    categoryTotals
+    data
   ).forEach(
-    ([
-      category,
-      amount
-    ]) => {
-
-      const share =
-        total >
-        0
-
-          ? (
-              amount /
-              total
-            ) * 100
-
-          : 0;
-
+    (
+      [
+        name,
+        value
+      ]
+    ) => {
 
       const row =
         document.createElement(
@@ -2571,33 +2973,51 @@ function renderBreakdownList(
         "breakdown-row";
 
 
-      row.innerHTML =
-        `
-          <div class="breakdown-top">
+      const percentage =
+        total > 0
 
-            <span class="breakdown-name">
-              ${escapeHtml(category)}
-            </span>
+          ? (
+              value /
+              total
+            ) *
+            100
 
-            <span class="breakdown-value">
-              ${currency(amount)}
-            </span>
-
-          </div>
+          : 0;
 
 
-          <div class="breakdown-track">
+      row.innerHTML = `
 
-            <div
-              class="breakdown-fill ${type}"
-              style="width:${Math.min(
-                share,
-                100
-              )}%"
-            ></div>
+        <div class="breakdown-top">
 
-          </div>
-        `;
+          <span class="breakdown-name">
+            ${escapeHtml(name)}
+          </span>
+
+          <span class="breakdown-value">
+
+            ${currency(value)}
+
+            <em>
+              ${percentage.toFixed(1)}%
+            </em>
+
+          </span>
+
+        </div>
+
+        <div class="breakdown-track">
+
+          <div
+            class="breakdown-fill ${type}"
+            style="width:${Math.min(
+              100,
+              percentage
+            )}%"
+          ></div>
+
+        </div>
+
+      `;
 
 
       container.appendChild(
@@ -2610,44 +3030,31 @@ function renderBreakdownList(
 }
 
 
-
 /* ======================================================
    RECENT TRANSACTIONS
 ====================================================== */
 
 function renderRecentTransactions() {
 
-  const monthly =
-    [...getMonthlyTransactions()]
+  const list =
+    getMonthlyTransactions(
+      currentMonth
+    ).slice(
+      0,
+      6
+    );
 
-      .sort(
-        (a, b) =>
-          String(
-            b.date
-          ).localeCompare(
-            String(
-              a.date
-            )
-          )
-      )
 
-      .slice(
-        0,
-        8
-      );
+  recentTransactions.innerHTML =
+    "";
 
 
   if (
-    monthly.length ===
-    0
+    !list.length
   ) {
 
     recentTransactions.innerHTML =
-      `
-        <p class="empty-state">
-          No manual transactions this month.
-        </p>
-      `;
+      '<div class="empty-state">No manual transactions for this month.</div>';
 
 
     return;
@@ -2655,134 +3062,99 @@ function renderRecentTransactions() {
   }
 
 
-  recentTransactions.innerHTML =
-    "";
-
-
-  monthly.forEach(
+  list.forEach(
     transaction => {
 
-      const row =
+      const element =
         document.createElement(
           "div"
         );
 
 
-      row.className =
+      element.className =
         "recent-transaction";
 
 
-      row.innerHTML =
-        `
-          <div>
+      element.innerHTML = `
 
-            <div class="recent-description">
-              ${escapeHtml(
-                transaction.description ||
-                ""
-              )}
-            </div>
+        <div>
 
-            <div class="recent-meta">
+          <div class="recent-description">
 
-              ${formatDate(
-                transaction.date
-              )}
-
-              •
-
-              ${escapeHtml(
-                transaction.category ||
-                ""
-              )}
-
-            </div>
-
-          </div>
-
-
-          <div
-            class="
-              recent-amount
-              ${
-                transaction.type ===
-                "revenue"
-
-                  ? "positive-text"
-
-                  : "negative-text"
-              }
-            "
-          >
-
-            ${
-              transaction.type ===
-                "revenue"
-
-                ? "+"
-
-                : "-"
-            }
-
-            ${currency(
-              transaction.amount
+            ${escapeHtml(
+              transaction.description
             )}
 
           </div>
-        `;
+
+          <div class="recent-meta">
+
+            ${formatDate(
+              transaction.date
+            )}
+
+            ·
+
+            ${escapeHtml(
+              normalizeExpenseCategory(
+                transaction.category
+              )
+            )}
+
+            ${
+              transaction.type ===
+              "expense"
+
+                ? ` · ${escapeHtml(
+                    inferBusinessArea(
+                      transaction
+                    )
+                  )}`
+
+                : ""
+            }
+
+          </div>
+
+        </div>
+
+        <div
+          class="recent-amount ${
+            transaction.type ===
+            "revenue"
+
+              ? "positive-text"
+
+              : "negative-text"
+          }"
+        >
+
+          ${
+            transaction.type ===
+            "revenue"
+
+              ? "+"
+
+              : "-"
+          }
+
+          ${currency(
+            transaction.amount
+          )}
+
+        </div>
+
+      `;
 
 
       recentTransactions.appendChild(
-        row
+        element
       );
 
     }
   );
 
 }
-
-
-
-/* ======================================================
-   FILTER CATEGORIES
-====================================================== */
-
-function buildFilterCategories() {
-
-  transactionCategoryFilter.innerHTML =
-    `
-      <option value="all">
-        All Categories
-      </option>
-    `;
-
-
-  ALL_CATEGORIES.forEach(
-    category => {
-
-      const option =
-        document.createElement(
-          "option"
-        );
-
-
-      option.value =
-        category;
-
-
-      option.textContent =
-        category;
-
-
-      transactionCategoryFilter.appendChild(
-        option
-      );
-
-    }
-  );
-
-}
-
 
 
 /* ======================================================
@@ -2791,58 +3163,51 @@ function buildFilterCategories() {
 
 function renderTransactions() {
 
-  let filtered =
-    [...getMonthlyTransactions()];
-
-
-  const type =
+  const typeFilter =
     transactionTypeFilter.value;
 
 
-  const category =
+  const categoryFilter =
     transactionCategoryFilter.value;
 
 
-  if (
-    type !==
-    "all"
-  ) {
+  const rows =
+    getMonthlyTransactions(
+      currentMonth
+    ).filter(
+      transaction => {
 
-    filtered =
-      filtered.filter(
-        item =>
-          item.type ===
-          type
-      );
+        const typeMatches =
 
-  }
+          typeFilter ===
+          "all"
 
+            ||
 
-  if (
-    category !==
-    "all"
-  ) {
-
-    filtered =
-      filtered.filter(
-        item =>
-          item.category ===
-          category
-      );
-
-  }
+          transaction.type ===
+          typeFilter;
 
 
-  filtered.sort(
-    (a, b) =>
-      String(
-        b.date
-      ).localeCompare(
-        String(
-          a.date
-        )
-      )
-  );
+        const categoryMatches =
+
+          categoryFilter ===
+          "all"
+
+            ||
+
+          normalizeExpenseCategory(
+            transaction.category
+          ) ===
+          categoryFilter;
+
+
+        return (
+          typeMatches &&
+          categoryMatches
+        );
+
+      }
+    );
 
 
   transactionTableBody.innerHTML =
@@ -2851,12 +3216,12 @@ function renderTransactions() {
 
   transactionEmptyState.classList.toggle(
     "hidden",
-    filtered.length >
+    rows.length >
       0
   );
 
 
-  filtered.forEach(
+  rows.forEach(
     transaction => {
 
       const row =
@@ -2865,104 +3230,115 @@ function renderTransactions() {
         );
 
 
-      row.innerHTML =
-        `
-          <td>
-            ${formatDate(
-              transaction.date
-            )}
-          </td>
+      row.innerHTML = `
 
+        <td>
+          ${formatDate(
+            transaction.date
+          )}
+        </td>
 
-          <td>
+        <td>
+
+          <strong>
             ${escapeHtml(
-              transaction.description ||
-              ""
+              transaction.description
             )}
-          </td>
+          </strong>
 
+          ${
+            transaction.notes
 
-          <td
-            class="${
-              transaction.type ===
-                "revenue"
+              ? `
+                <div class="table-note">
+                  ${escapeHtml(
+                    transaction.notes
+                  )}
+                </div>
+              `
 
-                ? "positive-text"
+              : ""
+          }
 
-                : "negative-text"
-            }"
+        </td>
+
+        <td>
+
+          <span
+            class="type-pill ${transaction.type}"
           >
+            ${transaction.type}
+          </span>
 
-            ${
-              transaction.type ===
-                "revenue"
+        </td>
 
-                ? "Revenue"
+        <td>
 
-                : "Expense"
-            }
+          ${escapeHtml(
+            normalizeExpenseCategory(
+              transaction.category
+            )
+          )}
 
-          </td>
+        </td>
 
+        <td>
 
-          <td>
-            ${escapeHtml(
-              transaction.category ||
-              ""
-            )}
-          </td>
+          ${
+            transaction.type ===
+            "expense"
 
+              ? escapeHtml(
+                  inferBusinessArea(
+                    transaction
+                  )
+                )
 
-          <td
-            class="${
-              transaction.type ===
-                "revenue"
+              : "—"
+          }
 
-                ? "positive-text"
+        </td>
 
-                : "negative-text"
-            }"
-          >
+        <td
+          class="${
+            transaction.type ===
+            "revenue"
 
-            ${
-              transaction.type ===
-                "revenue"
+              ? "positive-text"
 
-                ? "+"
+              : "negative-text"
+          }"
+        >
 
-                : "-"
-            }
+          ${currency(
+            transaction.amount
+          )}
 
-            ${currency(
-              transaction.amount
-            )}
+        </td>
 
-          </td>
+        <td>
 
+          <div class="transaction-actions">
 
-          <td>
+            <button
+              class="small-button edit-button"
+              data-id="${transaction.id}"
+            >
+              Edit
+            </button>
 
-            <div class="transaction-actions">
+            <button
+              class="small-button delete"
+              data-id="${transaction.id}"
+            >
+              Delete
+            </button>
 
-              <button
-                class="small-button edit-transaction"
-                data-id="${transaction.id}"
-              >
-                Edit
-              </button>
+          </div>
 
+        </td>
 
-              <button
-                class="small-button delete delete-transaction"
-                data-id="${transaction.id}"
-              >
-                Delete
-              </button>
-
-            </div>
-
-          </td>
-        `;
+      `;
 
 
       transactionTableBody.appendChild(
@@ -2973,51 +3349,40 @@ function renderTransactions() {
   );
 
 
-  document
-    .querySelectorAll(
-      ".edit-transaction"
-    )
-    .forEach(
-      button => {
+  document.querySelectorAll(
+    ".edit-button"
+  ).forEach(
+    button => {
 
-        button.addEventListener(
-          "click",
-          () => {
+      button.addEventListener(
+        "click",
+        () =>
+          openEditTransaction(
+            button.dataset.id
+          )
+      );
 
-            openEditTransaction(
-              button.dataset.id
-            );
-
-          }
-        );
-
-      }
-    );
+    }
+  );
 
 
-  document
-    .querySelectorAll(
-      ".delete-transaction"
-    )
-    .forEach(
-      button => {
+  document.querySelectorAll(
+    ".small-button.delete"
+  ).forEach(
+    button => {
 
-        button.addEventListener(
-          "click",
-          () => {
+      button.addEventListener(
+        "click",
+        () =>
+          deleteTransaction(
+            button.dataset.id
+          )
+      );
 
-            deleteTransaction(
-              button.dataset.id
-            );
-
-          }
-        );
-
-      }
-    );
+    }
+  );
 
 }
-
 
 
 transactionTypeFilter.addEventListener(
@@ -3032,227 +3397,150 @@ transactionCategoryFilter.addEventListener(
 );
 
 
-
 /* ======================================================
-   ADD BUTTONS
+   OPEN MODAL
 ====================================================== */
 
-document
-  .getElementById(
-    "dashboardAddRevenueButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
+[
+  "dashboardAddRevenueButton",
+  "transactionsAddRevenueButton"
+].forEach(
+  id => {
 
-      openNewTransaction(
-        "revenue"
-      );
+    $(id).addEventListener(
+      "click",
+      () =>
+        openNewTransaction(
+          "revenue"
+        )
+    );
 
-    }
-  );
-
-
-document
-  .getElementById(
-    "dashboardAddExpenseButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      openNewTransaction(
-        "expense"
-      );
-
-    }
-  );
+  }
+);
 
 
-document
-  .getElementById(
-    "transactionsAddRevenueButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
+[
+  "dashboardAddExpenseButton",
+  "transactionsAddExpenseButton"
+].forEach(
+  id => {
 
-      openNewTransaction(
-        "revenue"
-      );
+    $(id).addEventListener(
+      "click",
+      () =>
+        openNewTransaction(
+          "expense"
+        )
+    );
 
-    }
-  );
-
-
-document
-  .getElementById(
-    "transactionsAddExpenseButton"
-  )
-  .addEventListener(
-    "click",
-    () => {
-
-      openNewTransaction(
-        "expense"
-      );
-
-    }
-  );
+  }
+);
 
 
+document.querySelectorAll(
+  "[data-close-transaction-modal]"
+).forEach(
+  element => {
 
-/* ======================================================
-   MODAL CLOSE
-====================================================== */
+    element.addEventListener(
+      "click",
+      closeTransactionModal
+    );
 
-document
-  .querySelectorAll(
-    "[data-close-transaction-modal]"
-  )
-  .forEach(
-    element => {
+  }
+);
 
-      element.addEventListener(
-        "click",
-        closeTransactionModal
-      );
-
-    }
-  );
-
-
-
-function closeTransactionModal() {
-
-  transactionModal.classList.add(
-    "hidden"
-  );
-
-}
-
-
-
-/* ======================================================
-   MODAL TYPES
-====================================================== */
 
 modalRevenueTypeButton.addEventListener(
   "click",
-  () => {
-
-    transactionType.value =
-      "revenue";
-
-
-    updateModalType();
-
-  }
+  () =>
+    setModalType(
+      "revenue"
+    )
 );
 
 
 modalExpenseTypeButton.addEventListener(
   "click",
-  () => {
-
-    transactionType.value =
-      "expense";
-
-
-    updateModalType();
-
-  }
+  () =>
+    setModalType(
+      "expense"
+    )
 );
 
 
+/* ======================================================
+   MODAL TYPE
+====================================================== */
 
-function updateModalType() {
+function setModalType(
+  type
+) {
 
-  const type =
-    transactionType.value;
+  transactionType.value =
+    type;
+
+
+  transactionModalTitle.textContent =
+
+    type ===
+    "revenue"
+
+      ? "Add Revenue"
+
+      : "Add Expense";
 
 
   modalRevenueTypeButton.classList.toggle(
     "active",
     type ===
-      "revenue"
+    "revenue"
   );
 
 
   modalExpenseTypeButton.classList.toggle(
     "active",
     type ===
-      "expense"
+    "expense"
   );
 
 
-  if (
-    transactionId.value
-  ) {
-
-    transactionModalTitle.textContent =
-      "Edit Transaction";
-
-
-    saveTransactionButton.textContent =
-      "Save Changes";
-
-  } else {
-
-    transactionModalTitle.textContent =
-      type ===
-        "revenue"
-
-        ? "Add Revenue"
-
-        : "Add Expense";
-
-
-    saveTransactionButton.textContent =
-      type ===
-        "revenue"
-
-        ? "Add Revenue"
-
-        : "Add Expense";
-
-  }
-
-
-  const previousCategory =
-    transactionCategory.value;
+  expenseAttributionFields.classList.toggle(
+    "hidden",
+    type !==
+    "expense"
+  );
 
 
   buildTransactionCategories(
-    type,
-    previousCategory
+    type
   );
 
 }
 
 
-
-/* ======================================================
-   MODAL CATEGORIES
-====================================================== */
-
 function buildTransactionCategories(
-  type,
-  selectedCategory =
-    null
+  type
 ) {
 
-  transactionCategory.innerHTML =
-    "";
-
-
   const categories =
+
     type ===
-      "revenue"
+    "revenue"
 
       ? REVENUE_CATEGORIES
 
-      : EXPENSE_CATEGORIES;
+      : MANUAL_EXPENSE_CATEGORIES;
+
+
+  const previousCategory =
+    normalizeExpenseCategory(
+      transactionCategory.value
+    );
+
+
+  transactionCategory.innerHTML =
+    "";
 
 
   categories.forEach(
@@ -3272,17 +3560,6 @@ function buildTransactionCategories(
         category;
 
 
-      if (
-        category ===
-        selectedCategory
-      ) {
-
-        option.selected =
-          true;
-
-      }
-
-
       transactionCategory.appendChild(
         option
       );
@@ -3290,8 +3567,19 @@ function buildTransactionCategories(
     }
   );
 
-}
 
+  if (
+    categories.includes(
+      previousCategory
+    )
+  ) {
+
+    transactionCategory.value =
+      previousCategory;
+
+  }
+
+}
 
 
 /* ======================================================
@@ -3309,42 +3597,37 @@ function openNewTransaction(
     "";
 
 
-  transactionType.value =
-    type;
+  transactionDate.value =
 
+    currentMonth ===
+    getCurrentMonth()
 
-  const today =
-    todayString();
+      ? todayString()
 
-
-  if (
-    getMonthFromDate(
-      today
-    ) ===
-    currentMonth
-  ) {
-
-    transactionDate.value =
-      today;
-
-  } else {
-
-    transactionDate.value =
-      `${currentMonth}-01`;
-
-  }
-
-
-  buildTransactionCategories(
-    type
-  );
-
-
-  updateModalType();
+      : `${currentMonth}-01`;
 
 
   transactionFormError.textContent =
     "";
+
+
+  transactionCostType.value =
+    "direct";
+
+
+  transactionBusinessArea.value =
+
+    type ===
+    "expense"
+
+      ? "Teams"
+
+      : "General";
+
+
+  setModalType(
+    type
+  );
 
 
   transactionModal.classList.remove(
@@ -3352,7 +3635,6 @@ function openNewTransaction(
   );
 
 }
-
 
 
 /* ======================================================
@@ -3380,12 +3662,11 @@ function openEditTransaction(
   }
 
 
+  transactionForm.reset();
+
+
   transactionId.value =
     transaction.id;
-
-
-  transactionType.value =
-    transaction.type;
 
 
   transactionAmount.value =
@@ -3406,22 +3687,74 @@ function openEditTransaction(
     "";
 
 
-  buildTransactionCategories(
-    transaction.type,
-    transaction.category
+  setModalType(
+    transaction.type
   );
 
 
-  updateModalType();
+  buildTransactionCategories(
+    transaction.type
+  );
 
 
-  /*
-    updateModalType rebuilds categories,
-    so explicitly restore category.
-  */
+  const category =
+    normalizeExpenseCategory(
+      transaction.category
+    );
 
-  transactionCategory.value =
-    transaction.category;
+
+  const categoryExists =
+    [
+      ...transactionCategory.options
+    ].some(
+      option =>
+        option.value ===
+        category
+    );
+
+
+  if (
+    categoryExists
+  ) {
+
+    transactionCategory.value =
+      category;
+
+  }
+
+
+  if (
+    transaction.type ===
+    "expense"
+  ) {
+
+    transactionCostType.value =
+      inferCostType(
+        transaction
+      );
+
+
+    transactionBusinessArea.value =
+      inferBusinessArea(
+        transaction
+      );
+
+
+    transactionTeamProgram.value =
+      transaction.teamProgram ||
+      "";
+
+  }
+
+
+  transactionModalTitle.textContent =
+
+    transaction.type ===
+    "revenue"
+
+      ? "Edit Revenue"
+
+      : "Edit Expense";
 
 
   transactionModal.classList.remove(
@@ -3430,6 +3763,18 @@ function openEditTransaction(
 
 }
 
+
+function closeTransactionModal() {
+
+  transactionModal.classList.add(
+    "hidden"
+  );
+
+
+  transactionFormError.textContent =
+    "";
+
+}
 
 
 /* ======================================================
@@ -3504,7 +3849,7 @@ transactionForm.addEventListener(
     ) {
 
       transactionFormError.textContent =
-        "Enter a description.";
+        "Enter a vendor or description.";
 
 
       return;
@@ -3514,22 +3859,16 @@ transactionForm.addEventListener(
 
     if (
       date <
-      FISCAL_START_DATE
+      FIRST_DATE
     ) {
 
       transactionFormError.textContent =
-        "Financial tracking begins August 1, 2026.";
+        "Financial tracking begins January 1, 2026.";
 
 
       return;
 
     }
-
-
-    const transactionMonth =
-      getMonthFromDate(
-        date
-      );
 
 
     const data = {
@@ -3545,7 +3884,9 @@ transactionForm.addEventListener(
       date,
 
       month:
-        transactionMonth,
+        getMonthFromDate(
+          date
+        ),
 
       notes:
         transactionNotes
@@ -3556,6 +3897,40 @@ transactionForm.addEventListener(
         serverTimestamp()
 
     };
+
+
+    if (
+      type ===
+      "expense"
+    ) {
+
+      data.costType =
+        transactionCostType.value;
+
+
+      data.businessArea =
+        transactionBusinessArea.value;
+
+
+      data.teamProgram =
+        transactionTeamProgram
+          .value
+          .trim();
+
+    } else {
+
+      data.costType =
+        "";
+
+
+      data.businessArea =
+        "";
+
+
+      data.teamProgram =
+        "";
+
+    }
 
 
     try {
@@ -3569,14 +3944,23 @@ transactionForm.addEventListener(
       ) {
 
         await updateDoc(
+
           doc(
+
             db,
+
             "businesses",
+
             BUSINESS_ID,
+
             "transactions",
+
             id
+
           ),
+
           data
+
         );
 
       } else {
@@ -3586,33 +3970,35 @@ transactionForm.addEventListener(
 
 
         await addDoc(
+
           collection(
+
             db,
+
             "businesses",
+
             BUSINESS_ID,
+
             "transactions"
+
           ),
+
           data
+
         );
 
       }
 
 
       currentMonth =
-        transactionMonth;
+        data.month;
 
 
       monthSelector.value =
         currentMonth;
 
 
-      updateSelectedMonthDisplay();
-
-
       closeTransactionModal();
-
-
-      renderEverything();
 
     } catch (error) {
 
@@ -3629,7 +4015,6 @@ transactionForm.addEventListener(
 
   }
 );
-
 
 
 /* ======================================================
@@ -3675,13 +4060,21 @@ async function deleteTransaction(
   try {
 
     await deleteDoc(
+
       doc(
+
         db,
+
         "businesses",
+
         BUSINESS_ID,
+
         "transactions",
+
         id
+
       )
+
     );
 
   } catch (error) {
@@ -3700,42 +4093,37 @@ async function deleteTransaction(
 }
 
 
-
 /* ======================================================
-   FISCAL YEAR
+   CALENDAR YEAR REPORT
 ====================================================== */
 
-function renderFiscalYear() {
+function renderYear() {
 
-  const fiscal =
-    getFiscalYearInfo(
+  const year =
+    yearFromMonth(
       currentMonth
     );
 
 
-  fiscalYearTitle.textContent =
-    `${fiscal.label} Financial Performance`;
-
-
-  const fiscalMonths =
-    buildFiscalMonths(
-      fiscal.startYear
+  const months =
+    buildYearMonths(
+      year
     );
 
 
-  const selectedMonthIndex =
+  const selectedIndex =
     monthToIndex(
       currentMonth
     );
 
 
   const activeMonths =
-    fiscalMonths.filter(
+    months.filter(
       month =>
         monthToIndex(
           month
         ) <=
-        selectedMonthIndex
+        selectedIndex
     );
 
 
@@ -3747,12 +4135,19 @@ function renderFiscalYear() {
     0;
 
 
-  fyTableBody.innerHTML =
+  yearTableBody.innerHTML =
     "";
 
 
-  activeMonths.forEach(
+  months.forEach(
     month => {
+
+      const active =
+        monthToIndex(
+          month
+        ) <=
+        selectedIndex;
+
 
       const totals =
         calculateMonth(
@@ -3760,12 +4155,18 @@ function renderFiscalYear() {
         );
 
 
-      totalRevenue +=
-        totals.revenue;
+      if (
+        active
+      ) {
+
+        totalRevenue +=
+          totals.revenue;
 
 
-      totalExpenses +=
-        totals.expenses;
+        totalExpenses +=
+          totals.expenses;
+
+      }
 
 
       const row =
@@ -3774,54 +4175,105 @@ function renderFiscalYear() {
         );
 
 
-      row.innerHTML =
-        `
-          <td>
-            ${formatMonth(month)}
-          </td>
+      row.classList.toggle(
+        "future-row",
+        !active
+      );
 
 
-          <td class="positive-text">
-            ${currency(
-              totals.revenue
-            )}
-          </td>
+      row.innerHTML = `
 
+        <td>
+          ${formatMonth(month)}
+        </td>
 
-          <td class="negative-text">
-            ${currency(
-              totals.expenses
-            )}
-          </td>
+        <td class="positive-text">
 
+          ${
+            active
+              ? currency(
+                  totals.revenue
+                )
+              : "—"
+          }
 
-          <td
-            class="${
-              totals.profit >=
-                0
+        </td>
 
-                ? "fy-profit-positive"
+        <td class="negative-text">
 
-                : "fy-profit-negative"
+          ${
+            active
+              ? currency(
+                  totals.expenses
+                )
+              : "—"
+          }
+
+        </td>
+
+        <td
+          class="${
+            active
+
+              ? (
+                  totals.profit >=
+                  0
+
+                    ? "fy-profit-positive"
+
+                    : "fy-profit-negative"
+                )
+
+              : ""
+          }"
+        >
+
+          ${
+            active
+              ? currency(
+                  totals.profit
+                )
+              : "—"
+          }
+
+        </td>
+
+        <td>
+
+          ${
+            active
+              ? percent(
+                  totals.margin
+                )
+              : "—"
+          }
+
+        </td>
+
+        <td>
+
+          <span
+            class="status-pill ${
+              active
+                ? "actual"
+                : "future"
             }"
           >
 
-            ${currency(
-              totals.profit
-            )}
+            ${
+              active
+                ? "Actual"
+                : "Future"
+            }
 
-          </td>
+          </span>
 
+        </td>
 
-          <td>
-            ${percent(
-              totals.margin
-            )}
-          </td>
-        `;
+      `;
 
 
-      fyTableBody.appendChild(
+      yearTableBody.appendChild(
         row
       );
 
@@ -3829,208 +4281,156 @@ function renderFiscalYear() {
   );
 
 
-  const totalProfit =
+  const profit =
     totalRevenue -
     totalExpenses;
 
 
-  const totalMargin =
-    totalRevenue >
-      0
+  const margin =
+    totalRevenue > 0
 
       ? (
-          totalProfit /
+          profit /
           totalRevenue
-        ) * 100
+        ) *
+        100
 
       : 0;
 
 
-  fyRevenue.textContent =
+  const elapsedMonths =
+    Math.max(
+      1,
+      activeMonths.length
+    );
+
+
+  const revenueForecast =
+    (
+      totalRevenue /
+      elapsedMonths
+    ) *
+    12;
+
+
+  yearTitle.textContent =
+    `${year} Financial Performance`;
+
+
+  yearRevenue.textContent =
     currency(
       totalRevenue
     );
 
 
-  fyExpenses.textContent =
+  yearExpenses.textContent =
     currency(
       totalExpenses
     );
 
 
-  fyProfit.textContent =
+  yearProfit.textContent =
     currency(
-      totalProfit
+      profit
     );
 
 
-  fyProfit.classList.remove(
-    "positive-text",
-    "negative-text"
-  );
-
-
-  fyProfit.classList.add(
-    totalProfit >=
-      0
+  yearProfit.className =
+    profit >= 0
 
       ? "positive-text"
 
-      : "negative-text"
-  );
+      : "negative-text";
 
 
-  fyMargin.textContent =
+  yearMargin.textContent =
     percent(
-      totalMargin
+      margin
     );
 
 
-  if (
-    totalProfit <
-      0
-  ) {
-
-    fyMarginCard.style.background =
-      "var(--red)";
-
-
-    fyMarginCard.style.borderColor =
-      "var(--red)";
-
-  } else {
-
-    fyMarginCard.style.background =
-      "var(--navy)";
-
-
-    fyMarginCard.style.borderColor =
-      "var(--navy)";
-
-  }
-
-
-  renderFiscalBreakdowns(
-    activeMonths
+  yearMarginCard.classList.toggle(
+    "loss-card",
+    profit < 0
   );
 
-}
 
+  yearRevenueForecast.textContent =
+    currency(
+      revenueForecast
+    );
 
-
-/* ======================================================
-   FISCAL BREAKDOWNS
-====================================================== */
-
-function renderFiscalBreakdowns(
-  activeMonths
-) {
 
   const revenueTotals =
-    {};
+    Object.fromEntries(
 
+      REVENUE_CATEGORIES.map(
+        category => [
+          category,
+          0
+        ]
+      )
 
-  REVENUE_CATEGORIES.forEach(
-    category => {
-
-      revenueTotals[
-        category
-      ] =
-        0;
-
-    }
-  );
+    );
 
 
   const expenseTotals =
-    {};
+    Object.fromEntries(
 
+      EXPENSE_CATEGORIES.map(
+        category => [
+          category,
+          0
+        ]
+      )
 
-  EXPENSE_CATEGORIES.forEach(
-    category => {
-
-      expenseTotals[
-        category
-      ] =
-        0;
-
-    }
-  );
+    );
 
 
   activeMonths.forEach(
     month => {
 
-      Object.entries(
-        FIXED_EXPENSES
-      ).forEach(
-        ([
-          category,
-          amount
-        ]) => {
+      const revenueCategories =
+        getRevenueByCategory(
+          month
+        );
 
-          expenseTotals[
+
+      const expenseCategories =
+        getExpenseByCategory(
+          month
+        );
+
+
+      Object.keys(
+        revenueTotals
+      ).forEach(
+        category => {
+
+          revenueTotals[
             category
           ] +=
-            Number(
-              amount
-            );
+            revenueCategories[
+              category
+            ] ||
+            0;
 
         }
       );
 
 
-      const monthly =
-        getMonthlyTransactions(
-          month
-        );
+      Object.keys(
+        expenseTotals
+      ).forEach(
+        category => {
 
-
-      monthly.forEach(
-        transaction => {
-
-          if (
-            transaction.type ===
-            "revenue"
-          ) {
-
-            if (
-              revenueTotals[
-                transaction.category
-              ] !==
-              undefined
-            ) {
-
-              revenueTotals[
-                transaction.category
-              ] +=
-                Number(
-                  transaction.amount ||
-                    0
-                );
-
-            }
-
-          } else {
-
-            if (
-              expenseTotals[
-                transaction.category
-              ] !==
-              undefined
-            ) {
-
-              expenseTotals[
-                transaction.category
-              ] +=
-                Number(
-                  transaction.amount ||
-                    0
-                );
-
-            }
-
-          }
+          expenseTotals[
+            category
+          ] +=
+            expenseCategories[
+              category
+            ] ||
+            0;
 
         }
       );
@@ -4039,41 +4439,36 @@ function renderFiscalBreakdowns(
   );
 
 
-  const revenueTotal =
-    Object.values(
-      revenueTotals
-    ).reduce(
-      (sum, value) =>
-        sum +
-        value,
-      0
-    );
-
-
-  const expenseTotal =
-    Object.values(
-      expenseTotals
-    ).reduce(
-      (sum, value) =>
-        sum +
-        value,
-      0
-    );
-
-
   renderBreakdownList(
-    fyRevenueBreakdown,
+
+    yearRevenueBreakdown,
+
     revenueTotals,
-    revenueTotal,
+
+    totalRevenue,
+
     "revenue"
+
   );
 
 
   renderBreakdownList(
-    fyExpenseBreakdown,
+
+    yearExpenseBreakdown,
+
     expenseTotals,
-    expenseTotal,
+
+    totalExpenses,
+
     "expense"
+
   );
 
 }
+
+
+/* ======================================================
+   INITIAL SELECTOR BUILD
+====================================================== */
+
+buildMonthSelector();
