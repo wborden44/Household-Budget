@@ -99,7 +99,9 @@ button {
 
 
 
-/* LOGIN */
+/* =====================================================
+   LOGIN
+===================================================== */
 
 .login-screen {
 
@@ -199,7 +201,9 @@ button {
 
 
 
-/* FORMS */
+/* =====================================================
+   FORMS
+===================================================== */
 
 label {
 
@@ -248,6 +252,10 @@ textarea:focus {
   border-color:
     var(--navy);
 
+  box-shadow:
+    0 0 0 3px
+    rgba(23, 55, 94, 0.08);
+
 }
 
 
@@ -262,7 +270,9 @@ textarea:focus {
 
 
 
-/* BUTTONS */
+/* =====================================================
+   BUTTONS
+===================================================== */
 
 .primary-button,
 .secondary-button,
@@ -293,6 +303,14 @@ textarea:focus {
 }
 
 
+.primary-button:hover {
+
+  background:
+    var(--navy-dark);
+
+}
+
+
 .secondary-button {
 
   background: #e9edf2;
@@ -310,12 +328,28 @@ textarea:focus {
 }
 
 
+.revenue-button:hover {
+
+  background:
+    var(--green-dark);
+
+}
+
+
 .expense-button {
 
   background:
     var(--red);
 
   color: white;
+
+}
+
+
+.expense-button:hover {
+
+  background:
+    var(--red-dark);
 
 }
 
@@ -339,7 +373,9 @@ textarea:focus {
 
 
 
-/* TOP BAR */
+/* =====================================================
+   TOP BAR
+===================================================== */
 
 .topbar {
 
@@ -395,7 +431,9 @@ textarea:focus {
 
 
 
-/* MONTH NAVIGATION */
+/* =====================================================
+   MONTH NAVIGATION
+===================================================== */
 
 .month-navigation {
 
@@ -440,15 +478,26 @@ textarea:focus {
 }
 
 
+.month-nav-button:hover:not(:disabled) {
+
+  background: #edf2f7;
+
+}
+
+
 .month-nav-button:disabled {
 
   opacity: 0.3;
+
+  cursor: default;
 
 }
 
 
 
-/* APP */
+/* =====================================================
+   APP
+===================================================== */
 
 .app-shell {
 
@@ -564,7 +613,9 @@ textarea:focus {
 
 
 
-/* SUMMARY */
+/* =====================================================
+   SUMMARY
+===================================================== */
 
 .summary-grid,
 .fy-summary-grid {
@@ -651,6 +702,14 @@ textarea:focus {
 }
 
 
+.summary-detail {
+
+  color:
+    var(--muted);
+
+}
+
+
 .dark-card {
 
   background:
@@ -700,7 +759,70 @@ textarea:focus {
 
 
 
-/* PANELS */
+/* =====================================================
+   TREND INDICATORS
+===================================================== */
+
+.trend-good {
+
+  color:
+    var(--green) !important;
+
+}
+
+
+.trend-bad {
+
+  color:
+    var(--red) !important;
+
+}
+
+
+.trend-neutral {
+
+  color:
+    var(--muted) !important;
+
+}
+
+
+.dark-card
+.trend-good {
+
+  color:
+    #b7f0cd !important;
+
+}
+
+
+.dark-card
+.trend-bad {
+
+  color:
+    #ffd1cc !important;
+
+}
+
+
+.dark-card
+.trend-neutral {
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.65
+    ) !important;
+
+}
+
+
+
+/* =====================================================
+   PANELS
+===================================================== */
 
 .panel {
 
@@ -792,7 +914,9 @@ textarea:focus {
 
 
 
-/* FIXED COSTS */
+/* =====================================================
+   FIXED COSTS
+===================================================== */
 
 .fixed-cost-panel {
 
@@ -962,7 +1086,9 @@ textarea:focus {
 
 
 
-/* METRICS */
+/* =====================================================
+   CFO METRICS
+===================================================== */
 
 .metric-grid {
 
@@ -1036,11 +1162,22 @@ textarea:focus {
 
   font-size: 10px;
 
+  line-height: 1.35;
+
+}
+
+
+.metric-detail {
+
+  min-height: 14px;
+
 }
 
 
 
-/* INPUTS */
+/* =====================================================
+   INPUTS
+===================================================== */
 
 .input-section-title {
 
@@ -1117,7 +1254,9 @@ textarea:focus {
 
 
 
-/* CHARTS */
+/* =====================================================
+   CHARTS
+===================================================== */
 
 .chart-grid {
 
@@ -1154,7 +1293,9 @@ textarea:focus {
 
 
 
-/* DASHBOARD GRID */
+/* =====================================================
+   DASHBOARD GRID
+===================================================== */
 
 .dashboard-grid {
 
@@ -1169,7 +1310,9 @@ textarea:focus {
 
 
 
-/* BREAKDOWN */
+/* =====================================================
+   BREAKDOWN
+===================================================== */
 
 .breakdown-row {
 
@@ -1183,12 +1326,26 @@ textarea:focus {
 }
 
 
+.breakdown-row:last-child {
+
+  border-bottom: none;
+
+}
+
+
 .breakdown-top {
 
   display: flex;
 
   justify-content:
     space-between;
+
+}
+
+
+.breakdown-value {
+
+  font-weight: 800;
 
 }
 
@@ -1246,7 +1403,9 @@ textarea:focus {
 
 
 
-/* RECENT */
+/* =====================================================
+   RECENT TRANSACTIONS
+===================================================== */
 
 .recent-transaction {
 
@@ -1255,12 +1414,21 @@ textarea:focus {
   justify-content:
     space-between;
 
+  gap: 20px;
+
   padding:
     13px 0;
 
   border-bottom:
     1px solid
     #edf0f3;
+
+}
+
+
+.recent-transaction:last-child {
+
+  border-bottom: none;
 
 }
 
@@ -1284,8 +1452,19 @@ textarea:focus {
 }
 
 
+.recent-amount {
 
-/* TABLE */
+  white-space: nowrap;
+
+  font-weight: 850;
+
+}
+
+
+
+/* =====================================================
+   TABLE
+===================================================== */
 
 .filters {
 
@@ -1342,6 +1521,25 @@ textarea:focus {
 }
 
 
+.transaction-table th,
+.fy-table th {
+
+  color:
+    var(--muted);
+
+  font-size: 12px;
+
+}
+
+
+.transaction-table td,
+.fy-table td {
+
+  font-size: 14px;
+
+}
+
+
 .small-button {
 
   padding:
@@ -1368,7 +1566,9 @@ textarea:focus {
 
 
 
-/* MODAL */
+/* =====================================================
+   MODAL
+===================================================== */
 
 .modal {
 
@@ -1521,7 +1721,9 @@ textarea:focus {
 
 
 
-/* MISC */
+/* =====================================================
+   MISC
+===================================================== */
 
 .empty-state {
 
@@ -1544,7 +1746,9 @@ textarea:focus {
 
 
 
-/* TABLET */
+/* =====================================================
+   TABLET
+===================================================== */
 
 @media (
   max-width: 1100px
@@ -1619,7 +1823,9 @@ textarea:focus {
 
 
 
-/* MOBILE */
+/* =====================================================
+   MOBILE
+===================================================== */
 
 @media (
   max-width: 650px
