@@ -20,7 +20,9 @@
 
 <body>
 
-  <!-- LOGIN -->
+  <!-- =================================================
+       LOGIN
+  ================================================== -->
 
   <section
     id="loginScreen"
@@ -95,13 +97,14 @@
 
 
 
-  <!-- APPLICATION -->
+  <!-- =================================================
+       APPLICATION
+  ================================================== -->
 
   <div
     id="app"
     class="app hidden"
   >
-
 
     <!-- TOP BAR -->
 
@@ -175,7 +178,9 @@
     <main class="app-shell">
 
 
-      <!-- NAVIGATION -->
+      <!-- =============================================
+           NAVIGATION
+      ============================================== -->
 
       <nav class="main-nav">
 
@@ -206,7 +211,9 @@
 
 
 
-      <!-- DASHBOARD -->
+      <!-- =============================================
+           DASHBOARD
+      ============================================== -->
 
       <section
         id="dashboardPage"
@@ -268,7 +275,10 @@
               $0.00
             </h3>
 
-            <span class="summary-detail">
+            <span
+              id="monthlyRevenueTrend"
+              class="summary-detail"
+            >
               Total revenue this month
             </span>
 
@@ -308,7 +318,10 @@
               $0.00
             </h3>
 
-            <span class="summary-detail">
+            <span
+              id="monthlyProfitTrend"
+              class="summary-detail"
+            >
               Revenue less all expenses
             </span>
 
@@ -328,7 +341,10 @@
               —
             </h3>
 
-            <span class="dark-detail">
+            <span
+              id="monthlyMarginTrend"
+              class="dark-detail"
+            >
               Operating profit ÷ revenue
             </span>
 
@@ -536,6 +552,8 @@
           <div class="metric-grid">
 
 
+            <!-- ORGANIC REVENUE -->
+
             <div class="metric-card">
 
               <span>
@@ -546,13 +564,18 @@
                 $0
               </strong>
 
-              <small id="organicRevenueDetail">
-                Excludes team revenue
+              <small
+                id="organicRevenueDetail"
+                class="metric-detail"
+              >
+                Revenue excluding Team Revenue
               </small>
 
             </div>
 
 
+
+            <!-- TEAM REVENUE MIX -->
 
             <div class="metric-card">
 
@@ -564,13 +587,18 @@
                 0.0%
               </strong>
 
-              <small>
+              <small
+                id="teamRevenueMixDetail"
+                class="metric-detail"
+              >
                 Team revenue ÷ total revenue
               </small>
 
             </div>
 
 
+
+            <!-- REVENUE / PLAYER -->
 
             <div class="metric-card">
 
@@ -582,13 +610,18 @@
                 —
               </strong>
 
-              <small>
+              <small
+                id="revenuePerPlayerDetail"
+                class="metric-detail"
+              >
                 Team revenue ÷ rostered players
               </small>
 
             </div>
 
 
+
+            <!-- TEAM CONTRIBUTION -->
 
             <div class="metric-card">
 
@@ -600,13 +633,18 @@
                 —
               </strong>
 
-              <small id="teamContributionDetail">
-                Revenue less direct team costs
+              <small
+                id="teamContributionDetail"
+                class="metric-detail"
+              >
+                Team revenue less direct team costs
               </small>
 
             </div>
 
 
+
+            <!-- TEAM MARGIN -->
 
             <div class="metric-card">
 
@@ -618,13 +656,18 @@
                 —
               </strong>
 
-              <small>
+              <small
+                id="teamMarginDetail"
+                class="metric-detail"
+              >
                 Contribution ÷ team revenue
               </small>
 
             </div>
 
 
+
+            <!-- REVENUE / LESSON HOUR -->
 
             <div class="metric-card">
 
@@ -636,13 +679,18 @@
                 —
               </strong>
 
-              <small>
+              <small
+                id="revenuePerLessonDetail"
+                class="metric-detail"
+              >
                 Lesson revenue ÷ lesson hours
               </small>
 
             </div>
 
 
+
+            <!-- FACILITY UTILIZATION -->
 
             <div class="metric-card">
 
@@ -654,7 +702,10 @@
                 —
               </strong>
 
-              <small>
+              <small
+                id="facilityUtilizationDetail"
+                class="metric-detail"
+              >
                 Used cage-hours ÷ available cage-hours
               </small>
 
@@ -662,54 +713,69 @@
 
 
 
+            <!-- EXPENSE RATIO -->
+
             <div class="metric-card">
 
               <span>
-                Revenue / Available Hour
+                Expense Ratio
               </span>
 
-              <strong id="revenuePerFacilityHour">
+              <strong id="expenseRatio">
                 —
               </strong>
 
-              <small>
-                Organic revenue ÷ available cage-hours
+              <small
+                id="expenseRatioDetail"
+                class="metric-detail"
+              >
+                Expenses ÷ revenue
               </small>
 
             </div>
 
 
 
+            <!-- MEMBERSHIP CHANGE -->
+
             <div class="metric-card">
 
               <span>
-                Membership Churn
+                Membership Change
               </span>
 
-              <strong id="membershipChurn">
+              <strong id="membershipChange">
                 —
               </strong>
 
-              <small>
-                Monthly membership cancellations
+              <small
+                id="membershipChangeDetail"
+                class="metric-detail"
+              >
+                Active memberships vs last month
               </small>
 
             </div>
 
 
 
+            <!-- OPERATING PROFIT / PLAYER -->
+
             <div class="metric-card">
 
               <span>
-                Break-Even Revenue
+                Operating Profit / Player
               </span>
 
-              <strong id="breakEvenRevenue">
+              <strong id="profitPerPlayer">
                 —
               </strong>
 
-              <small>
-                Revenue required to cover costs
+              <small
+                id="profitPerPlayerDetail"
+                class="metric-detail"
+              >
+                Operating profit ÷ rostered players
               </small>
 
             </div>
@@ -1169,7 +1235,9 @@
 
 
 
-      <!-- TRANSACTIONS -->
+      <!-- =============================================
+           TRANSACTIONS
+      ============================================== -->
 
       <section
         id="transactionsPage"
@@ -1294,7 +1362,9 @@
 
 
 
-      <!-- YEAR REPORT -->
+      <!-- =============================================
+           YEAR REPORT
+      ============================================== -->
 
       <section
         id="reportsPage"
@@ -1531,7 +1601,9 @@
 
 
 
-  <!-- TRANSACTION MODAL -->
+  <!-- =============================================
+       TRANSACTION MODAL
+  ============================================== -->
 
   <div
     id="transactionModal"
