@@ -1176,7 +1176,7 @@ textarea:focus {
 
 
 /* =====================================================
-   INPUTS
+   BUSINESS INPUTS
 ===================================================== */
 
 .input-section-title {
@@ -1223,6 +1223,17 @@ textarea:focus {
     );
 
   gap: 14px;
+
+}
+
+
+.metrics-input-grid.three-up {
+
+  grid-template-columns:
+    repeat(
+      3,
+      1fr
+    );
 
 }
 
@@ -1463,7 +1474,7 @@ textarea:focus {
 
 
 /* =====================================================
-   TABLE
+   TABLES
 ===================================================== */
 
 .filters {
@@ -1789,7 +1800,6 @@ textarea:focus {
 }
 
 
-
 @media (
   max-width: 900px
 ) {
@@ -1812,7 +1822,8 @@ textarea:focus {
   }
 
 
-  .metrics-input-grid {
+  .metrics-input-grid,
+  .metrics-input-grid.three-up {
 
     grid-template-columns:
       1fr 1fr;
@@ -1933,8 +1944,16 @@ textarea:focus {
   }
 
 
-  .fixed-cost-input-grid,
-  .metrics-input-grid {
+  .fixed-cost-input-grid {
+
+    grid-template-columns:
+      1fr;
+
+  }
+
+
+  .metrics-input-grid,
+  .metrics-input-grid.three-up {
 
     grid-template-columns:
       1fr;
