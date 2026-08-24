@@ -76,9 +76,8 @@ const BUSINESS_ID =
 
 
 /*
-  DO NOT CHANGE THESE COLLECTION NAMES.
-
-  Your existing entered data is stored here.
+  KEEP THESE COLLECTION NAMES.
+  THIS PRESERVES YOUR CURRENT DATA.
 */
 
 const TRANSACTIONS_COLLECTION =
@@ -468,15 +467,9 @@ const metricFieldIds = [
 
   "activeMemberships",
 
-  "newMemberships",
-
-  "membershipCancellations",
-
   "availableFacilityHours",
 
-  "usedFacilityHours",
-
-  "paidFacilityHours"
+  "usedFacilityHours"
 
 ];
 
@@ -1045,8 +1038,10 @@ function formatChange(
 
 
   if (
-    previous === null ||
-    previous === undefined
+    previous ===
+    null ||
+    previous ===
+    undefined
   ) {
 
     return {
@@ -2016,6 +2011,10 @@ monthlyMetricsForm.addEventListener(
     event.preventDefault();
 
 
+    monthlyMetricsMessage.textContent =
+      "";
+
+
     const data = {
 
       month:
@@ -2047,6 +2046,22 @@ monthlyMetricsForm.addEventListener(
 
       }
     );
+
+
+    if (
+      data.availableFacilityHours >
+      0 &&
+      data.usedFacilityHours >
+      data.availableFacilityHours
+    ) {
+
+      monthlyMetricsMessage.textContent =
+        "Used facility hours cannot exceed available facility hours.";
+
+
+      return;
+
+    }
 
 
     try {
@@ -2551,9 +2566,7 @@ function renderDashboard() {
       : {};
 
 
-  /*
-    TOP SUMMARY
-  */
+  /* TOP SUMMARY */
 
   monthlyRevenue.textContent =
     currency(
@@ -2673,10 +2686,7 @@ function renderDashboard() {
   );
 
 
-
-  /*
-    ORGANIC REVENUE
-  */
+  /* ORGANIC REVENUE */
 
   organicRevenue.textContent =
     currency(
@@ -2703,10 +2713,7 @@ function renderDashboard() {
   );
 
 
-
-  /*
-    TEAM REVENUE MIX
-  */
+  /* TEAM REVENUE MIX */
 
   teamRevenueMix.textContent =
     percent(
@@ -2743,10 +2750,7 @@ function renderDashboard() {
   );
 
 
-
-  /*
-    PLAYERS
-  */
+  /* REVENUE / PLAYER */
 
   const players =
     Number(
@@ -2766,10 +2770,8 @@ function renderDashboard() {
     players >
     0
 
-      ? (
-          totals.teamRevenue /
-          players
-        )
+      ? totals.teamRevenue /
+        players
 
       : null;
 
@@ -2779,10 +2781,8 @@ function renderDashboard() {
     0 &&
     previousTotals
 
-      ? (
-          previousTotals.teamRevenue /
-          previousPlayers
-        )
+      ? previousTotals.teamRevenue /
+        previousPlayers
 
       : null;
 
@@ -2822,10 +2822,7 @@ function renderDashboard() {
   );
 
 
-
-  /*
-    TEAM CONTRIBUTION
-  */
+  /* TEAM CONTRIBUTION */
 
   teamContribution.textContent =
     totals.teamRevenue >
@@ -2880,10 +2877,7 @@ function renderDashboard() {
   }
 
 
-
-  /*
-    TEAM MARGIN
-  */
+  /* TEAM MARGIN */
 
   teamContributionMargin.textContent =
     Number.isFinite(
@@ -2928,10 +2922,7 @@ function renderDashboard() {
   );
 
 
-
-  /*
-    LESSON HOURS
-  */
+  /* LESSON REVENUE / HOUR */
 
   const lessonHours =
     Number(
@@ -3017,10 +3008,7 @@ function renderDashboard() {
   );
 
 
-
-  /*
-    FACILITY UTILIZATION
-  */
+  /* FACILITY UTILIZATION */
 
   const available =
     Number(
@@ -3115,10 +3103,7 @@ function renderDashboard() {
   );
 
 
-
-  /*
-    EXPENSE RATIO
-  */
+  /* EXPENSE RATIO */
 
   expenseRatio.textContent =
     totals.revenue >
@@ -3163,16 +3148,18 @@ function renderDashboard() {
   );
 
 
-
-  /*
-    MEMBERSHIP CHANGE
-  */
+  /* MEMBERSHIP CHANGE */
 
   const currentMemberships =
-    Number(
-      metrics.activeMemberships ||
-      0
-    );
+    metrics.activeMemberships !==
+    undefined
+
+      ? Number(
+          metrics.activeMemberships ||
+          0
+        )
+
+      : null;
 
 
   const previousMemberships =
@@ -3189,6 +3176,8 @@ function renderDashboard() {
 
 
   if (
+    currentMemberships !==
+    null &&
     previousMemberships !==
     null
   ) {
@@ -3207,23 +3196,18 @@ function renderDashboard() {
         : `${change}`;
 
 
-    const percentage =
+    if (
       previousMemberships >
       0
-
-        ? (
-            change /
-            previousMemberships
-          ) *
-          100
-
-        : null;
-
-
-    if (
-      percentage !==
-      null
     ) {
+
+      const percentage =
+        (
+          change /
+          previousMemberships
+        ) *
+        100;
+
 
       membershipChangeDetail.textContent =
         `${
@@ -3252,6 +3236,15 @@ function renderDashboard() {
       membershipChangeDetail.textContent =
         `${previousMemberships} → ${currentMemberships} active memberships`;
 
+
+      membershipChangeDetail.className =
+        change >
+        0
+
+          ? "metric-detail trend-good"
+
+          : "metric-detail trend-neutral";
+
     }
 
   } else {
@@ -3261,24 +3254,25 @@ function renderDashboard() {
 
 
     membershipChangeDetail.textContent =
-      "No prior month membership count";
+      previousKey
+        ? "No prior month membership count"
+        : "No prior month";
+
+
+    membershipChangeDetail.className =
+      "metric-detail trend-neutral";
 
   }
 
 
-
-  /*
-    OPERATING PROFIT / PLAYER
-  */
+  /* OPERATING PROFIT / PLAYER */
 
   const profitPlayer =
     players >
     0
 
-      ? (
-          totals.profit /
-          players
-        )
+      ? totals.profit /
+        players
 
       : null;
 
@@ -3288,10 +3282,8 @@ function renderDashboard() {
     previousPlayers >
     0
 
-      ? (
-          previousTotals.profit /
-          previousPlayers
-        )
+      ? previousTotals.profit /
+        previousPlayers
 
       : null;
 
@@ -3331,16 +3323,17 @@ function renderDashboard() {
   );
 
 
-
-  /*
-    INPUT STATUS
-  */
+  /* INPUT STATUS */
 
   const hasInputs =
-    Boolean(
-      monthlyMetrics[
-        currentMonth
-      ]
+    metricFieldIds.some(
+      id =>
+        monthlyMetrics[
+          currentMonth
+        ]?.[
+          id
+        ] !==
+        undefined
     );
 
 
@@ -3355,11 +3348,6 @@ function renderDashboard() {
     hasInputs
   );
 
-
-
-  /*
-    BREAKDOWNS
-  */
 
   renderBreakdown(
     revenueBreakdown,
