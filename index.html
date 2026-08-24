@@ -165,7 +165,10 @@
 
     <main class="app-shell">
 
-      <!-- NAVIGATION -->
+
+      <!-- =================================================
+           NAVIGATION
+      ================================================== -->
 
       <nav class="main-nav">
 
@@ -237,7 +240,9 @@
         </div>
 
 
-        <!-- SUMMARY -->
+        <!-- =================================================
+             SUMMARY
+        ================================================== -->
 
         <div class="summary-grid">
 
@@ -332,7 +337,9 @@
         </div>
 
 
-        <!-- FIXED OPERATING BASE -->
+        <!-- =================================================
+             FIXED COSTS
+        ================================================== -->
 
         <section class="panel fixed-cost-panel">
 
@@ -349,7 +356,7 @@
               </h3>
 
               <p class="panel-copy">
-                These costs are automatically included before any variable expenses are entered.
+                These costs are automatically included before variable expenses are entered.
               </p>
 
             </div>
@@ -486,7 +493,9 @@
         </section>
 
 
-        <!-- CFO SCORECARD -->
+        <!-- =================================================
+             CFO SCORECARD
+        ================================================== -->
 
         <section class="panel metrics-panel">
 
@@ -523,7 +532,7 @@
               </span>
 
               <strong id="organicRevenue">
-                $0
+                —
               </strong>
 
               <small
@@ -539,11 +548,91 @@
             <div class="metric-card">
 
               <span>
+                Fixed Cost Coverage
+              </span>
+
+              <strong id="fixedCostCoverage">
+                —
+              </strong>
+
+              <small
+                id="fixedCostCoverageDetail"
+                class="metric-detail"
+              >
+                Organic revenue ÷ fixed costs
+              </small>
+
+            </div>
+
+
+            <div class="metric-card">
+
+              <span>
+                Labor % of Revenue
+              </span>
+
+              <strong id="laborPercent">
+                —
+              </strong>
+
+              <small
+                id="laborPercentDetail"
+                class="metric-detail"
+              >
+                W2 + 1099 labor ÷ revenue
+              </small>
+
+            </div>
+
+
+            <div class="metric-card">
+
+              <span>
+                Expense Ratio
+              </span>
+
+              <strong id="expenseRatio">
+                —
+              </strong>
+
+              <small
+                id="expenseRatioDetail"
+                class="metric-detail"
+              >
+                Expenses ÷ revenue
+              </small>
+
+            </div>
+
+
+            <div class="metric-card">
+
+              <span>
+                Operating Profit / Player
+              </span>
+
+              <strong id="profitPerPlayer">
+                —
+              </strong>
+
+              <small
+                id="profitPerPlayerDetail"
+                class="metric-detail"
+              >
+                Operating profit ÷ rostered players
+              </small>
+
+            </div>
+
+
+            <div class="metric-card">
+
+              <span>
                 Team Revenue Mix
               </span>
 
               <strong id="teamRevenueMix">
-                0.0%
+                —
               </strong>
 
               <small
@@ -579,7 +668,7 @@
             <div class="metric-card">
 
               <span>
-                Team Contribution
+                Identifiable Team Contribution
               </span>
 
               <strong id="teamContribution">
@@ -590,7 +679,7 @@
                 id="teamContributionDetail"
                 class="metric-detail"
               >
-                Team revenue less direct team costs
+                Team revenue less identifiable direct costs
               </small>
 
             </div>
@@ -599,7 +688,7 @@
             <div class="metric-card">
 
               <span>
-                Team Margin
+                Identifiable Team Margin
               </span>
 
               <strong id="teamContributionMargin">
@@ -611,6 +700,46 @@
                 class="metric-detail"
               >
                 Contribution ÷ team revenue
+              </small>
+
+            </div>
+
+
+            <div class="metric-card">
+
+              <span>
+                Roster Fill Rate
+              </span>
+
+              <strong id="rosterFillRate">
+                —
+              </strong>
+
+              <small
+                id="rosterFillRateDetail"
+                class="metric-detail"
+              >
+                Rostered players ÷ target spots
+              </small>
+
+            </div>
+
+
+            <div class="metric-card">
+
+              <span>
+                Lesson Hours
+              </span>
+
+              <strong id="lessonHoursMetric">
+                —
+              </strong>
+
+              <small
+                id="lessonHoursMetricDetail"
+                class="metric-detail"
+              >
+                Total lesson hours this month
               </small>
 
             </div>
@@ -659,26 +788,6 @@
             <div class="metric-card">
 
               <span>
-                Expense Ratio
-              </span>
-
-              <strong id="expenseRatio">
-                —
-              </strong>
-
-              <small
-                id="expenseRatioDetail"
-                class="metric-detail"
-              >
-                Expenses ÷ revenue
-              </small>
-
-            </div>
-
-
-            <div class="metric-card">
-
-              <span>
                 Membership Change
               </span>
 
@@ -695,32 +804,14 @@
 
             </div>
 
-
-            <div class="metric-card">
-
-              <span>
-                Operating Profit / Player
-              </span>
-
-              <strong id="profitPerPlayer">
-                —
-              </strong>
-
-              <small
-                id="profitPerPlayerDetail"
-                class="metric-detail"
-              >
-                Operating profit ÷ rostered players
-              </small>
-
-            </div>
-
           </div>
 
         </section>
 
 
-        <!-- MONTHLY BUSINESS INPUTS -->
+        <!-- =================================================
+             MONTHLY INPUTS
+        ================================================== -->
 
         <section class="panel monthly-input-panel">
 
@@ -752,7 +843,7 @@
             </div>
 
 
-            <div class="metrics-input-grid">
+            <div class="metrics-input-grid five-inputs">
 
               <div>
 
@@ -779,6 +870,23 @@
 
                 <input
                   id="rosteredPlayers"
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                >
+
+              </div>
+
+
+              <div>
+
+                <label for="targetRosterSpots">
+                  Target Roster Spots
+                </label>
+
+                <input
+                  id="targetRosterSpots"
                   type="number"
                   min="0"
                   step="1"
@@ -906,7 +1014,9 @@
         </section>
 
 
-        <!-- CHARTS -->
+        <!-- =================================================
+             CHARTS
+        ================================================== -->
 
         <div class="chart-grid">
 
@@ -935,7 +1045,6 @@
 
             </div>
 
-
             <div class="chart-container performance-chart-container">
 
               <canvas id="performanceChart"></canvas>
@@ -963,7 +1072,6 @@
 
             </div>
 
-
             <div class="chart-container doughnut-chart-container">
 
               <canvas id="revenueMixChart"></canvas>
@@ -982,7 +1090,9 @@
         </div>
 
 
-        <!-- BREAKDOWNS -->
+        <!-- =================================================
+             BREAKDOWNS
+        ================================================== -->
 
         <div class="dashboard-grid">
 
@@ -1040,7 +1150,9 @@
         </div>
 
 
-        <!-- RECENT TRANSACTIONS -->
+        <!-- =================================================
+             RECENT TRANSACTIONS
+        ================================================== -->
 
         <section class="panel">
 
@@ -1656,7 +1768,6 @@
           </button>
 
         </div>
-
 
         <p
           id="transactionFormError"
