@@ -33,6 +33,8 @@
 
   --red-soft: #fff0ee;
 
+  --amber: #b7791f;
+
   --shadow:
     0 8px 28px
     rgba(16, 24, 40, 0.06);
@@ -98,7 +100,6 @@ button {
 }
 
 
-
 /* =====================================================
    LOGIN
 ===================================================== */
@@ -124,10 +125,10 @@ button {
 
   max-width: 420px;
 
+  padding: 40px;
+
   background:
     var(--surface);
-
-  padding: 40px;
 
   border:
     1px solid
@@ -166,9 +167,9 @@ button {
 
   height: 56px;
 
-  border-radius: 15px;
-
   margin-bottom: 24px;
+
+  border-radius: 15px;
 
 }
 
@@ -198,7 +199,6 @@ button {
     var(--muted);
 
 }
-
 
 
 /* =====================================================
@@ -259,15 +259,11 @@ textarea:focus {
 }
 
 
-.optional {
+textarea {
 
-  color:
-    var(--muted);
-
-  font-weight: 500;
+  resize: vertical;
 
 }
-
 
 
 /* =====================================================
@@ -314,6 +310,9 @@ textarea:focus {
 .secondary-button {
 
   background: #e9edf2;
+
+  color:
+    var(--text);
 
 }
 
@@ -372,7 +371,6 @@ textarea:focus {
 }
 
 
-
 /* =====================================================
    TOP BAR
 ===================================================== */
@@ -384,19 +382,19 @@ textarea:focus {
   padding:
     0 34px;
 
-  background:
-    white;
-
-  border-bottom:
-    1px solid
-    var(--border);
-
   display: flex;
 
   justify-content:
     space-between;
 
   align-items: center;
+
+  background:
+    white;
+
+  border-bottom:
+    1px solid
+    var(--border);
 
 }
 
@@ -428,7 +426,6 @@ textarea:focus {
   gap: 10px;
 
 }
-
 
 
 /* =====================================================
@@ -494,7 +491,6 @@ textarea:focus {
 }
 
 
-
 /* =====================================================
    APP
 ===================================================== */
@@ -525,20 +521,20 @@ textarea:focus {
 
 .nav-button {
 
+  padding:
+    10px 15px;
+
   border: none;
+
+  border-radius: 9px;
 
   background:
     transparent;
 
-  padding:
-    10px 15px;
-
-  border-radius: 9px;
-
-  font-weight: 750;
-
   color:
     var(--muted);
+
+  font-weight: 750;
 
 }
 
@@ -600,17 +596,16 @@ textarea:focus {
 
   margin: 0;
 
-  font-size: 11px;
-
-  letter-spacing: 1.6px;
-
-  font-weight: 850;
-
   color:
     var(--muted);
 
-}
+  font-size: 11px;
 
+  font-weight: 850;
+
+  letter-spacing: 1.6px;
+
+}
 
 
 /* =====================================================
@@ -648,6 +643,8 @@ textarea:focus {
 
 .summary-card {
 
+  padding: 22px;
+
   background:
     white;
 
@@ -657,8 +654,6 @@ textarea:focus {
 
   border-radius:
     var(--radius);
-
-  padding: 22px;
 
   box-shadow:
     var(--shadow);
@@ -739,6 +734,9 @@ textarea:focus {
   background:
     var(--red);
 
+  border-color:
+    var(--red);
+
 }
 
 
@@ -758,9 +756,8 @@ textarea:focus {
 }
 
 
-
 /* =====================================================
-   TREND INDICATORS
+   TRENDS
 ===================================================== */
 
 .trend-good {
@@ -819,12 +816,15 @@ textarea:focus {
 }
 
 
-
 /* =====================================================
    PANELS
 ===================================================== */
 
 .panel {
+
+  padding: 22px;
+
+  margin-bottom: 18px;
 
   background:
     white;
@@ -835,10 +835,6 @@ textarea:focus {
 
   border-radius:
     var(--radius);
-
-  padding: 22px;
-
-  margin-bottom: 18px;
 
   box-shadow:
     var(--shadow);
@@ -913,7 +909,6 @@ textarea:focus {
 }
 
 
-
 /* =====================================================
    FIXED COSTS
 ===================================================== */
@@ -985,14 +980,14 @@ textarea:focus {
 
   padding: 15px;
 
+  background:
+    white;
+
   border:
     1px solid
     var(--border);
 
   border-radius: 12px;
-
-  background:
-    white;
 
 }
 
@@ -1085,9 +1080,8 @@ textarea:focus {
 }
 
 
-
 /* =====================================================
-   CFO METRICS
+   CFO SCORECARD
 ===================================================== */
 
 .metric-grid {
@@ -1110,16 +1104,18 @@ textarea:focus {
 
 .metric-card {
 
+  min-width: 0;
+
   padding: 15px;
+
+  background:
+    var(--surface-soft);
 
   border:
     1px solid
     #e7ebf0;
 
   border-radius: 12px;
-
-  background:
-    var(--surface-soft);
 
 }
 
@@ -1134,6 +1130,8 @@ textarea:focus {
   font-size: 11px;
 
   font-weight: 800;
+
+  line-height: 1.25;
 
   text-transform: uppercase;
 
@@ -1174,7 +1172,6 @@ textarea:focus {
 }
 
 
-
 /* =====================================================
    BUSINESS INPUTS
 ===================================================== */
@@ -1203,11 +1200,11 @@ textarea:focus {
 
 .input-section-title:first-of-type {
 
-  border: none;
-
   margin-top: 0;
 
   padding-top: 0;
+
+  border: none;
 
 }
 
@@ -1223,6 +1220,20 @@ textarea:focus {
     );
 
   gap: 14px;
+
+}
+
+
+.metrics-input-grid.five-inputs {
+
+  grid-template-columns:
+    repeat(
+      5,
+      minmax(
+        0,
+        1fr
+      )
+    );
 
 }
 
@@ -1264,7 +1275,6 @@ textarea:focus {
 }
 
 
-
 /* =====================================================
    CHARTS
 ===================================================== */
@@ -1303,6 +1313,17 @@ textarea:focus {
 }
 
 
+.chart-empty {
+
+  padding: 25px;
+
+  text-align: center;
+
+  color:
+    var(--muted);
+
+}
+
 
 /* =====================================================
    DASHBOARD GRID
@@ -1318,7 +1339,6 @@ textarea:focus {
   gap: 18px;
 
 }
-
 
 
 /* =====================================================
@@ -1351,12 +1371,23 @@ textarea:focus {
   justify-content:
     space-between;
 
+  gap: 15px;
+
+}
+
+
+.breakdown-name {
+
+  font-weight: 700;
+
 }
 
 
 .breakdown-value {
 
   font-weight: 800;
+
+  white-space: nowrap;
 
 }
 
@@ -1368,9 +1399,9 @@ textarea:focus {
   color:
     var(--muted);
 
-  font-style: normal;
-
   font-size: 11px;
+
+  font-style: normal;
 
 }
 
@@ -1381,11 +1412,11 @@ textarea:focus {
 
   margin-top: 8px;
 
+  overflow: hidden;
+
   background: #e9edf2;
 
   border-radius: 99px;
-
-  overflow: hidden;
 
 }
 
@@ -1411,7 +1442,6 @@ textarea:focus {
     var(--red);
 
 }
-
 
 
 /* =====================================================
@@ -1472,7 +1502,6 @@ textarea:focus {
 }
 
 
-
 /* =====================================================
    TABLES
 ===================================================== */
@@ -1523,11 +1552,11 @@ textarea:focus {
   padding:
     13px 10px;
 
+  text-align: left;
+
   border-bottom:
     1px solid
     #edf0f3;
-
-  text-align: left;
 
 }
 
@@ -1547,6 +1576,15 @@ textarea:focus {
 .fy-table td {
 
   font-size: 14px;
+
+}
+
+
+.transaction-actions {
+
+  display: flex;
+
+  gap: 6px;
 
 }
 
@@ -1574,7 +1612,6 @@ textarea:focus {
     var(--red);
 
 }
-
 
 
 /* =====================================================
@@ -1629,11 +1666,20 @@ textarea:focus {
 
   overflow-y: auto;
 
+  padding: 26px;
+
   background: white;
 
   border-radius: 18px;
 
-  padding: 26px;
+  box-shadow:
+    0 30px 70px
+    rgba(
+      0,
+      0,
+      0,
+      0.24
+    );
 
 }
 
@@ -1731,7 +1777,6 @@ textarea:focus {
 }
 
 
-
 /* =====================================================
    MISC
 ===================================================== */
@@ -1756,13 +1801,40 @@ textarea:focus {
 }
 
 
-
 /* =====================================================
    TABLET
 ===================================================== */
 
 @media (
-  max-width: 1100px
+  max-width: 1200px
+) {
+
+  .metric-grid {
+
+    grid-template-columns:
+      repeat(
+        4,
+        1fr
+      );
+
+  }
+
+
+  .metrics-input-grid.five-inputs {
+
+    grid-template-columns:
+      repeat(
+        3,
+        1fr
+      );
+
+  }
+
+}
+
+
+@media (
+  max-width: 1000px
 ) {
 
   .metric-grid {
@@ -1823,7 +1895,8 @@ textarea:focus {
 
 
   .metrics-input-grid,
-  .metrics-input-grid.three-up {
+  .metrics-input-grid.three-up,
+  .metrics-input-grid.five-inputs {
 
     grid-template-columns:
       1fr 1fr;
@@ -1831,7 +1904,6 @@ textarea:focus {
   }
 
 }
-
 
 
 /* =====================================================
@@ -1906,15 +1978,19 @@ textarea:focus {
 
     z-index: 500;
 
-    background:
-      white;
-
     margin: 0;
 
     padding: 7px;
 
     justify-content:
       space-around;
+
+    background:
+      white;
+
+    border-top:
+      1px solid
+      var(--border);
 
   }
 
@@ -1944,16 +2020,16 @@ textarea:focus {
   }
 
 
-  .fixed-cost-input-grid {
+  .summary-grid,
+  .fy-summary-grid {
 
     grid-template-columns:
-      1fr;
+      1fr 1fr;
 
   }
 
 
-  .metrics-input-grid,
-  .metrics-input-grid.three-up {
+  .fixed-cost-input-grid {
 
     grid-template-columns:
       1fr;
@@ -1965,6 +2041,16 @@ textarea:focus {
 
     grid-template-columns:
       1fr 1fr;
+
+  }
+
+
+  .metrics-input-grid,
+  .metrics-input-grid.three-up,
+  .metrics-input-grid.five-inputs {
+
+    grid-template-columns:
+      1fr;
 
   }
 
@@ -2004,6 +2090,22 @@ textarea:focus {
 
     align-items:
       stretch;
+
+  }
+
+
+  .form-footer-inline
+  .primary-button {
+
+    width: 100%;
+
+  }
+
+
+  .transaction-actions {
+
+    flex-direction:
+      column;
 
   }
 
