@@ -20,9 +20,7 @@
 
 <body>
 
-  <!-- =================================================
-       LOGIN
-  ================================================== -->
+  <!-- LOGIN -->
 
   <section
     id="loginScreen"
@@ -97,9 +95,7 @@
 
 
 
-  <!-- =================================================
-       APPLICATION
-  ================================================== -->
+  <!-- APPLICATION -->
 
   <div
     id="app"
@@ -116,6 +112,7 @@
         <div class="mini-logo">
           NI
         </div>
+
 
         <div>
 
@@ -140,7 +137,6 @@
             id="previousMonthButton"
             class="month-nav-button"
             type="button"
-            title="Previous month"
           >
             ←
           </button>
@@ -156,7 +152,6 @@
             id="nextMonthButton"
             class="month-nav-button"
             type="button"
-            title="Next month"
           >
             →
           </button>
@@ -180,9 +175,7 @@
     <main class="app-shell">
 
 
-      <!-- =============================================
-           NAVIGATION
-      ============================================== -->
+      <!-- NAVIGATION -->
 
       <nav class="main-nav">
 
@@ -213,9 +206,7 @@
 
 
 
-      <!-- =============================================
-           DASHBOARD
-      ============================================== -->
+      <!-- DASHBOARD -->
 
       <section
         id="dashboardPage"
@@ -260,9 +251,7 @@
 
 
 
-        <!-- =========================================
-             MONTH SUMMARY
-        ========================================== -->
+        <!-- SUMMARY -->
 
         <div class="summary-grid">
 
@@ -336,7 +325,7 @@
             </p>
 
             <h3 id="monthlyMargin">
-              0.0%
+              —
             </h3>
 
             <span class="dark-detail">
@@ -349,9 +338,7 @@
 
 
 
-        <!-- =========================================
-             FIXED MONTHLY COST BASE
-        ========================================== -->
+        <!-- FIXED OPERATING BASE -->
 
         <section class="panel fixed-cost-panel">
 
@@ -368,8 +355,7 @@
               </h3>
 
               <p class="panel-copy">
-                These costs hit the branch before any variable expenses are added.
-                Edit them for the selected month if they change.
+                These costs are automatically included before any variable expenses are entered.
               </p>
 
             </div>
@@ -390,15 +376,18 @@
           </div>
 
 
+
           <form id="fixedCostsForm">
 
             <div class="fixed-cost-input-grid">
+
 
               <div class="fixed-cost-input-card">
 
                 <label for="fixedRent">
                   Rent
                 </label>
+
 
                 <div class="money-input">
 
@@ -411,7 +400,6 @@
                     type="number"
                     min="0"
                     step="0.01"
-                    value="8938.90"
                   >
 
                 </div>
@@ -419,11 +407,13 @@
               </div>
 
 
+
               <div class="fixed-cost-input-card">
 
                 <label for="fixedW2">
                   W2 Staff
                 </label>
+
 
                 <div class="money-input">
 
@@ -436,7 +426,6 @@
                     type="number"
                     min="0"
                     step="0.01"
-                    value="9583"
                   >
 
                 </div>
@@ -444,11 +433,13 @@
               </div>
 
 
+
               <div class="fixed-cost-input-card">
 
                 <label for="fixedUtilities">
                   Utilities
                 </label>
+
 
                 <div class="money-input">
 
@@ -461,12 +452,12 @@
                     type="number"
                     min="0"
                     step="0.01"
-                    value="1800"
                   >
 
                 </div>
 
               </div>
+
 
 
               <div class="fixed-cost-total-card">
@@ -480,7 +471,7 @@
                 </strong>
 
                 <small>
-                  Automatically included in monthly expenses
+                  Automatically included in expenses
                 </small>
 
               </div>
@@ -512,9 +503,7 @@
 
 
 
-        <!-- =========================================
-             CFO SCORECARD
-        ========================================== -->
+        <!-- CFO SCORECARD -->
 
         <section class="panel metrics-panel">
 
@@ -537,13 +526,15 @@
               id="metricsStatus"
               class="panel-badge"
             >
-              Monthly inputs not saved
+              Inputs not saved
             </span>
 
           </div>
 
 
+
           <div class="metric-grid">
+
 
             <div class="metric-card">
 
@@ -562,6 +553,7 @@
             </div>
 
 
+
             <div class="metric-card">
 
               <span>
@@ -573,10 +565,11 @@
               </strong>
 
               <small>
-                Percentage of revenue from teams
+                Team revenue ÷ total revenue
               </small>
 
             </div>
+
 
 
             <div class="metric-card">
@@ -596,6 +589,7 @@
             </div>
 
 
+
             <div class="metric-card">
 
               <span>
@@ -607,10 +601,11 @@
               </strong>
 
               <small id="teamContributionDetail">
-                Direct team costs required
+                Revenue less direct team costs
               </small>
 
             </div>
+
 
 
             <div class="metric-card">
@@ -630,21 +625,23 @@
             </div>
 
 
-           <div class="metric-card">
 
-  <span>
-    Revenue / Lesson Hour
-  </span>
+            <div class="metric-card">
 
-  <strong id="revenuePerLesson">
-    —
-  </strong>
+              <span>
+                Revenue / Lesson Hour
+              </span>
 
-  <small>
-    Lesson revenue ÷ lesson hours
-  </small>
+              <strong id="revenuePerLesson">
+                —
+              </strong>
 
-</div>
+              <small>
+                Lesson revenue ÷ lesson hours
+              </small>
+
+            </div>
+
 
 
             <div class="metric-card">
@@ -658,10 +655,11 @@
               </strong>
 
               <small>
-                Used hours ÷ available hours
+                Used cage-hours ÷ available cage-hours
               </small>
 
             </div>
+
 
 
             <div class="metric-card">
@@ -675,10 +673,11 @@
               </strong>
 
               <small>
-                Organic revenue ÷ available hours
+                Organic revenue ÷ available cage-hours
               </small>
 
             </div>
+
 
 
             <div class="metric-card">
@@ -692,10 +691,11 @@
               </strong>
 
               <small>
-                Membership cancellations
+                Monthly membership cancellations
               </small>
 
             </div>
+
 
 
             <div class="metric-card">
@@ -709,10 +709,11 @@
               </strong>
 
               <small>
-                Revenue required to cover expenses
+                Revenue required to cover costs
               </small>
 
             </div>
+
 
           </div>
 
@@ -720,9 +721,7 @@
 
 
 
-        <!-- =========================================
-             MONTHLY BUSINESS INPUTS
-        ========================================== -->
+        <!-- MONTHLY BUSINESS INPUTS -->
 
         <section class="panel monthly-input-panel">
 
@@ -739,7 +738,7 @@
               </h3>
 
               <p class="panel-copy">
-                Enter the operating counts the transaction ledger cannot calculate.
+                Enter operating counts used to calculate efficiency and profitability metrics.
               </p>
 
             </div>
@@ -747,15 +746,17 @@
           </div>
 
 
+
           <form id="monthlyMetricsForm">
 
 
             <div class="input-section-title">
-              Teams &amp; Players
+              Teams &amp; Player Development
             </div>
 
 
             <div class="metrics-input-grid">
+
 
               <div>
 
@@ -772,6 +773,7 @@
                 >
 
               </div>
+
 
 
               <div>
@@ -791,21 +793,23 @@
               </div>
 
 
+
               <div>
 
-  <label for="lessonHours">
-    Lesson Hours Completed
-  </label>
+                <label for="lessonHours">
+                  Lesson Hours Completed
+                </label>
 
-  <input
-    id="lessonHours"
-    type="number"
-    min="0"
-    step="0.5"
-    placeholder="0"
-  >
+                <input
+                  id="lessonHours"
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  placeholder="0"
+                >
 
-</div>
+              </div>
+
 
 
               <div>
@@ -824,6 +828,7 @@
 
               </div>
 
+
             </div>
 
 
@@ -834,6 +839,7 @@
 
 
             <div class="metrics-input-grid">
+
 
               <div>
 
@@ -850,6 +856,7 @@
                 >
 
               </div>
+
 
 
               <div>
@@ -869,6 +876,7 @@
               </div>
 
 
+
               <div>
 
                 <label for="membershipCancellations">
@@ -885,6 +893,7 @@
 
               </div>
 
+
             </div>
 
 
@@ -896,6 +905,7 @@
 
             <div class="metrics-input-grid">
 
+
               <div>
 
                 <label for="availableFacilityHours">
@@ -906,11 +916,12 @@
                   id="availableFacilityHours"
                   type="number"
                   min="0"
-                  step="0.25"
+                  step="0.5"
                   placeholder="0"
                 >
 
               </div>
+
 
 
               <div>
@@ -923,11 +934,12 @@
                   id="usedFacilityHours"
                   type="number"
                   min="0"
-                  step="0.25"
+                  step="0.5"
                   placeholder="0"
                 >
 
               </div>
+
 
 
               <div>
@@ -943,11 +955,12 @@
                   id="paidFacilityHours"
                   type="number"
                   min="0"
-                  step="0.25"
+                  step="0.5"
                   placeholder="0"
                 >
 
               </div>
+
 
             </div>
 
@@ -977,14 +990,12 @@
 
 
 
-        <!-- =========================================
-             CHARTS
-        ========================================== -->
+        <!-- CHARTS -->
 
         <div class="chart-grid">
 
 
-          <section class="panel chart-panel large-chart-panel">
+          <section class="panel chart-panel">
 
             <div class="panel-header">
 
@@ -1032,7 +1043,7 @@
                 </p>
 
                 <h3 id="revenueMixTitle">
-                  August Revenue
+                  Revenue
                 </h3>
 
               </div>
@@ -1056,13 +1067,12 @@
 
           </section>
 
+
         </div>
 
 
 
-        <!-- =========================================
-             CATEGORY BREAKDOWNS
-        ========================================== -->
+        <!-- BREAKDOWNS -->
 
         <div class="dashboard-grid">
 
@@ -1121,13 +1131,14 @@
 
           </section>
 
+
         </div>
 
 
 
         <!-- RECENT TRANSACTIONS -->
 
-        <section class="panel recent-panel">
+        <section class="panel">
 
           <div class="panel-header">
 
@@ -1153,13 +1164,12 @@
 
         </section>
 
+
       </section>
 
 
 
-      <!-- =============================================
-           TRANSACTIONS PAGE
-      ============================================== -->
+      <!-- TRANSACTIONS -->
 
       <section
         id="transactionsPage"
@@ -1236,7 +1246,6 @@
           </div>
 
 
-
           <div class="transaction-table-wrapper">
 
             <table class="transaction-table">
@@ -1245,29 +1254,17 @@
 
                 <tr>
 
-                  <th>
-                    Date
-                  </th>
+                  <th>Date</th>
 
-                  <th>
-                    Description
-                  </th>
+                  <th>Description</th>
 
-                  <th>
-                    Type
-                  </th>
+                  <th>Type</th>
 
-                  <th>
-                    Category
-                  </th>
+                  <th>Category</th>
 
-                  <th>
-                    Business Area
-                  </th>
+                  <th>Business Area</th>
 
-                  <th>
-                    Amount
-                  </th>
+                  <th>Amount</th>
 
                   <th></th>
 
@@ -1288,7 +1285,7 @@
             id="transactionEmptyState"
             class="empty-state"
           >
-            No manual transactions for this month.
+            No transactions for this month.
           </div>
 
         </section>
@@ -1297,9 +1294,7 @@
 
 
 
-      <!-- =============================================
-           YEAR PAGE
-      ============================================== -->
+      <!-- YEAR REPORT -->
 
       <section
         id="reportsPage"
@@ -1343,6 +1338,7 @@
           </div>
 
 
+
           <div class="summary-card">
 
             <p>
@@ -1359,6 +1355,7 @@
           </div>
 
 
+
           <div class="summary-card">
 
             <p>
@@ -1372,6 +1369,7 @@
           </div>
 
 
+
           <div
             id="yearMarginCard"
             class="summary-card dark-card"
@@ -1382,13 +1380,14 @@
             </p>
 
             <h3 id="yearMargin">
-              0.0%
+              —
             </h3>
 
           </div>
 
 
-          <div class="summary-card forecast-card">
+
+          <div class="summary-card">
 
             <p>
               Revenue Forecast
@@ -1399,10 +1398,11 @@
             </h3>
 
             <span class="summary-detail">
-              Current monthly pace annualized
+              Current pace annualized
             </span>
 
           </div>
+
 
         </div>
 
@@ -1435,29 +1435,15 @@
 
                 <tr>
 
-                  <th>
-                    Month
-                  </th>
+                  <th>Month</th>
 
-                  <th>
-                    Revenue
-                  </th>
+                  <th>Revenue</th>
 
-                  <th>
-                    Expenses
-                  </th>
+                  <th>Expenses</th>
 
-                  <th>
-                    Profit
-                  </th>
+                  <th>Profit</th>
 
-                  <th>
-                    Margin
-                  </th>
-
-                  <th>
-                    Status
-                  </th>
+                  <th>Margin</th>
 
                 </tr>
 
@@ -1532,9 +1518,12 @@
 
           </section>
 
+
         </div>
 
+
       </section>
+
 
     </main>
 
@@ -1542,9 +1531,7 @@
 
 
 
-  <!-- =================================================
-       TRANSACTION MODAL
-  ================================================== -->
+  <!-- TRANSACTION MODAL -->
 
   <div
     id="transactionModal"
@@ -1593,7 +1580,6 @@
           type="hidden"
         >
 
-
         <input
           id="transactionType"
           type="hidden"
@@ -1608,7 +1594,6 @@
             id="modalRevenueTypeButton"
             type="button"
             class="type-button revenue active"
-            data-type="revenue"
           >
             Revenue
           </button>
@@ -1618,7 +1603,6 @@
             id="modalExpenseTypeButton"
             type="button"
             class="type-button expense"
-            data-type="expense"
           >
             Expense
           </button>
@@ -1640,7 +1624,6 @@
               type="number"
               min="0"
               step="0.01"
-              placeholder="0.00"
               required
             >
 
@@ -1673,7 +1656,6 @@
         <input
           id="transactionDescription"
           type="text"
-          placeholder="Perfect Game, private lessons, supplies..."
           required
         >
 
@@ -1757,18 +1739,15 @@
           </div>
 
 
+
           <label for="transactionTeamProgram">
             Specific Team / Program
-
-            <span class="optional">
-              Optional
-            </span>
           </label>
 
           <input
             id="transactionTeamProgram"
             type="text"
-            placeholder="14U Hall, Summer Camp, ADP..."
+            placeholder="14U, ADP, Summer Camp..."
           >
 
         </div>
@@ -1782,7 +1761,6 @@
         <textarea
           id="transactionNotes"
           rows="3"
-          placeholder="Optional"
         ></textarea>
 
 
@@ -1799,7 +1777,6 @@
 
 
           <button
-            id="saveTransactionButton"
             type="submit"
             class="primary-button"
           >
@@ -1822,14 +1799,10 @@
 
 
 
-  <!-- Chart.js -->
-
   <script
     src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
   ></script>
 
-
-  <!-- Application -->
 
   <script
     type="module"
