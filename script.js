@@ -105,7 +105,7 @@ const LAST_MONTH =
 const FIXED_EXPENSES = {
   "W2 Staff": 9583,
   "Rent": 8938.90,
-  "Utilities": 1800
+  "Utilities": 2000
 };
 
 const FIXED_MONTHLY_TOTAL =
