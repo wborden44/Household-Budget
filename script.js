@@ -112,6 +112,7 @@ const EXPENSE_CATEGORIES = [
   "Rent",
   "W2 Staff",
   "1099 Staff",
+  "Front Desk",
   "Tournaments",
   "Field Rentals",
   "Utilities",
@@ -121,6 +122,7 @@ const EXPENSE_CATEGORIES = [
 
 const MANUAL_EXPENSE_CATEGORIES = [
   "1099 Staff",
+  "Front Desk",
   "Tournaments",
   "Field Rentals",
   "Building Supplies",
@@ -936,9 +938,12 @@ function escapeHtml(
 }
 
 
-function normalizeExpenseCategory(
-  category
-) {
+function normalizeExpenseCategory(category) {
+
+  const value =
+    String(
+      category || ""
+    ).trim();
 
   const map = {
 
@@ -946,13 +951,28 @@ function normalizeExpenseCategory(
       "Other",
 
     "Misc":
-      "Other"
+      "Other",
+
+    "Front desk":
+      "Front Desk",
+
+    "front desk":
+      "Front Desk",
+
+    "FrontDesk":
+      "Front Desk",
+
+    "Front Desk Staff":
+      "Front Desk",
+
+    "Front Desk Labor":
+      "Front Desk"
 
   };
 
   return (
-    map[category] ||
-    category
+    map[value] ||
+    value
   );
 
 }
@@ -1174,9 +1194,7 @@ function metricNumber(
 }
 
 
-function getMetricSnapshot(
-  monthKey
-) {
+function getMetricSnapshot(monthKey) {
 
   return {
 
@@ -1206,11 +1224,6 @@ function getMetricSnapshot(
         "memberships",
         "membershipCount"
       ),
-
-    /*
-      Original versions used lessonsCompleted.
-      Newer versions used lessonHours.
-    */
 
     lessonHours:
       metricNumber(
@@ -1676,7 +1689,18 @@ function listenForTransactions() {
         transactions =
           snapshot.docs.map(
             snapshotDoc => {
-
+console.table(
+  transactions.map(
+    t => ({
+      date: t.date,
+      description: t.description,
+      type: t.type,
+      category: t.category,
+      amount: t.amount,
+      month: t.month
+    })
+  )
+);
               const data =
                 snapshotDoc.data();
 
@@ -1919,9 +1943,7 @@ function getRevenueByCategory(
    EXPENSES BY CATEGORY
 ========================================================= */
 
-function getExpenseByCategory(
-  monthKey
-) {
+function getExpenseByCategory(monthKey) {
 
   const totals =
     Object.fromEntries(
@@ -1934,10 +1956,6 @@ function getExpenseByCategory(
       )
     );
 
-
-  /*
-    Recurring expenses apply to every tracked month.
-  */
 
   if (
     monthToIndex(monthKey) >=
@@ -1978,30 +1996,41 @@ function getExpenseByCategory(
     .forEach(
       transaction => {
 
-        const category =
+        let category =
           normalizeExpenseCategory(
             transaction.category
           );
 
+
+        /*
+          Do NOT silently throw away unknown expense categories.
+          Put them into Other instead.
+        */
+
         if (
           totals[
             category
-          ] !==
+          ] ===
           undefined
         ) {
 
-          totals[
-            category
-          ] +=
-            Number(
-              transaction.amount ||
-              0
-            );
+          category =
+            "Other";
 
         }
 
+
+        totals[
+          category
+        ] +=
+          Number(
+            transaction.amount ||
+            0
+          );
+
       }
     );
+
 
   return totals;
 
@@ -2050,26 +2079,26 @@ function calculateMonth(
   /* MANUAL EXPENSES */
 
   const manualExpenses =
-    monthly
+  monthly
 
-      .filter(
-        transaction =>
-          transaction.type ===
-          "expense"
-      )
+    .filter(
+      transaction =>
+        transaction.type ===
+        "expense"
+    )
 
-      .reduce(
-        (
-          sum,
-          transaction
-        ) =>
-          sum +
-          Number(
-            transaction.amount ||
-            0
-          ),
-        0
-      );
+    .reduce(
+      (
+        sum,
+        transaction
+      ) =>
+        sum +
+        Number(
+          transaction.amount ||
+          0
+        ),
+      0
+    );
 
 
   /* FIXED EXPENSES */
