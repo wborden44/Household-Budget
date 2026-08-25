@@ -1,6 +1,4 @@
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js";
 
 import {
   getAuth,
@@ -48,13 +46,10 @@ const db = getFirestore(firebaseApp);
 
 const BUSINESS_ID = "ninth-inning-kennesaw";
 
-/*
-IMPORTANT:
-The Year tab is JANUARY → DECEMBER.
-Do not change this to an August → July reporting view.
-*/
 const FIRST_MONTH = "2026-01";
 const FIRST_DATE = "2026-01-01";
+
+const LAST_MONTH = "2031-12";
 
 
 /* =========================================================
@@ -123,6 +118,13 @@ if (
   currentMonth = FIRST_MONTH;
 }
 
+if (
+  monthToIndex(currentMonth) >
+  monthToIndex(LAST_MONTH)
+) {
+  currentMonth = LAST_MONTH;
+}
+
 let transactions = [];
 let monthlyMetrics = {};
 
@@ -140,7 +142,6 @@ let revenueMixChart = null;
 const $ = id =>
   document.getElementById(id);
 
-
 const loginScreen = $("loginScreen");
 const appElement = $("app");
 
@@ -150,6 +151,12 @@ const loginError = $("loginError");
 const logoutButton = $("logoutButton");
 
 const monthSelector = $("monthSelector");
+
+const previousMonthButton =
+  $("previousMonthButton");
+
+const nextMonthButton =
+  $("nextMonthButton");
 
 const navButtons =
   document.querySelectorAll(".nav-button");
@@ -605,6 +612,13 @@ function previousMonth(monthKey) {
 }
 
 
+function nextMonth(monthKey) {
+  return indexToMonth(
+    monthToIndex(monthKey) + 1
+  );
+}
+
+
 function yearFromMonth(monthKey) {
   return Number(
     monthKey.slice(0, 4)
@@ -631,7 +645,8 @@ function getYtdMonths(monthKey) {
   return buildYearMonths(year)
     .filter(
       month =>
-        monthToIndex(month) <= selectedIndex
+        monthToIndex(month) <=
+        selectedIndex
     );
 }
 
@@ -770,6 +785,111 @@ function inferCostType(transaction) {
 
 
 /* =========================================================
+   OLD / NEW METRIC COMPATIBILITY
+========================================================= */
+
+/*
+This prevents older saved Firestore inputs from disappearing
+just because the newer dashboard uses different field names.
+*/
+
+function firstSavedNumber(object, keys, fallback = 0) {
+  if (!object) {
+    return fallback;
+  }
+
+  for (const key of keys) {
+    const value =
+      object[key];
+
+    if (
+      value !== undefined &&
+      value !== null &&
+      value !== ""
+    ) {
+      const parsed =
+        Number(value);
+
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+  }
+
+  return fallback;
+}
+
+
+function getMetricSnapshot(monthKey) {
+  const raw =
+    monthlyMetrics[
+      monthKey
+    ] || {};
+
+  return {
+    rosteredPlayers:
+      firstSavedNumber(
+        raw,
+        [
+          "rosteredPlayers",
+          "players",
+          "playerCount"
+        ]
+      ),
+
+    rosterCapacity:
+      firstSavedNumber(
+        raw,
+        [
+          "rosterCapacity",
+          "totalRosterSpots",
+          "availableRosterSpots",
+          "rosterSpots"
+        ]
+      ),
+
+    activeMemberships:
+      firstSavedNumber(
+        raw,
+        [
+          "activeMemberships",
+          "memberships",
+          "membershipCount"
+        ]
+      ),
+
+    lessonHours:
+      firstSavedNumber(
+        raw,
+        [
+          "lessonHours",
+          "lessonsCompleted",
+          "lessonHoursCompleted"
+        ]
+      ),
+
+    availableFacilityHours:
+      firstSavedNumber(
+        raw,
+        [
+          "availableFacilityHours",
+          "facilityHoursAvailable"
+        ]
+      ),
+
+    usedFacilityHours:
+      firstSavedNumber(
+        raw,
+        [
+          "usedFacilityHours",
+          "facilityHoursUsed"
+        ]
+      )
+  };
+}
+
+
+/* =========================================================
    MONTH SELECTOR
 ========================================================= */
 
@@ -817,7 +937,67 @@ function buildMonthSelector() {
 
   monthSelector.value =
     currentMonth;
+
+  updateMonthButtons();
 }
+
+
+function updateMonthButtons() {
+  previousMonthButton.disabled =
+    monthToIndex(currentMonth) <=
+    monthToIndex(FIRST_MONTH);
+
+  nextMonthButton.disabled =
+    monthToIndex(currentMonth) >=
+    monthToIndex(LAST_MONTH);
+}
+
+
+function changeMonth(monthKey) {
+  if (
+    monthToIndex(monthKey) <
+    monthToIndex(FIRST_MONTH)
+  ) {
+    return;
+  }
+
+  if (
+    monthToIndex(monthKey) >
+    monthToIndex(LAST_MONTH)
+  ) {
+    return;
+  }
+
+  currentMonth =
+    monthKey;
+
+  monthSelector.value =
+    currentMonth;
+
+  updateSelectedMonthDisplay();
+  renderEverything();
+  updateMonthButtons();
+}
+
+
+previousMonthButton.addEventListener(
+  "click",
+  () => {
+    changeMonth(
+      previousMonth(currentMonth)
+    );
+  }
+);
+
+
+nextMonthButton.addEventListener(
+  "click",
+  () => {
+    changeMonth(
+      nextMonth(currentMonth)
+    );
+  }
+);
 
 
 /* =========================================================
@@ -866,7 +1046,6 @@ loginForm.addEventListener(
         $("password").value
       );
     }
-
     catch (error) {
       console.error(error);
 
@@ -942,7 +1121,7 @@ function initializeAppData() {
 
 
 /* =========================================================
-   NAV
+   NAVIGATION
 ========================================================= */
 
 navButtons.forEach(
@@ -1001,17 +1180,15 @@ navButtons.forEach(
 
 
 /* =========================================================
-   SELECTED MONTH
+   MONTH CHANGE
 ========================================================= */
 
 monthSelector.addEventListener(
   "change",
   event => {
-    currentMonth =
-      event.target.value;
-
-    updateSelectedMonthDisplay();
-    renderEverything();
+    changeMonth(
+      event.target.value
+    );
   }
 );
 
@@ -1033,6 +1210,7 @@ function updateSelectedMonthDisplay() {
     `${year} Financial Performance`;
 
   loadMonthlyMetricsForm();
+  updateMonthButtons();
 }
 
 
@@ -1114,10 +1292,18 @@ function listenForMonthlyMetrics() {
 
         snapshot.docs.forEach(
           snapshotDoc => {
+            const data =
+              snapshotDoc.data();
+
+            const monthKey =
+              data.month ||
+              snapshotDoc.id;
+
             monthlyMetrics[
-              snapshotDoc.id
+              monthKey
             ] = {
-              ...snapshotDoc.data()
+              ...data,
+              id: snapshotDoc.id
             };
           }
         );
@@ -1136,7 +1322,7 @@ function listenForMonthlyMetrics() {
 
 
 /* =========================================================
-   DATA
+   TRANSACTION DATA
 ========================================================= */
 
 function getMonthlyTransactions(
@@ -1248,7 +1434,8 @@ function calculateMonth(monthKey) {
     monthly
       .filter(
         transaction =>
-          transaction.type === "revenue"
+          transaction.type ===
+          "revenue"
       )
       .reduce(
         (sum, transaction) =>
@@ -1263,7 +1450,8 @@ function calculateMonth(monthKey) {
     monthly
       .filter(
         transaction =>
-          transaction.type === "expense"
+          transaction.type ===
+          "expense"
       )
       .reduce(
         (sum, transaction) =>
@@ -1277,9 +1465,7 @@ function calculateMonth(monthKey) {
   const fixedExpenses =
     monthToIndex(monthKey) >=
     monthToIndex(FIRST_MONTH)
-
       ? FIXED_MONTHLY_TOTAL
-
       : 0;
 
   const expenses =
@@ -1298,7 +1484,6 @@ function calculateMonth(monthKey) {
         ) * 100
       : 0;
 
-
   const revenueCats =
     getRevenueByCategory(
       monthKey
@@ -1308,7 +1493,6 @@ function calculateMonth(monthKey) {
     getExpenseByCategory(
       monthKey
     );
-
 
   const teamRevenue =
     revenueCats[
@@ -1326,7 +1510,6 @@ function calculateMonth(monthKey) {
           revenue
         ) * 100
       : 0;
-
 
   const w2Labor =
     Number(
@@ -1362,11 +1545,11 @@ function calculateMonth(monthKey) {
         ) * 100
       : NaN;
 
-
   const manualExpenseTransactions =
     monthly.filter(
       transaction =>
-        transaction.type === "expense"
+        transaction.type ===
+        "expense"
     );
 
   const teamDirectCosts =
@@ -1402,13 +1585,11 @@ function calculateMonth(monthKey) {
         ) * 100
       : NaN;
 
-
   const fixedCostCoverage =
     fixedExpenses > 0
       ? organicRevenue /
         fixedExpenses
       : NaN;
-
 
   return {
     revenue,
@@ -1417,25 +1598,19 @@ function calculateMonth(monthKey) {
     expenses,
     profit,
     margin,
-
     revenueCats,
     expenseCats,
-
     teamRevenue,
     organicRevenue,
     teamRevenueMix,
-
     w2Labor,
     contractorLabor,
     labor,
     laborPercent,
-
     expenseRatio,
-
     teamDirectCosts,
     teamContribution,
     teamContributionMargin,
-
     fixedCostCoverage
   };
 }
@@ -1446,17 +1621,14 @@ function calculateMonth(monthKey) {
 ========================================================= */
 
 function currentMetrics() {
-  return (
-    monthlyMetrics[
-      currentMonth
-    ] || {}
+  return getMetricSnapshot(
+    currentMonth
   );
 }
 
 
 function renderEverything() {
   updateSelectedMonthDisplay();
-
   renderDashboard();
   renderTransactions();
   renderYear();
@@ -1464,7 +1636,9 @@ function renderEverything() {
   if (
     $("dashboardPage")
       .classList
-      .contains("active-page")
+      .contains(
+        "active-page"
+      )
   ) {
     requestAnimationFrame(
       renderCharts
@@ -1489,14 +1663,20 @@ function getComparison(
     return null;
   }
 
-  if (type === "points") {
+  if (
+    type ===
+    "points"
+  ) {
     return (
       currentValue -
       previousValue
     );
   }
 
-  if (previousValue === 0) {
+  if (
+    previousValue ===
+    0
+  ) {
     return null;
   }
 
@@ -1505,7 +1685,9 @@ function getComparison(
       currentValue -
       previousValue
     ) /
-    Math.abs(previousValue)
+    Math.abs(
+      previousValue
+    )
   ) * 100;
 }
 
@@ -1539,13 +1721,16 @@ function setComparisonDetail(
     );
 
   if (
-    !Number.isFinite(comparison)
+    !Number.isFinite(
+      comparison
+    )
   ) {
     return;
   }
 
   const isPositive =
-    comparison > 0;
+    comparison >
+    0;
 
   const isGood =
     positiveIsGood
@@ -1557,7 +1742,10 @@ function setComparisonDetail(
       ? "+"
       : "";
 
-  if (type === "points") {
+  if (
+    type ===
+    "points"
+  ) {
     element.textContent =
       `${sign}${comparison.toFixed(1)} pts ${suffix}`;
   }
@@ -1566,7 +1754,10 @@ function setComparisonDetail(
       `${sign}${comparison.toFixed(1)}% ${suffix}`;
   }
 
-  if (comparison !== 0) {
+  if (
+    comparison !==
+    0
+  ) {
     element.classList.add(
       isGood
         ? "positive-text"
@@ -1587,7 +1778,9 @@ function renderDashboard() {
     );
 
   const metrics =
-    currentMetrics();
+    getMetricSnapshot(
+      currentMonth
+    );
 
   const previousKey =
     previousMonth(
@@ -1600,10 +1793,9 @@ function renderDashboard() {
     );
 
   const previousMetrics =
-    monthlyMetrics[
+    getMetricSnapshot(
       previousKey
-    ] || {};
-
+    );
 
   monthlyRevenue.textContent =
     currency(
@@ -1639,68 +1831,41 @@ function renderDashboard() {
     totals.profit < 0
   );
 
-
   const players =
-    Number(
-      metrics.rosteredPlayers || 0
-    );
+    metrics.rosteredPlayers;
 
   const capacity =
-    Number(
-      metrics.rosterCapacity || 0
-    );
+    metrics.rosterCapacity;
 
   const lessonHours =
-    Number(
-      metrics.lessonHours || 0
-    );
+    metrics.lessonHours;
 
   const availableHours =
-    Number(
-      metrics.availableFacilityHours || 0
-    );
+    metrics.availableFacilityHours;
 
   const usedHours =
-    Number(
-      metrics.usedFacilityHours || 0
-    );
+    metrics.usedFacilityHours;
 
   const activeMemberships =
-    Number(
-      metrics.activeMemberships || 0
-    );
-
+    metrics.activeMemberships;
 
   const previousPlayers =
-    Number(
-      previousMetrics.rosteredPlayers || 0
-    );
+    previousMetrics.rosteredPlayers;
 
   const previousCapacity =
-    Number(
-      previousMetrics.rosterCapacity || 0
-    );
+    previousMetrics.rosterCapacity;
 
   const previousLessonHours =
-    Number(
-      previousMetrics.lessonHours || 0
-    );
+    previousMetrics.lessonHours;
 
   const previousAvailableHours =
-    Number(
-      previousMetrics.availableFacilityHours || 0
-    );
+    previousMetrics.availableFacilityHours;
 
   const previousUsedHours =
-    Number(
-      previousMetrics.usedFacilityHours || 0
-    );
+    previousMetrics.usedFacilityHours;
 
   const previousActiveMemberships =
-    Number(
-      previousMetrics.activeMemberships || 0
-    );
-
+    previousMetrics.activeMemberships;
 
   const operatingProfitPerPlayer =
     players > 0
@@ -1728,7 +1893,8 @@ function renderDashboard() {
           totals.revenueCats[
             "Lessons"
           ] || 0
-        ) / lessonHours
+        ) /
+        lessonHours
       : NaN;
 
   const facilityUtilization =
@@ -1738,7 +1904,6 @@ function renderDashboard() {
           availableHours
         ) * 100
       : NaN;
-
 
   const previousOperatingProfitPerPlayer =
     previousPlayers > 0
@@ -1752,21 +1917,14 @@ function renderDashboard() {
         previousPlayers
       : NaN;
 
-  const previousRosterFill =
-    previousCapacity > 0
-      ? (
-          previousPlayers /
-          previousCapacity
-        ) * 100
-      : NaN;
-
   const previousRevenuePerLessonHour =
     previousLessonHours > 0
       ? (
           previousTotals.revenueCats[
             "Lessons"
           ] || 0
-        ) / previousLessonHours
+        ) /
+        previousLessonHours
       : NaN;
 
   const previousFacilityUtilization =
@@ -1776,9 +1934,6 @@ function renderDashboard() {
           previousAvailableHours
         ) * 100
       : NaN;
-
-
-  /* ORGANIC REVENUE */
 
   organicRevenueEl.textContent =
     currency(
@@ -1790,9 +1945,6 @@ function renderDashboard() {
     totals.organicRevenue,
     previousTotals.organicRevenue
   );
-
-
-  /* FIXED COST COVERAGE */
 
   fixedCostCoverageEl.textContent =
     ratio(
@@ -1810,8 +1962,7 @@ function renderDashboard() {
     )
   ) {
     fixedCostCoverageDetail.textContent =
-      `${Math.round(totals.fixedCostCoverage * 100)}% ` +
-      `of fixed costs covered by organic revenue`;
+      `${Math.round(totals.fixedCostCoverage * 100)}% of fixed costs covered by organic revenue`;
 
     fixedCostCoverageDetail.classList.add(
       totals.fixedCostCoverage >= 1
@@ -1824,9 +1975,6 @@ function renderDashboard() {
       "Organic revenue ÷ fixed operating costs";
   }
 
-
-  /* LABOR */
-
   laborPercentEl.textContent =
     Number.isFinite(
       totals.laborPercent
@@ -1838,9 +1986,6 @@ function renderDashboard() {
 
   laborPercentDetail.textContent =
     `${currency(totals.labor)} W2 + 1099 labor`;
-
-
-  /* EXPENSE RATIO */
 
   expenseRatioEl.textContent =
     Number.isFinite(
@@ -1861,9 +2006,6 @@ function renderDashboard() {
     }
   );
 
-
-  /* OPERATING PROFIT / PLAYER */
-
   operatingProfitPerPlayerEl.textContent =
     Number.isFinite(
       operatingProfitPerPlayer
@@ -1878,9 +2020,6 @@ function renderDashboard() {
     operatingProfitPerPlayer,
     previousOperatingProfitPerPlayer
   );
-
-
-  /* TEAM REVENUE MIX */
 
   teamRevenueMixEl.textContent =
     percent(
@@ -1897,9 +2036,6 @@ function renderDashboard() {
     }
   );
 
-
-  /* REVENUE / PLAYER */
-
   revenuePerPlayerEl.textContent =
     Number.isFinite(
       revenuePerPlayer
@@ -1915,9 +2051,6 @@ function renderDashboard() {
     previousRevenuePerPlayer
   );
 
-
-  /* TEAM CONTRIBUTION */
-
   teamContributionEl.textContent =
     totals.teamRevenue > 0
       ? currency(
@@ -1929,9 +2062,6 @@ function renderDashboard() {
     totals.teamRevenue > 0
       ? `${currency(totals.teamDirectCosts)} identifiable direct team costs`
       : "No team revenue recorded";
-
-
-  /* TEAM MARGIN */
 
   teamContributionMarginEl.textContent =
     Number.isFinite(
@@ -1952,9 +2082,6 @@ function renderDashboard() {
     }
   );
 
-
-  /* ROSTER FILL */
-
   rosterFillRateEl.textContent =
     Number.isFinite(
       rosterFillRate
@@ -1966,12 +2093,8 @@ function renderDashboard() {
 
   rosterFillRateDetail.textContent =
     capacity > 0
-      ? `${number(players)} of ${number(capacity)} spots filled · ` +
-        `${number(Math.max(0, capacity - players))} open`
+      ? `${number(players)} of ${number(capacity)} spots filled · ${number(Math.max(0, capacity - players))} open`
       : "Enter rostered players and total roster spots";
-
-
-  /* LESSON HOURS */
 
   lessonHoursMetricEl.textContent =
     number(
@@ -1989,9 +2112,6 @@ function renderDashboard() {
     previousLessonHours
   );
 
-
-  /* REVENUE / LESSON HOUR */
-
   revenuePerLessonHourEl.textContent =
     Number.isFinite(
       revenuePerLessonHour
@@ -2006,9 +2126,6 @@ function renderDashboard() {
     revenuePerLessonHour,
     previousRevenuePerLessonHour
   );
-
-
-  /* FACILITY UTILIZATION */
 
   facilityUtilizationEl.textContent =
     Number.isFinite(
@@ -2029,13 +2146,15 @@ function renderDashboard() {
     }
   );
 
-
-  /* MEMBERSHIP CHANGE */
+  const previousRawExists =
+    Boolean(
+      monthlyMetrics[
+        previousKey
+      ]
+    );
 
   const membershipChange =
-    monthlyMetrics[
-      previousKey
-    ]
+    previousRawExists
       ? (
           activeMemberships -
           previousActiveMemberships
@@ -2049,7 +2168,9 @@ function renderDashboard() {
       ? (
           membershipChange > 0
             ? `+${membershipChange}`
-            : String(membershipChange)
+            : String(
+                membershipChange
+              )
         )
       : "—";
 
@@ -2087,7 +2208,6 @@ function renderDashboard() {
       "No previous month available";
   }
 
-
   metricsStatus.textContent =
     monthlyMetrics[
       currentMonth
@@ -2103,7 +2223,6 @@ function renderDashboard() {
       ]
     )
   );
-
 
   renderBreakdownList(
     revenueBreakdown,
@@ -2124,26 +2243,32 @@ function renderDashboard() {
 
 
 /* =========================================================
-   MONTHLY INPUTS
+   MONTHLY INPUT FORM
 ========================================================= */
 
 function loadMonthlyMetricsForm() {
   const metrics =
-    monthlyMetrics[
+    getMetricSnapshot(
       currentMonth
-    ] || {};
+    );
 
-  metricFieldIds.forEach(
-    id => {
-      const element =
-        $(id);
+  $("rosteredPlayers").value =
+    metrics.rosteredPlayers || "";
 
-      if (element) {
-        element.value =
-          metrics[id] ?? "";
-      }
-    }
-  );
+  $("rosterCapacity").value =
+    metrics.rosterCapacity || "";
+
+  $("activeMemberships").value =
+    metrics.activeMemberships || "";
+
+  $("lessonHours").value =
+    metrics.lessonHours || "";
+
+  $("availableFacilityHours").value =
+    metrics.availableFacilityHours || "";
+
+  $("usedFacilityHours").value =
+    metrics.usedFacilityHours || "";
 
   monthlyMetricsMessage.textContent =
     "";
@@ -2163,24 +2288,44 @@ monthlyMetricsForm.addEventListener(
 
     const data = {
       month: currentMonth,
-      year: yearFromMonth(currentMonth),
-      updatedAt: serverTimestamp()
+      year:
+        yearFromMonth(
+          currentMonth
+        ),
+      rosteredPlayers:
+        Number(
+          $("rosteredPlayers").value || 0
+        ),
+      rosterCapacity:
+        Number(
+          $("rosterCapacity").value || 0
+        ),
+      activeMemberships:
+        Number(
+          $("activeMemberships").value || 0
+        ),
+      lessonHours:
+        Number(
+          $("lessonHours").value || 0
+        ),
+      availableFacilityHours:
+        Number(
+          $("availableFacilityHours").value || 0
+        ),
+      usedFacilityHours:
+        Number(
+          $("usedFacilityHours").value || 0
+        ),
+      updatedAt:
+        serverTimestamp()
     };
-
-    metricFieldIds.forEach(
-      id => {
-        data[id] =
-          Number(
-            $(id).value || 0
-          );
-      }
-    );
 
     if (
       data.usedFacilityHours >
       data.availableFacilityHours
       &&
-      data.availableFacilityHours > 0
+      data.availableFacilityHours >
+      0
     ) {
       monthlyMetricsMessage.textContent =
         "Used hours cannot exceed available hours.";
@@ -2195,7 +2340,8 @@ monthlyMetricsForm.addEventListener(
       data.rosteredPlayers >
       data.rosterCapacity
       &&
-      data.rosterCapacity > 0
+      data.rosterCapacity >
+      0
     ) {
       monthlyMetricsMessage.textContent =
         "Rostered players cannot exceed total roster spots.";
@@ -2207,13 +2353,22 @@ monthlyMetricsForm.addEventListener(
     }
 
     try {
+      const existing =
+        monthlyMetrics[
+          currentMonth
+        ];
+
+      const documentId =
+        existing?.id ||
+        currentMonth;
+
       await setDoc(
         doc(
           db,
           "businesses",
           BUSINESS_ID,
           "monthlyMetrics",
-          currentMonth
+          documentId
         ),
         data,
         {
@@ -2224,14 +2379,12 @@ monthlyMetricsForm.addEventListener(
       monthlyMetricsMessage.textContent =
         "Saved.";
     }
-
     catch (error) {
       console.error(error);
 
       monthlyMetricsMessage.textContent =
         "Unable to save monthly inputs.";
     }
-
     finally {
       saveMonthlyMetricsButton.disabled =
         false;
@@ -2241,18 +2394,20 @@ monthlyMetricsForm.addEventListener(
 
 
 /* =========================================================
-   CHARTS — CALENDAR YEAR
+   CHARTS
 ========================================================= */
 
 function destroyCharts() {
   if (performanceChart) {
     performanceChart.destroy();
-    performanceChart = null;
+    performanceChart =
+      null;
   }
 
   if (revenueMixChart) {
     revenueMixChart.destroy();
-    revenueMixChart = null;
+    revenueMixChart =
+      null;
   }
 }
 
@@ -2269,7 +2424,8 @@ function renderPerformanceChart() {
 
   if (
     !canvas ||
-    typeof Chart === "undefined"
+    typeof Chart ===
+    "undefined"
   ) {
     return;
   }
@@ -2324,7 +2480,8 @@ function renderPerformanceChart() {
     new Chart(
       canvas,
       {
-        type: "bar",
+        type:
+          "bar",
 
         data: {
           labels:
@@ -2334,34 +2491,50 @@ function renderPerformanceChart() {
 
           datasets: [
             {
-              label: "Revenue",
-              data: revenue
+              label:
+                "Revenue",
+              data:
+                revenue
             },
+
             {
-              label: "Expenses",
-              data: expenses
+              label:
+                "Expenses",
+              data:
+                expenses
             },
+
             {
-              label: "Profit",
-              data: profit,
-              type: "line",
-              tension: 0.25
+              label:
+                "Profit",
+              data:
+                profit,
+              type:
+                "line",
+              tension:
+                .25
             }
           ]
         },
 
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          responsive:
+            true,
+
+          maintainAspectRatio:
+            false,
 
           interaction: {
-            mode: "index",
-            intersect: false
+            mode:
+              "index",
+            intersect:
+              false
           },
 
           plugins: {
             legend: {
-              position: "bottom"
+              position:
+                "bottom"
             },
 
             tooltip: {
@@ -2375,7 +2548,8 @@ function renderPerformanceChart() {
 
           scales: {
             y: {
-              beginAtZero: true,
+              beginAtZero:
+                true,
 
               ticks: {
                 callback:
@@ -2386,7 +2560,8 @@ function renderPerformanceChart() {
 
             x: {
               grid: {
-                display: false
+                display:
+                  false
               }
             }
           }
@@ -2402,12 +2577,15 @@ function renderRevenueMixChart() {
 
   if (
     !canvas ||
-    typeof Chart === "undefined"
+    typeof Chart ===
+    "undefined"
   ) {
     return;
   }
 
-  if (revenueMixChart) {
+  if (
+    revenueMixChart
+  ) {
     revenueMixChart.destroy();
   }
 
@@ -2434,7 +2612,9 @@ function renderRevenueMixChart() {
     entries.length === 0
   );
 
-  if (!entries.length) {
+  if (
+    !entries.length
+  ) {
     return;
   }
 
@@ -2442,7 +2622,8 @@ function renderRevenueMixChart() {
     new Chart(
       canvas,
       {
-        type: "doughnut",
+        type:
+          "doughnut",
 
         data: {
           labels:
@@ -2463,16 +2644,23 @@ function renderRevenueMixChart() {
         },
 
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: "66%",
+          responsive:
+            true,
+
+          maintainAspectRatio:
+            false,
+
+          cutout:
+            "66%",
 
           plugins: {
             legend: {
-              position: "bottom",
+              position:
+                "bottom",
 
               labels: {
-                boxWidth: 12
+                boxWidth:
+                  12
               }
             },
 
@@ -2491,7 +2679,7 @@ function renderRevenueMixChart() {
 
 
 /* =========================================================
-   BREAKDOWNS
+   BREAKDOWN
 ========================================================= */
 
 function renderBreakdownList(
@@ -2503,52 +2691,51 @@ function renderBreakdownList(
   container.innerHTML =
     "";
 
-  Object.entries(data)
-    .forEach(
-      ([name, value]) => {
-        const row =
-          document.createElement(
-            "div"
-          );
-
-        row.className =
-          "breakdown-row";
-
-        const percentage =
-          total > 0
-            ? (
-                value /
-                total
-              ) * 100
-            : 0;
-
-        row.innerHTML = `
-          <div class="breakdown-top">
-
-            <span class="breakdown-name">
-              ${escapeHtml(name)}
-            </span>
-
-            <span class="breakdown-value">
-              ${currency(value)}
-              <em>${percentage.toFixed(1)}%</em>
-            </span>
-
-          </div>
-
-          <div class="breakdown-track">
-            <div
-              class="breakdown-fill ${type}"
-              style="width:${Math.min(100, percentage)}%"
-            ></div>
-          </div>
-        `;
-
-        container.appendChild(
-          row
+  Object.entries(
+    data
+  ).forEach(
+    ([name, value]) => {
+      const row =
+        document.createElement(
+          "div"
         );
-      }
-    );
+
+      row.className =
+        "breakdown-row";
+
+      const pct =
+        total > 0
+          ? (
+              value /
+              total
+            ) * 100
+          : 0;
+
+      row.innerHTML = `
+        <div class="breakdown-top">
+          <span class="breakdown-name">
+            ${escapeHtml(name)}
+          </span>
+
+          <span class="breakdown-value">
+            ${currency(value)}
+            <em>${pct.toFixed(1)}%</em>
+          </span>
+        </div>
+
+        <div class="breakdown-track">
+          <div
+            class="breakdown-fill ${type}"
+            style="width:${Math.min(100, pct)}%"
+          ></div>
+        </div>
+      `;
+
+      container.appendChild(
+        row
+      );
+    }
+  );
 }
 
 
@@ -2568,7 +2755,9 @@ function renderRecentTransactions() {
   recentTransactions.innerHTML =
     "";
 
-  if (!list.length) {
+  if (
+    !list.length
+  ) {
     recentTransactions.innerHTML =
       '<div class="empty-state">No manual transactions for this month.</div>';
 
@@ -2587,7 +2776,6 @@ function renderRecentTransactions() {
 
       div.innerHTML = `
         <div>
-
           <div class="recent-description">
             ${escapeHtml(transaction.description)}
           </div>
@@ -2595,40 +2783,18 @@ function renderRecentTransactions() {
           <div class="recent-meta">
             ${formatDate(transaction.date)}
             ·
-            ${escapeHtml(
-              normalizeExpenseCategory(
-                transaction.category
-              )
-            )}
-
+            ${escapeHtml(normalizeExpenseCategory(transaction.category))}
             ${
-              transaction.type === "expense"
-                ? ` · ${escapeHtml(
-                    inferBusinessArea(
-                      transaction
-                    )
-                  )}`
+              transaction.type ===
+              "expense"
+                ? ` · ${escapeHtml(inferBusinessArea(transaction))}`
                 : ""
             }
           </div>
-
         </div>
 
-        <div
-          class="
-            recent-amount
-            ${
-              transaction.type === "revenue"
-                ? "positive-text"
-                : "negative-text"
-            }
-          "
-        >
-          ${
-            transaction.type === "revenue"
-              ? "+"
-              : "-"
-          }
+        <div class="recent-amount ${transaction.type === "revenue" ? "positive-text" : "negative-text"}">
+          ${transaction.type === "revenue" ? "+" : "-"}
           ${currency(transaction.amount)}
         </div>
       `;
@@ -2658,15 +2824,21 @@ function renderTransactions() {
     ).filter(
       transaction =>
         (
-          typeFilter === "all" ||
-          transaction.type === typeFilter
+          typeFilter ===
+          "all"
+          ||
+          transaction.type ===
+          typeFilter
         )
         &&
         (
-          categoryFilter === "all" ||
+          categoryFilter ===
+          "all"
+          ||
           normalizeExpenseCategory(
             transaction.category
-          ) === categoryFilter
+          ) ===
+          categoryFilter
         )
     );
 
@@ -2675,7 +2847,8 @@ function renderTransactions() {
 
   transactionEmptyState.classList.toggle(
     "hidden",
-    rows.length > 0
+    rows.length >
+    0
   );
 
   rows.forEach(
@@ -2686,22 +2859,13 @@ function renderTransactions() {
         );
 
       row.innerHTML = `
-        <td>
-          ${formatDate(transaction.date)}
-        </td>
+        <td>${formatDate(transaction.date)}</td>
 
         <td>
-          <strong>
-            ${escapeHtml(transaction.description)}
-          </strong>
-
+          <strong>${escapeHtml(transaction.description)}</strong>
           ${
             transaction.notes
-              ? `
-                <div class="table-note">
-                  ${escapeHtml(transaction.notes)}
-                </div>
-              `
+              ? `<div class="table-note">${escapeHtml(transaction.notes)}</div>`
               : ""
           }
         </td>
@@ -2713,54 +2877,30 @@ function renderTransactions() {
         </td>
 
         <td>
-          ${escapeHtml(
-            normalizeExpenseCategory(
-              transaction.category
-            )
-          )}
+          ${escapeHtml(normalizeExpenseCategory(transaction.category))}
         </td>
 
         <td>
           ${
             transaction.type === "expense"
-              ? escapeHtml(
-                  inferBusinessArea(
-                    transaction
-                  )
-                )
+              ? escapeHtml(inferBusinessArea(transaction))
               : "—"
           }
         </td>
 
-        <td
-          class="
-            ${
-              transaction.type === "revenue"
-                ? "positive-text"
-                : "negative-text"
-            }
-          "
-        >
+        <td class="${transaction.type === "revenue" ? "positive-text" : "negative-text"}">
           ${currency(transaction.amount)}
         </td>
 
         <td>
           <div class="transaction-actions">
-
-            <button
-              class="small-button edit-button"
-              data-id="${transaction.id}"
-            >
+            <button class="small-button edit-button" data-id="${transaction.id}">
               Edit
             </button>
 
-            <button
-              class="small-button delete"
-              data-id="${transaction.id}"
-            >
+            <button class="small-button delete" data-id="${transaction.id}">
               Delete
             </button>
-
           </div>
         </td>
       `;
@@ -2771,35 +2911,31 @@ function renderTransactions() {
     }
   );
 
-  document
-    .querySelectorAll(
-      ".edit-button"
-    )
-    .forEach(
-      button =>
-        button.addEventListener(
-          "click",
-          () =>
-            openEditTransaction(
-              button.dataset.id
-            )
-        )
-    );
+  document.querySelectorAll(
+    ".edit-button"
+  ).forEach(
+    button =>
+      button.addEventListener(
+        "click",
+        () =>
+          openEditTransaction(
+            button.dataset.id
+          )
+      )
+  );
 
-  document
-    .querySelectorAll(
-      ".small-button.delete"
-    )
-    .forEach(
-      button =>
-        button.addEventListener(
-          "click",
-          () =>
-            deleteTransaction(
-              button.dataset.id
-            )
-        )
-    );
+  document.querySelectorAll(
+    ".small-button.delete"
+  ).forEach(
+    button =>
+      button.addEventListener(
+        "click",
+        () =>
+          deleteTransaction(
+            button.dataset.id
+          )
+      )
+  );
 }
 
 
@@ -2815,7 +2951,7 @@ transactionCategoryFilter.addEventListener(
 
 
 /* =========================================================
-   MODAL BUTTONS
+   TRANSACTION MODAL
 ========================================================= */
 
 [
@@ -2848,17 +2984,15 @@ transactionCategoryFilter.addEventListener(
 );
 
 
-document
-  .querySelectorAll(
-    "[data-close-transaction-modal]"
-  )
-  .forEach(
-    element =>
-      element.addEventListener(
-        "click",
-        closeTransactionModal
-      )
-  );
+document.querySelectorAll(
+  "[data-close-transaction-modal]"
+).forEach(
+  element =>
+    element.addEventListener(
+      "click",
+      closeTransactionModal
+    )
+);
 
 
 modalRevenueTypeButton.addEventListener(
@@ -2884,23 +3018,27 @@ function setModalType(type) {
     type;
 
   transactionModalTitle.textContent =
-    type === "revenue"
+    type ===
+    "revenue"
       ? "Add Revenue"
       : "Add Expense";
 
   modalRevenueTypeButton.classList.toggle(
     "active",
-    type === "revenue"
+    type ===
+    "revenue"
   );
 
   modalExpenseTypeButton.classList.toggle(
     "active",
-    type === "expense"
+    type ===
+    "expense"
   );
 
   expenseAttributionFields.classList.toggle(
     "hidden",
-    type !== "expense"
+    type !==
+    "expense"
   );
 
   buildTransactionCategories(
@@ -2911,7 +3049,8 @@ function setModalType(type) {
 
 function buildTransactionCategories(type) {
   const categories =
-    type === "revenue"
+    type ===
+    "revenue"
       ? REVENUE_CATEGORIES
       : MANUAL_EXPENSE_CATEGORIES;
 
@@ -2960,7 +3099,8 @@ function openNewTransaction(type) {
     "";
 
   transactionDate.value =
-    currentMonth === getCurrentMonth()
+    currentMonth ===
+    getCurrentMonth()
       ? todayString()
       : `${currentMonth}-01`;
 
@@ -2971,7 +3111,8 @@ function openNewTransaction(type) {
     "direct";
 
   transactionBusinessArea.value =
-    type === "expense"
+    type ===
+    "expense"
       ? "Teams"
       : "General";
 
@@ -2989,10 +3130,13 @@ function openEditTransaction(id) {
   const transaction =
     transactions.find(
       item =>
-        item.id === id
+        item.id ===
+        id
     );
 
-  if (!transaction) {
+  if (
+    !transaction
+  ) {
     return;
   }
 
@@ -3008,10 +3152,12 @@ function openEditTransaction(id) {
     transaction.date;
 
   transactionDescription.value =
-    transaction.description || "";
+    transaction.description ||
+    "";
 
   transactionNotes.value =
-    transaction.notes || "";
+    transaction.notes ||
+    "";
 
   setModalType(
     transaction.type
@@ -3031,7 +3177,8 @@ function openEditTransaction(id) {
       ...transactionCategory.options
     ].some(
       option =>
-        option.value === category
+        option.value ===
+        category
     )
   ) {
     transactionCategory.value =
@@ -3039,7 +3186,8 @@ function openEditTransaction(id) {
   }
 
   if (
-    transaction.type === "expense"
+    transaction.type ===
+    "expense"
   ) {
     transactionCostType.value =
       inferCostType(
@@ -3052,11 +3200,13 @@ function openEditTransaction(id) {
       );
 
     transactionTeamProgram.value =
-      transaction.teamProgram || "";
+      transaction.teamProgram ||
+      "";
   }
 
   transactionModalTitle.textContent =
-    transaction.type === "revenue"
+    transaction.type ===
+    "revenue"
       ? "Edit Revenue"
       : "Edit Expense";
 
@@ -3076,10 +3226,6 @@ function closeTransactionModal() {
 }
 
 
-/* =========================================================
-   SAVE TRANSACTION
-========================================================= */
-
 transactionForm.addEventListener(
   "submit",
   async event => {
@@ -3097,9 +3243,7 @@ transactionForm.addEventListener(
       transactionDate.value;
 
     const description =
-      transactionDescription
-        .value
-        .trim();
+      transactionDescription.value.trim();
 
     const type =
       transactionType.value;
@@ -3109,7 +3253,8 @@ transactionForm.addEventListener(
 
     if (
       !amount ||
-      amount <= 0
+      amount <=
+      0
     ) {
       transactionFormError.textContent =
         "Enter a valid amount.";
@@ -3117,14 +3262,18 @@ transactionForm.addEventListener(
       return;
     }
 
-    if (!date) {
+    if (
+      !date
+    ) {
       transactionFormError.textContent =
         "Choose a date.";
 
       return;
     }
 
-    if (!description) {
+    if (
+      !description
+    ) {
       transactionFormError.textContent =
         "Enter a vendor or description.";
 
@@ -3132,7 +3281,8 @@ transactionForm.addEventListener(
     }
 
     if (
-      date < FIRST_DATE
+      date <
+      FIRST_DATE
     ) {
       transactionFormError.textContent =
         "Financial tracking begins January 1, 2026.";
@@ -3151,15 +3301,14 @@ transactionForm.addEventListener(
           date
         ),
       notes:
-        transactionNotes
-          .value
-          .trim(),
+        transactionNotes.value.trim(),
       updatedAt:
         serverTimestamp()
     };
 
     if (
-      type === "expense"
+      type ===
+      "expense"
     ) {
       data.costType =
         transactionCostType.value;
@@ -3168,21 +3317,26 @@ transactionForm.addEventListener(
         transactionBusinessArea.value;
 
       data.teamProgram =
-        transactionTeamProgram
-          .value
-          .trim();
+        transactionTeamProgram.value.trim();
     }
     else {
-      data.costType = "";
-      data.businessArea = "";
-      data.teamProgram = "";
+      data.costType =
+        "";
+
+      data.businessArea =
+        "";
+
+      data.teamProgram =
+        "";
     }
 
     try {
       const id =
         transactionId.value;
 
-      if (id) {
+      if (
+        id
+      ) {
         await updateDoc(
           doc(
             db,
@@ -3209,15 +3363,12 @@ transactionForm.addEventListener(
         );
       }
 
-      currentMonth =
-        data.month;
-
-      monthSelector.value =
-        currentMonth;
+      changeMonth(
+        data.month
+      );
 
       closeTransactionModal();
     }
-
     catch (error) {
       console.error(
         "Save error:",
@@ -3231,18 +3382,17 @@ transactionForm.addEventListener(
 );
 
 
-/* =========================================================
-   DELETE
-========================================================= */
-
 async function deleteTransaction(id) {
   const transaction =
     transactions.find(
       item =>
-        item.id === id
+        item.id ===
+        id
     );
 
-  if (!transaction) {
+  if (
+    !transaction
+  ) {
     return;
   }
 
@@ -3265,9 +3415,10 @@ async function deleteTransaction(id) {
       )
     );
   }
-
   catch (error) {
-    console.error(error);
+    console.error(
+      error
+    );
 
     alert(
       "Unable to delete transaction."
@@ -3277,20 +3428,10 @@ async function deleteTransaction(id) {
 
 
 /* =========================================================
-   CALENDAR-YEAR YTD CALCULATION
+   YTD
 ========================================================= */
 
 function calculateYtd(monthKey) {
-  /*
-  Example:
-  selected month = August 2026
-
-  YTD months =
-  January 2026 through August 2026.
-
-  NOT August 2026 through July 2027.
-  */
-
   const months =
     getYtdMonths(
       monthKey
@@ -3300,7 +3441,10 @@ function calculateYtd(monthKey) {
     Object.fromEntries(
       REVENUE_CATEGORIES.map(
         category =>
-          [category, 0]
+          [
+            category,
+            0
+          ]
       )
     );
 
@@ -3308,26 +3452,42 @@ function calculateYtd(monthKey) {
     Object.fromEntries(
       EXPENSE_CATEGORIES.map(
         category =>
-          [category, 0]
+          [
+            category,
+            0
+          ]
       )
     );
 
-  let revenue = 0;
-  let expenses = 0;
+  let revenue =
+    0;
 
-  let fixedExpenses = 0;
-  let organicRevenue = 0;
+  let expenses =
+    0;
 
-  let teamRevenue = 0;
-  let teamDirectCosts = 0;
+  let fixedExpenses =
+    0;
 
-  let labor = 0;
+  let organicRevenue =
+    0;
 
-  let lessonHours = 0;
+  let teamRevenue =
+    0;
 
-  let usedFacilityHours = 0;
-  let availableFacilityHours = 0;
+  let teamDirectCosts =
+    0;
 
+  let labor =
+    0;
+
+  let lessonHours =
+    0;
+
+  let usedFacilityHours =
+    0;
+
+  let availableFacilityHours =
+    0;
 
   months.forEach(
     month => {
@@ -3337,9 +3497,9 @@ function calculateYtd(monthKey) {
         );
 
       const metrics =
-        monthlyMetrics[
+        getMetricSnapshot(
           month
-        ] || {};
+        );
 
       revenue +=
         totals.revenue;
@@ -3363,46 +3523,41 @@ function calculateYtd(monthKey) {
         totals.labor;
 
       lessonHours +=
-        Number(
-          metrics.lessonHours || 0
-        );
+        metrics.lessonHours;
 
       usedFacilityHours +=
-        Number(
-          metrics.usedFacilityHours || 0
-        );
+        metrics.usedFacilityHours;
 
       availableFacilityHours +=
-        Number(
-          metrics.availableFacilityHours || 0
-        );
-
+        metrics.availableFacilityHours;
 
       Object.keys(
         revenueCats
       ).forEach(
-        category => {
-          revenueCats[category] +=
+        category =>
+          revenueCats[
+            category
+          ] +=
             totals.revenueCats[
               category
-            ] || 0;
-        }
+            ] ||
+            0
       );
-
 
       Object.keys(
         expenseCats
       ).forEach(
-        category => {
-          expenseCats[category] +=
+        category =>
+          expenseCats[
+            category
+          ] +=
             totals.expenseCats[
               category
-            ] || 0;
-        }
+            ] ||
+            0
       );
     }
   );
-
 
   const profit =
     revenue -
@@ -3416,102 +3571,96 @@ function calculateYtd(monthKey) {
         ) * 100
       : 0;
 
-
   const fixedCostCoverage =
-    fixedExpenses > 0
+    fixedExpenses >
+    0
       ? organicRevenue /
         fixedExpenses
       : NaN;
 
-
   const laborPercent =
-    revenue > 0
+    revenue >
+    0
       ? (
           labor /
           revenue
         ) * 100
       : NaN;
 
-
   const expenseRatio =
-    revenue > 0
+    revenue >
+    0
       ? (
           expenses /
           revenue
         ) * 100
       : NaN;
 
-
   const teamRevenueMix =
-    revenue > 0
+    revenue >
+    0
       ? (
           teamRevenue /
           revenue
         ) * 100
       : NaN;
 
-
   const teamContribution =
     teamRevenue -
     teamDirectCosts;
 
-
   const teamContributionMargin =
-    teamRevenue > 0
+    teamRevenue >
+    0
       ? (
           teamContribution /
           teamRevenue
         ) * 100
       : NaN;
 
-
   const revenuePerLessonHour =
-    lessonHours > 0
+    lessonHours >
+    0
       ? (
           revenueCats[
             "Lessons"
-          ] || 0
-        ) / lessonHours
+          ] ||
+          0
+        ) /
+        lessonHours
       : NaN;
 
-
   const facilityUtilization =
-    availableFacilityHours > 0
+    availableFacilityHours >
+    0
       ? (
           usedFacilityHours /
           availableFacilityHours
         ) * 100
       : NaN;
 
-
-  /*
-  Roster count is point-in-time.
-
-  Do not sum January roster +
-  February roster + March roster.
-
-  Use the latest saved roster count.
-  */
-
   let latestRosterCount =
     0;
 
   for (
-    let index = months.length - 1;
-    index >= 0;
+    let index =
+      months.length -
+      1;
+    index >=
+    0;
     index--
   ) {
-    const metrics =
-      monthlyMetrics[
-        months[index]
-      ];
-
     const roster =
-      Number(
-        metrics?.rosteredPlayers || 0
-      );
+      getMetricSnapshot(
+        months[
+          index
+        ]
+      ).rosteredPlayers;
 
-    if (roster > 0) {
+    if (
+      roster >
+      0
+    ) {
       latestRosterCount =
         roster;
 
@@ -3519,56 +3668,44 @@ function calculateYtd(monthKey) {
     }
   }
 
-
   const operatingProfitPerPlayer =
-    latestRosterCount > 0
+    latestRosterCount >
+    0
       ? profit /
         latestRosterCount
       : NaN;
 
-
   const revenuePerPlayer =
-    latestRosterCount > 0
+    latestRosterCount >
+    0
       ? teamRevenue /
         latestRosterCount
       : NaN;
 
-
   return {
     months,
-
     revenue,
     expenses,
     profit,
     margin,
-
     fixedExpenses,
     organicRevenue,
     fixedCostCoverage,
-
     labor,
     laborPercent,
-
     expenseRatio,
-
     teamRevenue,
     teamRevenueMix,
-
     teamDirectCosts,
     teamContribution,
     teamContributionMargin,
-
     revenueCats,
     expenseCats,
-
     latestRosterCount,
-
     operatingProfitPerPlayer,
     revenuePerPlayer,
-
     lessonHours,
     revenuePerLessonHour,
-
     usedFacilityHours,
     availableFacilityHours,
     facilityUtilization
@@ -3577,7 +3714,7 @@ function calculateYtd(monthKey) {
 
 
 /* =========================================================
-   YEAR PAGE — JANUARY THROUGH DECEMBER
+   YEAR PAGE
 ========================================================= */
 
 function renderYear() {
@@ -3601,17 +3738,11 @@ function renderYear() {
       currentMonth
     );
 
-
-  /* HEADER */
-
   yearTitle.textContent =
     `${year} Financial Performance`;
 
   ytdMetricsPeriod.textContent =
     `January ${year} through ${formatMonth(currentMonth)}`;
-
-
-  /* SUMMARY */
 
   yearRevenue.textContent =
     currency(
@@ -3629,7 +3760,8 @@ function renderYear() {
     );
 
   yearProfit.className =
-    ytd.profit >= 0
+    ytd.profit >=
+    0
       ? "positive-text"
       : "negative-text";
 
@@ -3640,35 +3772,26 @@ function renderYear() {
 
   yearMarginCard.classList.toggle(
     "loss-card",
-    ytd.profit < 0
+    ytd.profit <
+    0
   );
-
-
-  const elapsedMonths =
-    Math.max(
-      1,
-      ytd.months.length
-    );
-
-  const forecast =
-    (
-      ytd.revenue /
-      elapsedMonths
-    ) * 12;
 
   yearRevenueForecast.textContent =
     currency(
-      forecast
+      (
+        ytd.revenue /
+        Math.max(
+          1,
+          ytd.months.length
+        )
+      ) *
+      12
     );
-
-
-  /* YTD METRICS */
 
   ytdOrganicRevenue.textContent =
     currency(
       ytd.organicRevenue
     );
-
 
   ytdFixedCostCoverage.textContent =
     ratio(
@@ -3682,7 +3805,6 @@ function renderYear() {
       ? `${Math.round(ytd.fixedCostCoverage * 100)}% of YTD fixed costs covered by organic revenue`
       : "Organic revenue ÷ fixed operating costs";
 
-
   ytdLaborPercent.textContent =
     Number.isFinite(
       ytd.laborPercent
@@ -3695,7 +3817,6 @@ function renderYear() {
   ytdLaborPercentDetail.textContent =
     `${currency(ytd.labor)} YTD W2 + 1099 labor`;
 
-
   ytdExpenseRatio.textContent =
     Number.isFinite(
       ytd.expenseRatio
@@ -3704,7 +3825,6 @@ function renderYear() {
           ytd.expenseRatio
         )
       : "—";
-
 
   ytdOperatingProfitPerPlayer.textContent =
     Number.isFinite(
@@ -3716,10 +3836,10 @@ function renderYear() {
       : "—";
 
   ytdOperatingProfitPerPlayerDetail.textContent =
-    ytd.latestRosterCount > 0
+    ytd.latestRosterCount >
+    0
       ? `Based on ${number(ytd.latestRosterCount)} current rostered players`
       : "Latest roster count unavailable";
-
 
   ytdTeamRevenueMix.textContent =
     Number.isFinite(
@@ -3729,7 +3849,6 @@ function renderYear() {
           ytd.teamRevenueMix
         )
       : "—";
-
 
   ytdRevenuePerPlayer.textContent =
     Number.isFinite(
@@ -3741,13 +3860,14 @@ function renderYear() {
       : "—";
 
   ytdRevenuePerPlayerDetail.textContent =
-    ytd.latestRosterCount > 0
+    ytd.latestRosterCount >
+    0
       ? `YTD team revenue ÷ ${number(ytd.latestRosterCount)} players`
       : "Latest roster count unavailable";
 
-
   ytdTeamContribution.textContent =
-    ytd.teamRevenue > 0
+    ytd.teamRevenue >
+    0
       ? currency(
           ytd.teamContribution
         )
@@ -3755,7 +3875,6 @@ function renderYear() {
 
   ytdTeamContributionDetail.textContent =
     `${currency(ytd.teamDirectCosts)} YTD identifiable direct team costs`;
-
 
   ytdTeamContributionMargin.textContent =
     Number.isFinite(
@@ -3765,7 +3884,6 @@ function renderYear() {
           ytd.teamContributionMargin
         )
       : "—";
-
 
   ytdLessonHours.textContent =
     number(
@@ -3777,7 +3895,6 @@ function renderYear() {
         : 1
     );
 
-
   ytdRevenuePerLessonHour.textContent =
     Number.isFinite(
       ytd.revenuePerLessonHour
@@ -3788,12 +3905,7 @@ function renderYear() {
       : "—";
 
   ytdRevenuePerLessonHourDetail.textContent =
-    `${currency(
-      ytd.revenueCats[
-        "Lessons"
-      ] || 0
-    )} YTD lesson revenue`;
-
+    `${currency(ytd.revenueCats["Lessons"] || 0)} YTD lesson revenue`;
 
   ytdFacilityUtilization.textContent =
     Number.isFinite(
@@ -3805,7 +3917,8 @@ function renderYear() {
       : "—";
 
   ytdFacilityUtilizationDetail.textContent =
-    ytd.availableFacilityHours > 0
+    ytd.availableFacilityHours >
+    0
       ? `${number(
           ytd.usedFacilityHours,
           Number.isInteger(
@@ -3823,16 +3936,15 @@ function renderYear() {
         )} available hours utilized`
       : "No facility-hour data entered";
 
-
-  /* JANUARY-DECEMBER TABLE */
-
   yearTableBody.innerHTML =
     "";
 
   months.forEach(
     month => {
       const active =
-        monthToIndex(month) <=
+        monthToIndex(
+          month
+        ) <=
         selectedIndex;
 
       const totals =
@@ -3856,65 +3968,24 @@ function renderYear() {
         </td>
 
         <td class="positive-text">
-          ${
-            active
-              ? currency(totals.revenue)
-              : "—"
-          }
+          ${active ? currency(totals.revenue) : "—"}
         </td>
 
         <td class="negative-text">
-          ${
-            active
-              ? currency(totals.expenses)
-              : "—"
-          }
+          ${active ? currency(totals.expenses) : "—"}
         </td>
 
-        <td
-          class="
-            ${
-              active
-                ? (
-                    totals.profit >= 0
-                      ? "fy-profit-positive"
-                      : "fy-profit-negative"
-                  )
-                : ""
-            }
-          "
-        >
-          ${
-            active
-              ? currency(totals.profit)
-              : "—"
-          }
+        <td class="${active ? (totals.profit >= 0 ? "fy-profit-positive" : "fy-profit-negative") : ""}">
+          ${active ? currency(totals.profit) : "—"}
         </td>
 
         <td>
-          ${
-            active
-              ? percent(totals.margin)
-              : "—"
-          }
+          ${active ? percent(totals.margin) : "—"}
         </td>
 
         <td>
-          <span
-            class="
-              status-pill
-              ${
-                active
-                  ? "actual"
-                  : "future"
-              }
-            "
-          >
-            ${
-              active
-                ? "Actual"
-                : "Future"
-            }
+          <span class="status-pill ${active ? "actual" : "future"}">
+            ${active ? "Actual" : "Future"}
           </span>
         </td>
       `;
@@ -3924,9 +3995,6 @@ function renderYear() {
       );
     }
   );
-
-
-  /* YTD MIX */
 
   renderBreakdownList(
     yearRevenueBreakdown,
@@ -3953,69 +4021,67 @@ let metricHelpBound =
 
 
 function bindMetricHelp() {
-  if (metricHelpBound) {
+  if (
+    metricHelpBound
+  ) {
     return;
   }
 
   metricHelpBound =
     true;
 
-  document
-    .querySelectorAll(
-      ".metric-help"
-    )
-    .forEach(
-      button => {
-        button.addEventListener(
-          "click",
-          () => {
-            const card =
-              button.closest(
-                ".metric-card"
-              );
-
-            const label =
-              card
-                ?.querySelector(
-                  "span"
-                )
-                ?.textContent
-                ?.trim() ||
-              "Metric";
-
-            metricHelpTitle.textContent =
-              label;
-
-            metricHelpText.textContent =
-              button.dataset.help ||
-              "";
-
-            metricHelpModal.classList.remove(
-              "hidden"
+  document.querySelectorAll(
+    ".metric-help"
+  ).forEach(
+    button =>
+      button.addEventListener(
+        "click",
+        () => {
+          const card =
+            button.closest(
+              ".metric-card"
             );
-          }
-        );
-      }
-    );
 
-  document
-    .querySelectorAll(
-      "[data-close-metric-help]"
-    )
-    .forEach(
-      element => {
-        element.addEventListener(
-          "click",
-          closeMetricHelp
-        );
-      }
-    );
+          const label =
+            card
+              ?.querySelector(
+                "span"
+              )
+              ?.textContent
+              ?.trim()
+            ||
+            "Metric";
+
+          metricHelpTitle.textContent =
+            label;
+
+          metricHelpText.textContent =
+            button.dataset.help ||
+            "";
+
+          metricHelpModal.classList.remove(
+            "hidden"
+          );
+        }
+      )
+  );
+
+  document.querySelectorAll(
+    "[data-close-metric-help]"
+  ).forEach(
+    element =>
+      element.addEventListener(
+        "click",
+        closeMetricHelp
+      )
+  );
 
   document.addEventListener(
     "keydown",
     event => {
       if (
-        event.key === "Escape"
+        event.key ===
+        "Escape"
       ) {
         closeMetricHelp();
       }
