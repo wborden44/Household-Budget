@@ -78,7 +78,7 @@ const FIRST_DATE =
 const DEFAULT_FIXED_COSTS = {
   rent: 8938.90,
   w2: 19166.66,
-  utilities: 2000
+  utilities: 1800
 };
 
 
