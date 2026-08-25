@@ -1,21 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Ninth Inning Kennesaw</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 </head>
 
 <body>
 
-  <!-- =====================================================
+  <!-- =================================================
        LOGIN
-  ====================================================== -->
+  ================================================== -->
 
-  <section id="loginScreen" class="login-screen">
+  <section
+    id="loginScreen"
+    class="login-screen"
+  >
 
     <div class="login-card">
 
@@ -49,7 +60,6 @@
           required
         >
 
-
         <label for="password">
           Password
         </label>
@@ -62,14 +72,12 @@
           required
         >
 
-
         <button
           type="submit"
           class="primary-button full-width"
         >
           Sign In
         </button>
-
 
         <p
           id="loginError"
@@ -83,9 +91,9 @@
   </section>
 
 
-  <!-- =====================================================
+  <!-- =================================================
        APP
-  ====================================================== -->
+  ================================================== -->
 
   <div
     id="app"
@@ -117,31 +125,27 @@
 
       <div class="topbar-actions">
 
-        <div class="month-nav">
+        <div class="month-navigation">
 
           <button
             id="previousMonthButton"
-            class="month-arrow"
+            class="month-nav-button"
             type="button"
-            aria-label="Previous month"
           >
-            ‹
+            ←
           </button>
-
 
           <select
             id="monthSelector"
             class="month-selector"
           ></select>
 
-
           <button
             id="nextMonthButton"
-            class="month-arrow"
+            class="month-nav-button"
             type="button"
-            aria-label="Next month"
           >
-            ›
+            →
           </button>
 
         </div>
@@ -150,6 +154,7 @@
         <button
           id="logoutButton"
           class="secondary-button"
+          type="button"
         >
           Log Out
         </button>
@@ -162,7 +167,7 @@
     <main class="app-shell">
 
       <!-- =================================================
-           NAV
+           MAIN NAVIGATION
       ================================================== -->
 
       <nav class="main-nav">
@@ -170,6 +175,7 @@
         <button
           class="nav-button active"
           data-page="dashboard"
+          type="button"
         >
           Dashboard
         </button>
@@ -177,6 +183,7 @@
         <button
           class="nav-button"
           data-page="transactions"
+          type="button"
         >
           Transactions
         </button>
@@ -184,6 +191,7 @@
         <button
           class="nav-button"
           data-page="reports"
+          type="button"
         >
           Year
         </button>
@@ -220,6 +228,7 @@
             <button
               id="dashboardAddRevenueButton"
               class="revenue-button"
+              type="button"
             >
               + Add Revenue
             </button>
@@ -227,6 +236,7 @@
             <button
               id="dashboardAddExpenseButton"
               class="expense-button"
+              type="button"
             >
               + Add Expense
             </button>
@@ -236,7 +246,9 @@
         </div>
 
 
-        <!-- MONTHLY FINANCIAL SUMMARY -->
+        <!-- =================================================
+             MONTHLY SUMMARY
+        ================================================== -->
 
         <div class="summary-grid">
 
@@ -253,7 +265,10 @@
               $0.00
             </h3>
 
-            <span class="summary-detail">
+            <span
+              id="monthlyRevenueTrend"
+              class="summary-detail"
+            >
               Total revenue this month
             </span>
 
@@ -277,7 +292,7 @@
               id="monthlyExpenseDetail"
               class="summary-detail"
             >
-              Includes recurring fixed expenses
+              Fixed + variable expenses
             </span>
 
           </div>
@@ -293,8 +308,11 @@
               $0.00
             </h3>
 
-            <span class="summary-detail">
-              Revenue less all tracked expenses
+            <span
+              id="monthlyProfitTrend"
+              class="summary-detail"
+            >
+              Revenue less expenses
             </span>
 
           </div>
@@ -310,16 +328,175 @@
             </p>
 
             <h3 id="monthlyMargin">
-              0.0%
+              —
             </h3>
 
-            <span class="dark-detail">
+            <span
+              id="monthlyMarginTrend"
+              class="dark-detail"
+            >
               Operating profit ÷ revenue
             </span>
 
           </div>
 
         </div>
+
+
+        <!-- =================================================
+             FIXED OPERATING BASE
+        ================================================== -->
+
+        <section class="panel fixed-cost-panel">
+
+          <div class="panel-header">
+
+            <div>
+
+              <p class="eyebrow">
+                MONTHLY STARTING COST
+              </p>
+
+              <h3>
+                Fixed Operating Base
+              </h3>
+
+              <p class="panel-copy">
+                These costs are automatically included before variable expenses are entered.
+              </p>
+
+            </div>
+
+
+            <div class="starting-cost-display">
+
+              <span>
+                Month Starts At
+              </span>
+
+              <strong id="startingMonthlyCost">
+                -$20,321.90
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <form id="fixedCostsForm">
+
+            <div class="fixed-cost-input-grid">
+
+              <div class="fixed-cost-input-card">
+
+                <label for="fixedRent">
+                  Rent
+                </label>
+
+                <div class="money-input">
+
+                  <span>
+                    $
+                  </span>
+
+                  <input
+                    id="fixedRent"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                  >
+
+                </div>
+
+              </div>
+
+
+              <div class="fixed-cost-input-card">
+
+                <label for="fixedW2">
+                  W2 Staff
+                </label>
+
+                <div class="money-input">
+
+                  <span>
+                    $
+                  </span>
+
+                  <input
+                    id="fixedW2"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                  >
+
+                </div>
+
+              </div>
+
+
+              <div class="fixed-cost-input-card">
+
+                <label for="fixedUtilities">
+                  Utilities
+                </label>
+
+                <div class="money-input">
+
+                  <span>
+                    $
+                  </span>
+
+                  <input
+                    id="fixedUtilities"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                  >
+
+                </div>
+
+              </div>
+
+
+              <div class="fixed-cost-total-card">
+
+                <span>
+                  Total Fixed Cost
+                </span>
+
+                <strong id="fixedCostTotal">
+                  $20,321.90
+                </strong>
+
+                <small>
+                  Automatically included in expenses
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <div class="form-footer-inline">
+
+              <span
+                id="fixedCostsMessage"
+                class="save-message"
+              ></span>
+
+              <button
+                type="submit"
+                class="primary-button"
+              >
+                Save Fixed Costs
+              </button>
+
+            </div>
+
+          </form>
+
+        </section>
 
 
         <!-- =================================================
@@ -342,12 +519,11 @@
 
             </div>
 
-
             <span
               id="metricsStatus"
               class="panel-badge"
             >
-              Monthly inputs not saved
+              Inputs not saved
             </span>
 
           </div>
@@ -355,11 +531,16 @@
 
           <div class="metric-grid">
 
+
+            <!-- ORGANIC REVENUE -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Revenue generated outside of Team Revenue. Includes lessons, tryouts, point of sale, rentals, memberships, camps, clinics and programs."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="organicRevenue"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -369,21 +550,28 @@
               </span>
 
               <strong id="organicRevenue">
-                $0.00
+                —
               </strong>
 
-              <small id="organicRevenueDetail">
-                Excludes team revenue
+              <small
+                id="organicRevenueDetail"
+                class="metric-detail"
+              >
+                Revenue excluding Team Revenue
               </small>
 
             </div>
 
 
+            <!-- FIXED COST COVERAGE -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Organic Revenue divided by fixed monthly operating costs: W2 Staff, Rent and Utilities. 1.00x means organic revenue fully covers those fixed costs."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="fixedCostCoverage"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -396,18 +584,25 @@
                 —
               </strong>
 
-              <small id="fixedCostCoverageDetail">
-                Organic revenue ÷ fixed operating costs
+              <small
+                id="fixedCostCoverageDetail"
+                class="metric-detail"
+              >
+                Organic revenue ÷ fixed costs
               </small>
 
             </div>
 
 
+            <!-- LABOR -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="W2 Staff expense plus 1099 Staff expense divided by total revenue."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="laborPercent"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -420,18 +615,25 @@
                 —
               </strong>
 
-              <small id="laborPercentDetail">
+              <small
+                id="laborPercentDetail"
+                class="metric-detail"
+              >
                 W2 + 1099 labor ÷ revenue
               </small>
 
             </div>
 
 
+            <!-- EXPENSE RATIO -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Total operating expenses divided by total revenue."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="expenseRatio"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -444,18 +646,25 @@
                 —
               </strong>
 
-              <small id="expenseRatioDetail">
-                Total expenses ÷ revenue
+              <small
+                id="expenseRatioDetail"
+                class="metric-detail"
+              >
+                Expenses ÷ revenue
               </small>
 
             </div>
 
 
+            <!-- OPERATING PROFIT / PLAYER -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Monthly operating profit divided by the current rostered-player count."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="profitPerPlayer"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -464,22 +673,29 @@
                 Operating Profit / Player
               </span>
 
-              <strong id="operatingProfitPerPlayer">
+              <strong id="profitPerPlayer">
                 —
               </strong>
 
-              <small id="operatingProfitPerPlayerDetail">
+              <small
+                id="profitPerPlayerDetail"
+                class="metric-detail"
+              >
                 Operating profit ÷ rostered players
               </small>
 
             </div>
 
 
+            <!-- TEAM REVENUE MIX -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Team Revenue divided by total company revenue."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="teamRevenueMix"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -492,18 +708,25 @@
                 —
               </strong>
 
-              <small id="teamRevenueMixDetail">
+              <small
+                id="teamRevenueMixDetail"
+                class="metric-detail"
+              >
                 Team revenue ÷ total revenue
               </small>
 
             </div>
 
 
+            <!-- MONTHLY REVENUE / PLAYER -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Team Revenue divided by the current rostered-player count."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="revenuePerPlayer"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -516,66 +739,56 @@
                 —
               </strong>
 
-              <small id="revenuePerPlayerDetail">
+              <small
+                id="revenuePerPlayerDetail"
+                class="metric-detail"
+              >
                 Team revenue ÷ rostered players
               </small>
 
             </div>
 
 
+            <!-- TEAM MARGIN -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Team Revenue minus expenses specifically identified as direct team costs."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="teamMargin"
+                data-help-scope="monthly"
               >
                 ?
               </button>
 
               <span>
-                Identifiable Team Contribution
-              </span>
-
-              <strong id="teamContribution">
-                —
-              </strong>
-
-              <small id="teamContributionDetail">
-                Team revenue less identifiable direct team costs
-              </small>
-
-            </div>
-
-
-            <div class="metric-card">
-
-              <button
-                class="metric-help"
-                data-help="Identifiable Team Contribution divided by Team Revenue."
-              >
-                ?
-              </button>
-
-              <span>
-                Identifiable Team Margin
+                Team Margin
               </span>
 
               <strong id="teamContributionMargin">
                 —
               </strong>
 
-              <small id="teamContributionMarginDetail">
-                Contribution ÷ team revenue
+              <small
+                id="teamMarginDetail"
+                class="metric-detail"
+              >
+                Known team contribution ÷ team revenue
               </small>
 
             </div>
 
 
+            <!-- ROSTER FILL -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Rostered players divided by total available roster spots."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="rosterFillRate"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -588,18 +801,25 @@
                 —
               </strong>
 
-              <small id="rosterFillRateDetail">
-                Rostered players ÷ available roster spots
+              <small
+                id="rosterFillRateDetail"
+                class="metric-detail"
+              >
+                Rostered players ÷ target spots
               </small>
 
             </div>
 
 
+            <!-- LESSON HOURS -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Total lesson hours completed during the selected month."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="lessonHours"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -612,18 +832,25 @@
                 —
               </strong>
 
-              <small id="lessonHoursDetail">
-                Paid lesson hours completed
+              <small
+                id="lessonHoursMetricDetail"
+                class="metric-detail"
+              >
+                Total lesson hours
               </small>
 
             </div>
 
 
+            <!-- REVENUE / LESSON HOUR -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Lesson revenue divided by lesson hours completed."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="revenuePerLesson"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -632,22 +859,29 @@
                 Revenue / Lesson Hour
               </span>
 
-              <strong id="revenuePerLessonHour">
+              <strong id="revenuePerLesson">
                 —
               </strong>
 
-              <small id="revenuePerLessonHourDetail">
+              <small
+                id="revenuePerLessonDetail"
+                class="metric-detail"
+              >
                 Lesson revenue ÷ lesson hours
               </small>
 
             </div>
 
 
+            <!-- FACILITY UTILIZATION -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Used facility hours divided by available facility hours. Each cage or resource is counted separately."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="facilityUtilization"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -660,18 +894,25 @@
                 —
               </strong>
 
-              <small id="facilityUtilizationDetail">
-                Used facility hours ÷ available hours
+              <small
+                id="facilityUtilizationDetail"
+                class="metric-detail"
+              >
+                Used cage-hours ÷ available cage-hours
               </small>
 
             </div>
 
 
+            <!-- MEMBERSHIP CHANGE -->
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Current active memberships minus the previous month's active memberships."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="membershipChange"
+                data-help-scope="monthly"
               >
                 ?
               </button>
@@ -684,8 +925,11 @@
                 —
               </strong>
 
-              <small id="membershipChangeDetail">
-                Change in active memberships
+              <small
+                id="membershipChangeDetail"
+                class="metric-detail"
+              >
+                Active memberships vs last month
               </small>
 
             </div>
@@ -696,7 +940,7 @@
 
 
         <!-- =================================================
-             MONTHLY BUSINESS INPUTS
+             BUSINESS INPUTS
         ================================================== -->
 
         <section class="panel monthly-input-panel">
@@ -714,7 +958,7 @@
               </h3>
 
               <p class="panel-copy">
-                Enter only operating counts the transaction ledger cannot calculate.
+                Enter operating counts used to calculate efficiency and profitability metrics.
               </p>
 
             </div>
@@ -724,7 +968,28 @@
 
           <form id="monthlyMetricsForm">
 
-            <div class="metrics-input-grid six-up">
+            <div class="input-section-title">
+              Teams &amp; Player Development
+            </div>
+
+
+            <div class="metrics-input-grid five-inputs">
+
+              <div>
+
+                <label for="activeTeams">
+                  Active Teams
+                </label>
+
+                <input
+                  id="activeTeams"
+                  type="number"
+                  min="0"
+                  step="1"
+                >
+
+              </div>
+
 
               <div>
 
@@ -737,7 +1002,6 @@
                   type="number"
                   min="0"
                   step="1"
-                  placeholder="0"
                 >
 
               </div>
@@ -745,20 +1009,60 @@
 
               <div>
 
-                <label for="rosterCapacity">
-                  Total Roster Spots
+                <label for="targetRosterSpots">
+                  Target Roster Spots
                 </label>
 
                 <input
-                  id="rosterCapacity"
+                  id="targetRosterSpots"
                   type="number"
                   min="0"
                   step="1"
-                  placeholder="0"
                 >
 
               </div>
 
+
+              <div>
+
+                <label for="lessonHours">
+                  Lesson Hours Completed
+                </label>
+
+                <input
+                  id="lessonHours"
+                  type="number"
+                  min="0"
+                  step="0.5"
+                >
+
+              </div>
+
+
+              <div>
+
+                <label for="programParticipants">
+                  Camp / Program Participants
+                </label>
+
+                <input
+                  id="programParticipants"
+                  type="number"
+                  min="0"
+                  step="1"
+                >
+
+              </div>
+
+            </div>
+
+
+            <div class="input-section-title">
+              Membership &amp; Facility
+            </div>
+
+
+            <div class="metrics-input-grid three-up">
 
               <div>
 
@@ -771,24 +1075,6 @@
                   type="number"
                   min="0"
                   step="1"
-                  placeholder="0"
-                >
-
-              </div>
-
-
-              <div>
-
-                <label for="lessonsCompleted">
-                  Lesson Hours
-                </label>
-
-                <input
-                  id="lessonsCompleted"
-                  type="number"
-                  min="0"
-                  step="0.25"
-                  placeholder="0"
                 >
 
               </div>
@@ -804,8 +1090,7 @@
                   id="availableFacilityHours"
                   type="number"
                   min="0"
-                  step="0.25"
-                  placeholder="0"
+                  step="0.5"
                 >
 
               </div>
@@ -821,8 +1106,7 @@
                   id="usedFacilityHours"
                   type="number"
                   min="0"
-                  step="0.25"
-                  placeholder="0"
+                  step="0.5"
                 >
 
               </div>
@@ -837,9 +1121,7 @@
                 class="save-message"
               ></span>
 
-
               <button
-                id="saveMonthlyMetricsButton"
                 type="submit"
                 class="primary-button"
               >
@@ -854,7 +1136,7 @@
 
 
         <!-- =================================================
-             CHARTS
+             DASHBOARD CHARTS
         ================================================== -->
 
         <div class="chart-grid">
@@ -875,7 +1157,6 @@
 
               </div>
 
-
               <span
                 id="chartYearLabel"
                 class="panel-badge"
@@ -884,7 +1165,6 @@
               </span>
 
             </div>
-
 
             <div class="chart-container performance-chart-container">
 
@@ -906,20 +1186,18 @@
                 </p>
 
                 <h3 id="revenueMixTitle">
-                  August Revenue
+                  Revenue
                 </h3>
 
               </div>
 
             </div>
 
-
             <div class="chart-container doughnut-chart-container">
 
               <canvas id="revenueMixChart"></canvas>
 
             </div>
-
 
             <div
               id="revenueMixEmpty"
@@ -933,7 +1211,9 @@
         </div>
 
 
-        <!-- BREAKDOWNS -->
+        <!-- =================================================
+             MONTHLY BREAKDOWNS
+        ================================================== -->
 
         <div class="dashboard-grid">
 
@@ -954,7 +1234,6 @@
               </div>
 
             </div>
-
 
             <div
               id="revenueBreakdown"
@@ -982,7 +1261,6 @@
 
             </div>
 
-
             <div
               id="expenseBreakdown"
               class="breakdown-list"
@@ -992,8 +1270,6 @@
 
         </div>
 
-
-        <!-- RECENT TRANSACTIONS -->
 
         <section class="panel">
 
@@ -1013,7 +1289,6 @@
 
           </div>
 
-
           <div
             id="recentTransactions"
             class="recent-transactions"
@@ -1025,7 +1300,7 @@
 
 
       <!-- =================================================
-           TRANSACTIONS
+           TRANSACTIONS PAGE
       ================================================== -->
 
       <section
@@ -1053,6 +1328,7 @@
             <button
               id="transactionsAddRevenueButton"
               class="revenue-button"
+              type="button"
             >
               + Add Revenue
             </button>
@@ -1060,6 +1336,7 @@
             <button
               id="transactionsAddExpenseButton"
               class="expense-button"
+              type="button"
             >
               + Add Expense
             </button>
@@ -1108,39 +1385,19 @@
               <thead>
 
                 <tr>
-
-                  <th>
-                    Date
-                  </th>
-
-                  <th>
-                    Description
-                  </th>
-
-                  <th>
-                    Type
-                  </th>
-
-                  <th>
-                    Category
-                  </th>
-
-                  <th>
-                    Business Area
-                  </th>
-
-                  <th>
-                    Amount
-                  </th>
-
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Type</th>
+                  <th>Category</th>
+                  <th>Business Area</th>
+                  <th>Amount</th>
                   <th></th>
-
                 </tr>
 
               </thead>
 
-
-              <tbody id="transactionTableBody"></tbody>
+              <tbody id="transactionTableBody">
+              </tbody>
 
             </table>
 
@@ -1151,7 +1408,7 @@
             id="transactionEmptyState"
             class="empty-state"
           >
-            No manual transactions for this month.
+            No transactions for this month.
           </div>
 
         </section>
@@ -1160,7 +1417,7 @@
 
 
       <!-- =================================================
-           YEAR
+           YEAR PAGE
       ================================================== -->
 
       <section
@@ -1185,7 +1442,7 @@
         </div>
 
 
-        <!-- YTD FINANCIAL SUMMARY -->
+        <!-- YTD SUMMARY -->
 
         <div class="fy-summary-grid five-up">
 
@@ -1244,16 +1501,16 @@
             </p>
 
             <h3 id="yearMargin">
-              0.0%
+              —
             </h3>
 
           </div>
 
 
-          <div class="summary-card forecast-card">
+          <div class="summary-card">
 
             <p>
-              Run-Rate Revenue Forecast
+              Revenue Forecast
             </p>
 
             <h3 id="yearRevenueForecast">
@@ -1261,7 +1518,7 @@
             </h3>
 
             <span class="summary-detail">
-              YTD monthly average × 12
+              Current pace annualized
             </span>
 
           </div>
@@ -1270,7 +1527,7 @@
 
 
         <!-- =================================================
-             YTD OPERATING METRICS
+             YTD CFO SCORECARD
         ================================================== -->
 
         <section class="panel metrics-panel">
@@ -1280,32 +1537,35 @@
             <div>
 
               <p class="eyebrow">
-                CFO SCORECARD
+                YTD CFO SCORECARD
               </p>
 
               <h3>
-                YTD Operating Metrics
+                Year-to-Date Business Health
               </h3>
 
-              <p
-                id="ytdMetricsPeriod"
-                class="panel-copy"
-              >
-                January through selected month
-              </p>
-
             </div>
+
+            <span
+              id="yearMetricsThrough"
+              class="panel-badge"
+            >
+              Through August
+            </span>
 
           </div>
 
 
           <div class="metric-grid">
 
+
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Total Organic Revenue accumulated from January through the selected month."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="organicRevenue"
+                data-help-scope="ytd"
               >
                 ?
               </button>
@@ -1314,12 +1574,12 @@
                 Organic Revenue
               </span>
 
-              <strong id="ytdOrganicRevenue">
+              <strong id="yearOrganicRevenue">
                 —
               </strong>
 
               <small>
-                YTD revenue excluding team revenue
+                YTD revenue excluding Team Revenue
               </small>
 
             </div>
@@ -1328,8 +1588,10 @@
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="YTD Organic Revenue divided by YTD fixed operating costs."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="fixedCostCoverage"
+                data-help-scope="ytd"
               >
                 ?
               </button>
@@ -1338,12 +1600,12 @@
                 Fixed Cost Coverage
               </span>
 
-              <strong id="ytdFixedCostCoverage">
+              <strong id="yearFixedCostCoverage">
                 —
               </strong>
 
-              <small id="ytdFixedCostCoverageDetail">
-                Organic revenue ÷ fixed operating costs
+              <small id="yearFixedCostCoverageDetail">
+                Organic revenue ÷ YTD fixed costs
               </small>
 
             </div>
@@ -1352,8 +1614,10 @@
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="YTD W2 and 1099 Staff costs divided by YTD revenue."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="laborPercent"
+                data-help-scope="ytd"
               >
                 ?
               </button>
@@ -1362,12 +1626,12 @@
                 Labor % of Revenue
               </span>
 
-              <strong id="ytdLaborPercent">
+              <strong id="yearLaborPercent">
                 —
               </strong>
 
-              <small id="ytdLaborPercentDetail">
-                W2 + 1099 labor ÷ revenue
+              <small id="yearLaborPercentDetail">
+                YTD labor ÷ YTD revenue
               </small>
 
             </div>
@@ -1376,8 +1640,10 @@
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="YTD operating expenses divided by YTD revenue."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="expenseRatio"
+                data-help-scope="ytd"
               >
                 ?
               </button>
@@ -1386,7 +1652,7 @@
                 Expense Ratio
               </span>
 
-              <strong id="ytdExpenseRatio">
+              <strong id="yearExpenseRatio">
                 —
               </strong>
 
@@ -1400,32 +1666,10 @@
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="YTD operating profit divided by the latest rostered-player count available in the selected year."
-              >
-                ?
-              </button>
-
-              <span>
-                Operating Profit / Player
-              </span>
-
-              <strong id="ytdOperatingProfitPerPlayer">
-                —
-              </strong>
-
-              <small id="ytdOperatingProfitPerPlayerDetail">
-                YTD profit ÷ latest roster count
-              </small>
-
-            </div>
-
-
-            <div class="metric-card">
-
-              <button
-                class="metric-help"
-                data-help="YTD Team Revenue divided by YTD total revenue."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="teamRevenueMix"
+                data-help-scope="ytd"
               >
                 ?
               </button>
@@ -1434,12 +1678,12 @@
                 Team Revenue Mix
               </span>
 
-              <strong id="ytdTeamRevenueMix">
+              <strong id="yearTeamRevenueMix">
                 —
               </strong>
 
               <small>
-                YTD team revenue ÷ YTD revenue
+                YTD team revenue ÷ total YTD revenue
               </small>
 
             </div>
@@ -1448,70 +1692,24 @@
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="YTD Team Revenue divided by the latest rostered-player count."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="teamMargin"
+                data-help-scope="ytd"
               >
                 ?
               </button>
 
               <span>
-                Revenue / Player
+                Team Margin
               </span>
 
-              <strong id="ytdRevenuePerPlayer">
-                —
-              </strong>
-
-              <small id="ytdRevenuePerPlayerDetail">
-                YTD team revenue ÷ latest roster count
-              </small>
-
-            </div>
-
-
-            <div class="metric-card">
-
-              <button
-                class="metric-help"
-                data-help="YTD Team Revenue minus YTD identifiable direct team costs."
-              >
-                ?
-              </button>
-
-              <span>
-                Identifiable Team Contribution
-              </span>
-
-              <strong id="ytdTeamContribution">
-                —
-              </strong>
-
-              <small id="ytdTeamContributionDetail">
-                YTD identifiable direct team costs
-              </small>
-
-            </div>
-
-
-            <div class="metric-card">
-
-              <button
-                class="metric-help"
-                data-help="YTD identifiable Team Contribution divided by YTD Team Revenue."
-              >
-                ?
-              </button>
-
-              <span>
-                Identifiable Team Margin
-              </span>
-
-              <strong id="ytdTeamContributionMargin">
+              <strong id="yearTeamMargin">
                 —
               </strong>
 
               <small>
-                Contribution ÷ team revenue
+                Known team contribution ÷ team revenue
               </small>
 
             </div>
@@ -1520,8 +1718,36 @@
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Total lesson hours accumulated from January through the selected month."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="rosterFillRate"
+                data-help-scope="ytd"
+              >
+                ?
+              </button>
+
+              <span>
+                Roster Fill Rate
+              </span>
+
+              <strong id="yearRosterFillRate">
+                —
+              </strong>
+
+              <small id="yearRosterFillRateDetail">
+                Current roster capacity
+              </small>
+
+            </div>
+
+
+            <div class="metric-card">
+
+              <button
+                type="button"
+                class="metric-help-button"
+                data-metric-help="lessonHours"
+                data-help-scope="ytd"
               >
                 ?
               </button>
@@ -1530,12 +1756,12 @@
                 Lesson Hours
               </span>
 
-              <strong id="ytdLessonHours">
+              <strong id="yearLessonHours">
                 —
               </strong>
 
               <small>
-                Total lesson hours YTD
+                Total YTD lesson hours
               </small>
 
             </div>
@@ -1544,8 +1770,10 @@
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="YTD Lesson Revenue divided by YTD Lesson Hours."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="revenuePerLesson"
+                data-help-scope="ytd"
               >
                 ?
               </button>
@@ -1554,11 +1782,11 @@
                 Revenue / Lesson Hour
               </span>
 
-              <strong id="ytdRevenuePerLessonHour">
+              <strong id="yearRevenuePerLesson">
                 —
               </strong>
 
-              <small id="ytdRevenuePerLessonHourDetail">
+              <small>
                 YTD lesson revenue ÷ lesson hours
               </small>
 
@@ -1568,8 +1796,10 @@
             <div class="metric-card">
 
               <button
-                class="metric-help"
-                data-help="Total YTD utilized facility hours divided by total YTD available facility hours."
+                type="button"
+                class="metric-help-button"
+                data-metric-help="facilityUtilization"
+                data-help-scope="ytd"
               >
                 ?
               </button>
@@ -1578,12 +1808,38 @@
                 Facility Utilization
               </span>
 
-              <strong id="ytdFacilityUtilization">
+              <strong id="yearFacilityUtilization">
                 —
               </strong>
 
-              <small id="ytdFacilityUtilizationDetail">
-                Used hours ÷ available hours
+              <small>
+                YTD used cage-hours ÷ available hours
+              </small>
+
+            </div>
+
+
+            <div class="metric-card">
+
+              <button
+                type="button"
+                class="metric-help-button"
+                data-metric-help="membershipChange"
+                data-help-scope="ytd"
+              >
+                ?
+              </button>
+
+              <span>
+                Membership Change
+              </span>
+
+              <strong id="yearMembershipChange">
+                —
+              </strong>
+
+              <small id="yearMembershipChangeDetail">
+                Net YTD membership change
               </small>
 
             </div>
@@ -1593,7 +1849,9 @@
         </section>
 
 
-        <!-- JANUARY THROUGH DECEMBER -->
+        <!-- =================================================
+             MONTHLY YEAR TABLE
+        ================================================== -->
 
         <section class="panel">
 
@@ -1621,37 +1879,17 @@
               <thead>
 
                 <tr>
-
-                  <th>
-                    Month
-                  </th>
-
-                  <th>
-                    Revenue
-                  </th>
-
-                  <th>
-                    Expenses
-                  </th>
-
-                  <th>
-                    Profit
-                  </th>
-
-                  <th>
-                    Margin
-                  </th>
-
-                  <th>
-                    Status
-                  </th>
-
+                  <th>Month</th>
+                  <th>Revenue</th>
+                  <th>Expenses</th>
+                  <th>Profit</th>
+                  <th>Margin</th>
                 </tr>
 
               </thead>
 
-
-              <tbody id="yearTableBody"></tbody>
+              <tbody id="yearTableBody">
+              </tbody>
 
             </table>
 
@@ -1660,7 +1898,9 @@
         </section>
 
 
-        <div class="dashboard-grid reports-breakdown">
+        <!-- YTD BREAKDOWN -->
+
+        <div class="dashboard-grid">
 
           <section class="panel">
 
@@ -1679,7 +1919,6 @@
               </div>
 
             </div>
-
 
             <div
               id="yearRevenueBreakdown"
@@ -1707,7 +1946,6 @@
 
             </div>
 
-
             <div
               id="yearExpenseBreakdown"
               class="breakdown-list"
@@ -1724,9 +1962,97 @@
   </div>
 
 
-  <!-- =====================================================
+  <!-- =================================================
+       METRIC HELP MODAL
+  ================================================== -->
+
+  <div
+    id="metricHelpModal"
+    class="metric-help-modal hidden"
+  >
+
+    <div
+      class="metric-help-backdrop"
+      data-close-metric-help
+    ></div>
+
+
+    <div
+      class="metric-help-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="metricHelpTitle"
+    >
+
+      <div class="metric-help-header">
+
+        <div>
+
+          <p class="eyebrow">
+            METRIC DEFINITION
+          </p>
+
+          <h3 id="metricHelpTitle">
+            Metric
+          </h3>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="metric-help-close"
+          data-close-metric-help
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <p
+        id="metricHelpDescription"
+        class="metric-help-description"
+      ></p>
+
+
+      <div class="metric-help-section">
+
+        <span class="metric-help-label">
+          FORMULA
+        </span>
+
+        <strong id="metricHelpFormula">
+          —
+        </strong>
+
+      </div>
+
+
+      <div class="metric-help-section important-section">
+
+        <span class="metric-help-label">
+          WHY IT MATTERS
+        </span>
+
+        <p id="metricHelpImportance"></p>
+
+      </div>
+
+
+      <div
+        id="metricHelpInterpretation"
+        class="metric-help-interpretation"
+      ></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =================================================
        TRANSACTION MODAL
-  ====================================================== -->
+  ================================================== -->
 
   <div
     id="transactionModal"
@@ -1815,7 +2141,6 @@
               type="number"
               min="0"
               step="0.01"
-              placeholder="0.00"
               required
             >
 
@@ -1831,6 +2156,7 @@
             <input
               id="transactionDate"
               type="date"
+              min="2026-01-01"
               required
             >
 
@@ -1846,7 +2172,6 @@
         <input
           id="transactionDescription"
           type="text"
-          placeholder="Perfect Game, private lessons, field rental..."
           required
         >
 
@@ -1930,15 +2255,12 @@
 
           <label for="transactionTeamProgram">
             Specific Team / Program
-            <span class="optional">
-              Optional
-            </span>
           </label>
 
           <input
             id="transactionTeamProgram"
             type="text"
-            placeholder="14U Hall, Summer Camp, ADP..."
+            placeholder="14U, ADP, Summer Camp..."
           >
 
         </div>
@@ -1951,7 +2273,6 @@
         <textarea
           id="transactionNotes"
           rows="3"
-          placeholder="Optional"
         ></textarea>
 
 
@@ -1987,53 +2308,9 @@
   </div>
 
 
-  <!-- =====================================================
-       HELP MODAL
-  ====================================================== -->
-
-  <div
-    id="metricHelpModal"
-    class="modal hidden"
-  >
-
-    <div
-      class="modal-backdrop"
-      data-close-metric-help
-    ></div>
-
-
-    <div class="metric-help-modal-card">
-
-      <button
-        class="icon-button metric-help-close"
-        type="button"
-        data-close-metric-help
-      >
-        ×
-      </button>
-
-
-      <p class="eyebrow">
-        METRIC DEFINITION
-      </p>
-
-
-      <h3 id="metricHelpTitle">
-        Metric
-      </h3>
-
-
-      <p
-        id="metricHelpText"
-        class="metric-help-text"
-      ></p>
-
-    </div>
-
-  </div>
-
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"
+  ></script>
 
   <script
     type="module"
@@ -2041,4 +2318,5 @@
   ></script>
 
 </body>
+
 </html>
